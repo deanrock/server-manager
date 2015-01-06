@@ -155,15 +155,9 @@ class App(models.Model):
             ):
                 logs.add(line)
 
-                if 'error' in line:
-                    failed = True
-
             utils.delete_temp_folder(temp_folder)
         except Exception as e:
             logs.add("error while building image ... %s" % str(e))
-            return logs
-
-        if failed:
             return logs
 
         #continue, create container

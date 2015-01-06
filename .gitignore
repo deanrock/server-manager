@@ -69,3 +69,6 @@ node_modules/
 Thumbs.db
 *.sqlite3
 
+tile.hosts
+brick.hosts
+

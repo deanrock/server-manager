@@ -22,3 +22,4 @@
     - build-essential
     - gcc
     - python-dev
+    - python-virtualenv
