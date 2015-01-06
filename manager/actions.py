@@ -45,13 +45,19 @@ def sync_accounts():
 def rebuild_base_image():
     logs = Logs()
 
-    folder = os.path.abspath(os.path.join(settings.BASE_DIR, '../', 'images/', 'debian7basehosting'))
+    images = [
+        "debian7basehosting",
+        "php56-base-hosting",
+    ]
 
-    #build image
-    for line in docker_api.cli.build(
-       path=folder, rm=True, tag='manager/debian7basehosting'
-    ):
-        logs.add(line)
+    for image in images:
+        folder = os.path.abspath(os.path.join(settings.BASE_DIR, '../', 'images/', image))
+
+        #build image
+        for line in docker_api.cli.build(
+           path=folder, rm=True, tag='manager/%s' % image
+        ):
+            logs.add(line)
 
     return logs
 
@@ -103,10 +109,20 @@ def update_nginx_config():
         for domain in domains:
             logs.add("domain %s, account %s" % (domain.name, domain.account.name))
 
-            nginx = domain.nginx_config
+            nginx = ''
 
-            for port in port_mapping:
-                nginx = nginx.replace('#%s#' % port, port_mapping[port])
+            if domain.redirect_url:
+                #redirect to url
+
+                nginx = render_to_string('system/nginx_redirect.conf', {
+                    'url': domain.redirect_url
+                })
+            else:
+                #parse nginx_config
+                nginx = domain.nginx_config
+
+                for port in port_mapping:
+                    nginx = nginx.replace('#%s#' % port, port_mapping[port])
 
             logs.add(nginx)
 

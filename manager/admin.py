@@ -3,15 +3,22 @@ from django.contrib import admin
 from manager.models import Account, App, Database, Domain, Image, ImagePort, ImageVariable
 
 
-class AccountAdmin(admin.ModelAdmin):
+class MyModelAdmin(admin.ModelAdmin):
+    class Media:
+        js = (
+            'js/admin.js',
+        )
+
+class AccountAdmin(MyModelAdmin):
     change_list_template = 'admin/accounts.html'
 
 
 admin.site.register(Account, AccountAdmin)
 
-class AppAdmin(admin.ModelAdmin):
+class AppAdmin(MyModelAdmin):
     change_list_template = 'admin/apps.html'
     list_display = ['name', 'account', 'image', 'container_id', 'memory', 'status', 'start', 'stop', 'redeploy']
+    list_filter = ('account', 'memory', 'image', )
 
     def status(self, form):
         return ''
@@ -34,12 +41,13 @@ class AppAdmin(admin.ModelAdmin):
 admin.site.register(App, AppAdmin)
 
 
-class DatabaseAdmin(admin.ModelAdmin):
+class DatabaseAdmin(MyModelAdmin):
     change_list_template = 'admin/databases.html'
+    list_display = ['name', 'account']
 
 admin.site.register(Database, DatabaseAdmin)
 
-class DomainAdmin(admin.ModelAdmin):
+class DomainAdmin(MyModelAdmin):
     list_display = ['name', 'account', 'redirect_url', 'apache_enabled']
     change_list_template = 'admin/domains.html'
 
@@ -52,7 +60,7 @@ class ImageVariableInline(admin.StackedInline):
     model = ImageVariable
 
 
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(MyModelAdmin):
     inlines = (ImagePortInline, ImageVariableInline, )
 
 admin.site.register(Image, ImageAdmin)

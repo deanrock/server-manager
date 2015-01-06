@@ -24,7 +24,7 @@ class Domain(models.Model):
     account = models.ForeignKey(Account, related_name='domains')
     name = models.CharField(max_length=255)
     redirect_url = models.CharField(max_length=255, default=None, blank=True)
-    nginx_config = models.TextField()
+    nginx_config = models.TextField(default=None, blank=True)
     apache_config = models.TextField(blank=True)
 
     apache_enabled = models.BooleanField(default=False, blank=True)
