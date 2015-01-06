@@ -1,0 +1,10 @@
+---
+- name: docker - add docker repository key
+  apt_key: url="https://get.docker.io/gpg"
+
+- name: docker - add docker repository
+  apt_repository: repo='deb http://get.docker.io/ubuntu docker main' update_cache=yes
+
+- name: docker - install docker
+  apt: pkg=lxc-docker
+  notify: docker - start and enable

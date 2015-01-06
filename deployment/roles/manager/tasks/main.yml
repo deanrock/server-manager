@@ -1,0 +1,11 @@
+---
+
+- name: add manager group
+  group: name=manager state=present
+
+- name: add manager user
+  user: name=manager group=manager
+
+
+- name: add manager user to docker
+  user: name=manager append=true groups=docker

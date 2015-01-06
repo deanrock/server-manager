@@ -1,0 +1,22 @@
+- name: add nginx group
+  group: name=nginx state=present
+
+- name: add nginx user
+  user: name=nginx group=nginx
+
+- name: install nginx-full
+  action: apt pkg=nginx-full default_release=wheezy-backports state=latest
+
+- name: create nginx config
+  action: template src=nginx.conf dest=/etc/nginx/nginx.conf
+
+- name: create default config
+  action: template src=default.conf dest=/etc/nginx/sites-available/default
+
+- name: link default config
+  action: file src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  notify:
+    - restart nginx
+
+- name: create manager nginx config
+  action: file path=/etc/nginx/manager/ owner=nginx group=nginx state=directory mode=0750
