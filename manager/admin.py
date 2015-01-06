@@ -41,6 +41,7 @@ admin.site.register(Database, DatabaseAdmin)
 
 class DomainAdmin(admin.ModelAdmin):
     list_display = ['name', 'account', 'redirect_url', 'apache_enabled']
+    change_list_template = 'admin/domains.html'
 
 admin.site.register(Domain, DomainAdmin)
 

@@ -19,4 +19,4 @@
     - restart nginx
 
 - name: create manager nginx config
-  action: file path=/etc/nginx/manager/ owner=nginx group=nginx state=directory mode=0750
+  action: file path=/etc/nginx/manager/ owner=nginx group=nginx state=directory mode=0770

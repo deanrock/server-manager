@@ -55,3 +55,13 @@ def actions_container(request, id, action):
 @login_required
 def index(request):
     return HttpResponseRedirect('/admin/')
+
+@login_required
+def update_nginx_config(request):
+    logs = actions.update_nginx_config()
+
+    return render_to_response('sync_action.html',
+        {
+            'logs': logs.logs,
+            'action': 'Update nginx config'
+        })

@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     url(r'^sync-users/$', 'manager.views.sync_users'),
     url(r'^actions/container/(?P<id>[0-9]+)/(?P<action>[a-z]+)', 'manager.views.actions_container'),
     url(r'^rebuild-base-image/$', 'manager.views.rebuild_base_image'),
+    url(r'^update-nginx-config/$', 'manager.views.update_nginx_config'),
+    url(r'^sync-databases/$', 'manager.views.sync_databases'),
 
     url(r'^admin/', include(admin.site.urls)),
 )

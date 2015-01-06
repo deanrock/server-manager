@@ -21,7 +21,7 @@ class Account(models.Model):
 
 
 class Domain(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, related_name='domains')
     name = models.CharField(max_length=255)
     redirect_url = models.CharField(max_length=255, default=None, blank=True)
     nginx_config = models.TextField()
@@ -72,7 +72,7 @@ class AppImageVariable(models.Model):
     value = models.TextField()
 
 class App(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, related_name='apps')
     name = models.TextField(max_length=50)
     image = models.ForeignKey(Image)
     container_id = models.TextField(max_length=255, null=True, blank=True)
@@ -183,6 +183,9 @@ class App(models.Model):
                                             "MaximumRetryCount": 0,
                                             "Name": "always"
                                         },
+                                                extra_hosts={
+                                                    'mysql': '172.17.42.1'
+                                                },
                                                 binds={
                                 homefolder: {
                                     'bind': homefolder

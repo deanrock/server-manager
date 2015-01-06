@@ -9,3 +9,16 @@
 
 - name: add manager user to docker
   user: name=manager append=true groups=docker
+
+- name: add manager user to sudo
+  user: name=manager append=true groups=sudo
+
+- name: add manager user to nginx
+  user: name=manager append=true groups=nginx
+
+- name: install build essential
+  action: apt pkg={{item}} state=installed
+  with_items:
+    - build-essential
+    - gcc
+    - python-dev

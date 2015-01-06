@@ -1,4 +1,4 @@
-FROM debian7basehosting
+FROM manager/debian7basehosting
 
 RUN echo "deb http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.list.d/dotdeb.list && \
 	echo "deb-src http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.list.d/dotdeb.list && \
@@ -8,18 +8,21 @@ RUN echo "deb http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.l
 
 RUN apt-get install -y php5-gd php5-mysql
 
-RUN mkdir /mystuff
+RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
+
+RUN mkdir /mystuff && chown #user#:#user# /mystuff
 
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD www.conf /etc/php5/fpm/pool.d/www.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
-ADD start.sh /root/
-
 RUN mv /usr/sbin/php5-fpm /usr/bin/php5-fpm
 
 EXPOSE 9000
 
-ENTRYPOINT ["/root/start.sh"]
+RUN sed -i s/ENV_USER/#user#/ /etc/php5/fpm/php-fpm.conf && sed -i s/ENV_USER/#user#/ /etc/php5/fpm/pool.d/www.conf
+
+
+USER #user#
 
 CMD php5-fpm

@@ -7,3 +7,5 @@ SECRET_KEY = '%r*#rhgz52x#my8(fx69$mz31()g_$@l7!4nz23e6m&fxet@jz'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
+
+MYSQL_ROOT_PASSWORD = 'mypassword2012'

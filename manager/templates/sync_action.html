@@ -1,8 +1,8 @@
 {% for log in logs %}
 
-        {{log}}<br />
+        {% autoescape off %}<span style='color:red'>-&gt; </span>{{ log|linebreaksbr }}{% endautoescape %}<br />
 
-        {%endfor %}
+{%endfor %}
 
 <br /><br />
         <a href="javascript:window.history.back()">back</a>
