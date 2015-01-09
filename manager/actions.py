@@ -46,8 +46,12 @@ def rebuild_base_image():
     logs = Logs()
 
     images = [
+        "debian7base",
         "debian7basehosting",
         "php56-base-hosting",
+        "shell-base",
+        "shell-php56",
+        "python34-base-hosting",
     ]
 
     for image in images:

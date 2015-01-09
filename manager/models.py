@@ -35,7 +35,7 @@ class Domain(models.Model):
 class ImageVariable(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    default = models.TextField()
+    default = models.TextField(null=True, blank=True)
 
     image = models.ForeignKey('Image', related_name='variables')
 
@@ -88,12 +88,10 @@ class App(models.Model):
         return 'manager/'+self.container_name()
 
     def stop(self):
-        if self.container_id:
-            return [docker_api.cli.stop(container=self.container_name())]
+        return [docker_api.cli.stop(container=self.container_name())]
 
     def start(self):
-        if self.container_id:
-            return [docker_api.cli.start(container=self.container_name())]
+        return [docker_api.cli.start(container=self.container_name())]
 
     def redeploy(self):
         logs = utils.Logs()

@@ -1,3 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% block title %}Test page{% endblock %}
+
+        {% block content %}
 {% for log in logs %}
 
         {% autoescape off %}<span style='color:red'>-&gt; </span>{{ log|linebreaksbr }}{% endautoescape %}<br />
@@ -6,3 +10,4 @@
 
 <br /><br />
         <a href="javascript:window.history.back()">back</a>
+{% endblock %}
