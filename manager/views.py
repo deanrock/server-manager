@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.sessions import serializers
+import json
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import docker
@@ -11,55 +13,43 @@ from manager.models import App, Account, Domain, Database
 
 
 @login_required
-def rebuild_base_image(request):
-    logs = actions.rebuild_base_image()
+def action_ajax(request, action):
+    if action == 'rebuild-base-image':
+        logs = actions.rebuild_base_image()
+    elif action == 'sync-users':
+        logs = actions.sync_accounts()
+    elif action == 'sync-databases':
+        logs = actions.sync_databases()
+    elif action == 'update-nginx-config':
+        logs = actions.update_nginx_config()
 
+    data = json.dumps(logs.logs)
+    return HttpResponse(data, content_type='application/json')
+
+
+@login_required
+def rebuild_base_image(request):
     return render_to_response('sync_action.html',
         {
-            'logs': logs.logs,
-            'action': 'Rebuild base image'
+            'action': 'Rebuilding base image',
+            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'rebuild-base-image'}),
         })
 
 @login_required
 def sync_users(request):
-    logs = actions.sync_accounts()
-
     return render_to_response('sync_action.html',
         {
-            'logs': logs.logs,
-            'action': 'Sync users'
+            'action': 'Syncing users',
+            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'sync-users'}),
         })
 
 
 @login_required
 def sync_databases(request):
-    logs = actions.sync_databases()
-
     return render_to_response('sync_action.html',
         {
-            'logs': logs.logs,
-            'action': 'Sync databases'
-        })
-
-@login_required
-def actions_container(request, id, action):
-    app = App.objects.get(id=id)
-
-    logs = actions.Logs()
-
-    logs.add("app %s, account %s, container name %s" % (app.name, app.account.name, app.container_name()))
-
-    if action == 'redeploy':
-        logs.append(app.redeploy())
-    elif action == 'stop':
-        logs.add(app.stop())
-    elif action == 'start':
-        logs.add(app.start())
-
-    return render_to_response("sync_action.html",
-        {
-            "action": action,
-            "logs": logs.logs,
+            'action': 'Syncing databases',
+            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'sync-databases'}),
         })
 
 @login_required
@@ -103,6 +93,52 @@ def account_apps_edit(request, name, app=None):
             'formset': formset
         },
                               context_instance=RequestContext(request))
+
+
+@login_required
+def account_apps_action_ajax(request, name, app, action):
+    account = Account.objects.filter(name=name).first()
+    app = account.apps.filter(id=app).first()
+
+    logs = actions.Logs()
+
+    logs.add("app %s, account %s, container name %s" % (app.name, app.account.name, app.container_name()))
+
+    if action == 'redeploy':
+        logs.append(app.redeploy())
+    elif action == 'stop':
+        logs.add(app.stop())
+    elif action == 'start':
+        logs.add(app.start())
+
+    data = json.dumps(logs.logs)
+    return HttpResponse(data, content_type='application/json')
+
+
+@login_required
+def account_apps_action(request, name, app, action):
+    account = Account.objects.filter(name=name).first()
+    app = account.apps.filter(id=app).first()
+
+    action_text = ''
+
+    if action == 'redeploy':
+        action_text = 'Redeploying %s for %s ...' % (app.name, account.name)
+    elif action == 'stop':
+        action_text = 'Stopping %s for %s ...' % (app.name, account.name)
+    elif action == 'start':
+        action_text = 'Starting %s for %s ...' % (app.name, account.name)
+    else:
+        return HttpResponseNotFound()
+
+    return render_to_response("account/apps_action.html",
+        {
+            'account': account,
+            'action_text': action_text,
+            'action_url': reverse('manager.views.account_apps_action_ajax', kwargs={'name': name, 'app': app.id, 'action': action}),
+            'app': app,
+        })
+
 
 @login_required
 def account_apps(request, name):
@@ -212,6 +248,7 @@ def account_domains_edit(request, name, domain=None):
         },
                               context_instance=RequestContext(request))
 
+
 @login_required
 def account_domains_delete(request, name, domain):
     account = Account.objects.filter(name=name).first()
@@ -268,10 +305,8 @@ def account_databases_edit(request, name, database=None):
 
 @login_required
 def update_nginx_config(request):
-    logs = actions.update_nginx_config()
-
     return render_to_response('sync_action.html',
         {
-            'logs': logs.logs,
-            'action': 'Update nginx config'
+            'action': 'Updating nginx and apache config ...',
+            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'update-nginx-config'}),
         })
