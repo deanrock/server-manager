@@ -1,0 +1,42 @@
+{% extends "account/layout.html" %}
+{% load bootstrap %}
+{% block subcontent %}
+<form method="post" action="">
+    {%csrf_token%}
+    {{ formset|bootstrap }}
+    <div style="text-align:right">
+
+    {% if domain %}<a href="{% url 'manager.views.account_domains_delete' account.name domain.id %}" class="btn btn-default">Delete</a>{% endif %}
+        <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+</form>
+        
+{% endblock %}
+
+{% block javascript %}
+        <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+$(document).ready(function() {
+    //ace
+    var useAce = function(textarea_id) {
+        var ace_id = 'ace_'+textarea_id;
+        $('#' + textarea_id).after('<pre id="'+ace_id+'" style="height:400px;width:100%"></pre>');
+        var editor = ace.edit(ace_id);
+        editor.setTheme("ace/theme/chrome");
+        editor.setFontSize("12px")
+        editor.getSession().setMode("ace/mode/markdown");
+
+        var textarea = $('#' + textarea_id).hide();
+        editor.getSession().setValue(textarea.val());
+        editor.getSession().on('change', function(){
+        textarea.val(editor.getSession().getValue());
+        });
+    }
+
+    if ($('#id_nginx_config').length) {
+        useAce('id_nginx_config');
+        useAce('id_apache_config');
+    }
+});
+</script>
+{% endblock %}

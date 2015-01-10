@@ -6,12 +6,14 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>Description</th>
     </tr>
     </thead>
     <tbody>
     {% for account in accounts %}
         <tr>
             <td><a href="{% url 'manager.views.account' name=account.name %}">{{account.name}}</a></td>
+            <td>{{account.description}}</td>
         </tr>
     {% endfor %}
     </tbody>

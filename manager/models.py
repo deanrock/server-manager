@@ -195,7 +195,7 @@ class App(models.Model):
         return logs
 
 class Database(models.Model):
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, related_name='databases')
     types = (
         ('mysql', 'MySQL'),
     )

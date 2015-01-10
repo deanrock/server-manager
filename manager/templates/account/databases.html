@@ -1,0 +1,27 @@
+{% extends "account/layout.html" %}
+
+{% block subcontent %}
+<div style="text-align:right">
+    <a href="{% url 'manager.views.account_domains_edit' account.name %}" class="btn btn-default btn" role="button">Add database</a>
+</div>
+<br />
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>User</th>
+        <th>Type</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for database in account.databases.all %}
+        <tr>
+            <td><a href="{% url 'manager.views.account_databases_edit' account.name database.id %}">{{database.name}}</a></td>
+            <td>{{database.user}}</td>
+            <td>{{database.type}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

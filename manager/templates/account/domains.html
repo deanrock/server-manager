@@ -1,20 +1,24 @@
 {% extends "account/layout.html" %}
 
 {% block subcontent %}
+<div style="text-align:right">
+    <a href="{% url 'manager.views.account_domains_edit' account.name %}" class="btn btn-default btn" role="button">Add domain</a>
+</div>
+<br />
 <table class="table table-hover">
     <thead>
     <tr>
         <th>Name</th>
         <th>Redirect url</th>
-        <th>Apache enabled</th>
+        <th style="text-align:center">Apache enabled</th>
     </tr>
     </thead>
     <tbody>
     {% for domain in account.domains.all %}
         <tr>
-            <td><a href="{% url 'admin:manager_domain_change' domain.id %}">{{domain.name}}</a></td>
+            <td><a href="{% url 'manager.views.account_domains_edit' account.name domain.id %}">{{domain.name}}</a></td>
             <td>{{domain.redirect_url}}</td>
-            <td>{{domain.apache_enabled}}</td>
+            <td style="text-align:center">{% if domain.apache_enabled %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
         </tr>
     {% endfor %}
     </tbody>

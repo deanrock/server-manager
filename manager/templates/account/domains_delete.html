@@ -1,0 +1,18 @@
+{% extends "account/layout.html" %}
+{% load bootstrap %}
+{% block subcontent %}
+<form method="post" action="">
+    {%csrf_token%}
+    Do you really want to delete domain {{domain.name}}?
+    <div class="checkbox">
+    <label>
+      <input type="checkbox" name="confirmation" value="yes"> Yes, I would like to delete this domain
+    </label>
+  </div>
+    <div style="text-align:right">
+
+    <a href="{% url 'manager.views.account_domains' account.name %}" class="btn btn-default">Cancel</a> <button type="submit" class="btn btn-primary">Delete</button>
+        </div>
+</form>
+
+{% endblock %}
