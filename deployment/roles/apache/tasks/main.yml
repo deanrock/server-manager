@@ -4,11 +4,20 @@
 - name: add apache user
   user: name=apache group=apache
 
+- name: apache - add non-free wheezy repo
+  apt_repository: repo='deb http://ftp.debian.org/debian/ wheezy non-free' update_cache=yes state=present
+
 - name: install apache2-mpm-event
   action: apt pkg=apache2-mpm-event default_release=wheezy-backports state=latest
 
+- name: install apache2 fastcgi
+  action: apt pkg=libapache2-mod-fastcgi state=latest
+
 - name: chown /var/lock/apache2
   action: file path=/var/lock/apache2 owner=apache group=apache state=directory
+
+- name: chown /var/lib/apache2
+  action: file path=/var/lib/apache2 owner=apache group=apache recurse=yes state=directory
 
 - name: create ports.conf
   action: template src=ports.conf dest=/etc/apache2/ports.conf
@@ -19,3 +28,17 @@
   action: template src=envvars dest=/etc/apache2/envvars
   notify:
     - restart apache
+
+- name: create apache2.conf
+  action: template src=apache2.conf dest=/etc/apache2/apache2.conf
+  notify:
+    - restart apache
+
+- name: create manager apache config
+  action: file path=/etc/apache2/manager/ owner=apache group=apache state=directory mode=0770
+
+- name: apache | enable proxy
+  action: command a2enmod proxy_http rewrite fastcgi actions alias
+  notify:
+    - restart apache
+

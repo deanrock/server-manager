@@ -16,6 +16,9 @@
 - name: add manager user to nginx
   user: name=manager append=true groups=nginx
 
+- name: add manager user to apache
+  user: name=manager append=true groups=apache
+
 - name: install build essential
   action: apt pkg={{item}} state=installed
   with_items:
