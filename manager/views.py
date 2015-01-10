@@ -179,6 +179,16 @@ def account_domains_edit(request, name, domain=None):
     df = modelform_factory(Domain, form=DomainForm)
     domain = account.domains.filter(id=domain).first()
 
+    #ports
+    apps = account.apps.all()
+
+    ports=[]
+
+    for app in apps:
+        for port in app.image.ports.all():
+            ports.append('#%s_%d_ip#' % (app.name, port.port))
+
+    #form
     if request.method == 'POST':
         formset = df(request.POST, request.FILES,
                           instance=domain)
@@ -197,7 +207,8 @@ def account_domains_edit(request, name, domain=None):
                               {
             'account': account,
             'formset': formset,
-            'domain': domain
+            'domain': domain,
+            'ports': ports,
         },
                               context_instance=RequestContext(request))
 
