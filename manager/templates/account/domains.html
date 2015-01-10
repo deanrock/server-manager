@@ -1,0 +1,23 @@
+{% extends "account/layout.html" %}
+
+{% block subcontent %}
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Redirect url</th>
+        <th>Apache enabled</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for domain in account.domains.all %}
+        <tr>
+            <td><a href="{% url 'admin:manager_domain_change' domain.id %}">{{domain.name}}</a></td>
+            <td>{{domain.redirect_url}}</td>
+            <td>{{domain.apache_enabled}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

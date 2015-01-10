@@ -1,0 +1,29 @@
+{% extends "account/layout.html" %}
+
+{% block subcontent %}
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Image</th>
+        <th>Memory</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for app in apps %}
+        <tr>
+            <td><a href="{% url 'manager.views.account_apps_edit' account.name app.id %}">{{app.name}}</a></td>
+            <td>{{app.image.name}}</td>
+            <td>{{app.memory}} M</td>
+            <td><a href="/actions/container/{{app.id}}/start">start</a></td>
+            <td><a href="/actions/container/{{app.id}}/stop">stop</a></td>
+            <td><a href="/actions/container/{{app.id}}/redeploy">redeploy</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+        
+{% endblock %}

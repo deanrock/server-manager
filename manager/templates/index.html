@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+        <h2>Accounts</h2>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for account in accounts %}
+        <tr>
+            <td><a href="{% url 'manager.views.account' name=account.name %}">{{account.name}}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

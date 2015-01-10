@@ -7,6 +7,13 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^$', 'manager.views.index'),
+
+    url(r'^a/(?P<name>[a-z0-9]+)/$', 'manager.views.account'),
+    url(r'^a/(?P<name>[a-z0-9]+)/apps/$', 'manager.views.account_apps'),
+    url(r'^a/(?P<name>[a-z0-9]+)/apps/(?P<app>[0-9]+)$', 'manager.views.account_apps_edit'),
+    url(r'^a/(?P<name>[a-z0-9]+)/domains/$', 'manager.views.account_domains'),
+    url(r'^a/(?P<name>[a-z0-9]+)/databases/$', 'manager.views.account_databases'),
+
     url(r'^sync-users/$', 'manager.views.sync_users'),
     url(r'^actions/container/(?P<id>[0-9]+)/(?P<action>[a-z]+)', 'manager.views.actions_container'),
     url(r'^rebuild-base-image/$', 'manager.views.rebuild_base_image'),
