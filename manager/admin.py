@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.core.urlresolvers import reverse
 from manager.models import Account, App, Database, Domain, Image, ImagePort, ImageVariable
 
 
@@ -19,17 +20,17 @@ class AppAdmin(MyModelAdmin):
         return ''
 
     def start(self, form):
-        return '<a href="/actions/container/%s/start">start</a>' % (form.id)
+        return '<a href="%s">start</a>' % reverse('manager.views.account_apps_action', kwargs={'name': form.account.name, 'app': form.id, 'action': 'start'})
 
     start.allow_tags = True
 
     def stop(self, form):
-        return '<a href="/actions/container/%s/stop">stop</a>' % (form.id)
+        return '<a href="%s">stop</a>' % reverse('manager.views.account_apps_action', kwargs={'name': form.account.name, 'app': form.id, 'action': 'stop'})
 
     stop.allow_tags = True
 
     def redeploy(self, form):
-        return '<a href="/actions/container/%s/redeploy">redeploy</a>' % (form.id)
+        return '<a href="%s">redeploy</a>' % reverse('manager.views.account_apps_action', kwargs={'name': form.account.name, 'app': form.id, 'action': 'redeploy'})
 
     redeploy.allow_tags = True
 

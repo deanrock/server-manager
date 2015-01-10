@@ -12,7 +12,7 @@
         $.get('{{action_url}}', function( data ) {
             $('#action-loader').hide();
             console.log(data);
-            $('#action-response').html('');
+            $('#action-response').html('<b>Response:</b><br />');
 
             for(var x in data) {
                 var line = data[x];
