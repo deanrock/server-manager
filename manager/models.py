@@ -1,14 +1,19 @@
 import json
 import shutil
 from django.conf import settings
+from django.core.validators import RegexValidator
 from manager import docker_api, utils
 import os
 from django.db import models
 from django.contrib.auth.models import User
 
+account_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.')
+db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric characters and underscore are allowed.')
+appname_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_-]*$', 'Only alphanumeric characters, underscore and \'-\' are allowed.')
+
 
 class Account(models.Model):
-    name = models.CharField(max_length=32, help_text='max 32 chars!')
+    name = models.CharField(max_length=32, help_text='max 32 chars!', validators=[account_validator])
     description = models.CharField(max_length=1000)
 
     added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -73,7 +78,7 @@ class AppImageVariable(models.Model):
 
 class App(models.Model):
     account = models.ForeignKey(Account, related_name='apps')
-    name = models.TextField(max_length=50)
+    name = models.TextField(max_length=50, validators=[appname_validator])
     image = models.ForeignKey(Image)
     container_id = models.TextField(max_length=255, null=True, blank=True)
     memory = models.IntegerField(default=256)
@@ -200,8 +205,8 @@ class Database(models.Model):
         ('mysql', 'MySQL'),
     )
     type = models.CharField(max_length=50, choices=types)
-    name = models.CharField(max_length=50, help_text='Max 50 characters', unique=True)
-    user = models.CharField(max_length=16, help_text='Max 16 characters!', unique=True)
+    name = models.CharField(max_length=50, help_text='Max 50 characters', unique=True, validators=[db_validator])
+    user = models.CharField(max_length=16, help_text='Max 16 characters!', unique=True, validators=[db_validator])
     password = models.CharField(max_length=255)
 
     added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
