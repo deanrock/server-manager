@@ -7,7 +7,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 
-account_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.')
+account_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z-]*$', 'Only alphanumeric characters and \'-\' are allowed.')
 db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric characters and underscore are allowed.')
 appname_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_-]*$', 'Only alphanumeric characters, underscore and \'-\' are allowed.')
 
