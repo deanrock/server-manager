@@ -134,6 +134,17 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
     proxy_set_header X-Forwarded-Port $server_port;
     proxy_set_header X-Request-Start $msec;
 }</script>
+<script id="nginx5" type="text/x-handlebars-template">location / {
+    proxy_pass  http://IP;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+}</script>
 <script id="apache1" type="text/x-handlebars-template">DocumentRoot /home/ACCOUNT/domains/DOMAIN/www
 
 <php>#php56_9000_ip#</php>
@@ -155,6 +166,7 @@ var examples_nginx = [
     {'name': 'PHP (wordpress, codeigniter... rewrite)', 'value': 'nginx1'},
     {'name': 'PHP (Drupal specific)', 'value': 'nginx2'},
     {'name': 'ProxyPass', 'value': 'nginx3'},
+    {'name': 'ProxyPass + WebSockets', 'value': 'nginx5'},
     {'name': 'Proxy to Apache', 'value': 'nginx4'}
 ];
 
