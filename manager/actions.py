@@ -54,6 +54,7 @@ def rebuild_base_image():
         "shell-base",
         "shell-php56",
         "python34-base-hosting",
+        "php53-base-hosting",
     ]
 
     for image in images:
@@ -166,13 +167,15 @@ def update_nginx_config():
 
                 #find <php></php>
                 m = re.search('<php>(.*)<\/php>', conf)
-                for x in m.groups():
-                    name = domain.name.replace('.', '-')
-                    txt = """AddType application/x-httpd-fastphp5 .php
-            Action application/x-httpd-fastphp5 /php5-fcgi
-            Alias /php5-fcgi /usr/lib/cgi-bin/php5-fcgi-%s
-            FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi-%s -host %s:9000 -pass-header Authorization""" % (name, name, x)
-                    conf = conf.replace('<php>%s</php>' % x, txt)
+
+                if m:
+                    for x in m.groups():
+                        name = domain.name.replace('.', '-')
+                        txt = """AddType application/x-httpd-fastphp5 .php
+                Action application/x-httpd-fastphp5 /php5-fcgi
+                Alias /php5-fcgi /usr/lib/cgi-bin/php5-fcgi-%s
+                FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi-%s -host %s:9000 -pass-header Authorization""" % (name, name, x)
+                        conf = conf.replace('<php>%s</php>' % x, txt)
 
                 logs.add(conf)
 
