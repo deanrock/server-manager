@@ -29,29 +29,8 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li class=""><a href="{% url 'manager.views.containers' %}">Containers</a></li>
-            <li class="dropdown">
-                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sync <span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                <li><a href="{% url 'manager.views.sync_users' %}">Sync users</a></li>
-                <li><a href="{% url 'manager.views.sync_databases' %}">Sync databases</a></li>
-                <li><a href="{% url 'manager.views.update_nginx_config' %}">Update nginx/apache config</a></li>
-                <li class="divider"></li>
-               <li><a href="{% url 'manager.views.rebuild_base_image' %}">Rebuild base Docker images</a></li>
-                </ul>
-            </li>
-            <li><a href="{% url 'admin:index' %}">Django Admin</a></li>
 
           </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-
-
-                        <li><a href="#">{{request.user}}</a></li>
-<li><a href="{% url 'auth_logout' %}">Logout</a></li>
-
-                    </ul>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
@@ -74,7 +53,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/static/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/static/js/handlebars-v2.0.0.js"></script>
 
   {% block javascript %}
   {% endblock %}

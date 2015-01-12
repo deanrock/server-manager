@@ -8,6 +8,9 @@ urlpatterns = patterns('',
 
     url(r'^$', 'manager.views.index'),
 
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login',name="auth_login"),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',{'next_page': '/'}, name="auth_logout"),
+
     url(r'^a/(?P<name>[a-z0-9-]+)/$', 'manager.views.account'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/$', 'manager.views.account_apps'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)$', 'manager.views.account_apps_edit'),
