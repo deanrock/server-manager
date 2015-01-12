@@ -12,6 +12,16 @@ db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric cha
 appname_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_-]*$', 'Only alphanumeric characters, underscore and \'-\' are allowed.')
 
 
+class UserSSHKey(models.Model):
+    user = models.ForeignKey(User, related_name='ssh_keys')
+
+    name = models.CharField(max_length=255)
+    ssh_key = models.TextField(max_length=1000)
+
+    added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    added_by = models.ForeignKey(User)
+
+
 class Account(models.Model):
     name = models.CharField(max_length=32, help_text='max 32 chars!', validators=[account_validator])
     description = models.CharField(max_length=1000)
@@ -78,7 +88,7 @@ class AppImageVariable(models.Model):
 
 class App(models.Model):
     account = models.ForeignKey(Account, related_name='apps')
-    name = models.TextField(max_length=50, validators=[appname_validator])
+    name = models.CharField(max_length=50, validators=[appname_validator])
     image = models.ForeignKey(Image)
     container_id = models.TextField(max_length=255, null=True, blank=True)
     memory = models.IntegerField(default=256)

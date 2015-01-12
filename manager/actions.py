@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import MySQLdb
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
 from manager import docker_api
@@ -8,10 +9,25 @@ from manager.models import Account, Domain, Database
 from manager.utils import exec_command, Logs
 import os
 import re
+import utils
 
 
 def sync_accounts():
     logs = Logs()
+
+    #ssh keys file
+    ssh_keys = []
+
+    for user in User.objects.all():
+        for key in user.ssh_keys.all():
+            ssh_keys.append(key.ssh_key)
+
+    authorized_keys = render_to_string('system/authorized_keys', {
+        'keys': ssh_keys
+    })
+
+    logs.add(authorized_keys)
+
 
     #get all accounts
     accounts = Account.objects.all()
@@ -27,7 +43,8 @@ def sync_accounts():
         dirs = [
             "apps",
             "domains",
-            "logs"
+            "logs",
+            ".ssh"
         ]
 
         o, e = exec_command(logs, "sudo adduser nginx %s" % account.name)
@@ -38,6 +55,16 @@ def sync_accounts():
 
             o, e = exec_command(logs, "sudo chmod 750 /home/%s/%s" % (account.name, dir))
             o, e = exec_command(logs, "sudo chown %s:%s /home/%s/%s" % (account.name, account.name, account.name, dir))
+
+        #.ssh/authorized_keys
+        temp_folder = utils.get_temp_folder()
+
+        with open('%s/authorized_keys' % (temp_folder), 'w') as f:
+            f.write(authorized_keys)
+
+        o, e = exec_command(logs, "sudo cp %s/authorized_keys /home/%s/.ssh/authorized_keys" % (temp_folder, account.name))
+        o, e = exec_command(logs, "sudo chmod 700 /home/%s/.ssh/authorized_keys" % (account.name))
+        o, e = exec_command(logs, "sudo chown %s:%s /home/%s/.ssh/authorized_keys" % (account.name, account.name, account.name))
 
 
 

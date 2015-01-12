@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from manager.models import App, Domain, Database
+from manager.models import App, Domain, Database, UserSSHKey
 
 
 class AppForm(ModelForm):
@@ -17,3 +17,8 @@ class DatabaseForm(ModelForm):
     class Meta:
         model = Database
         fields = ['type', 'name', 'user', 'password']
+
+class UserSSHKeyForm(ModelForm):
+    class Meta:
+        model = UserSSHKey
+        fields = ['name', 'ssh_key']

@@ -1,0 +1,27 @@
+{% extends "profile/layout.html" %}
+
+{% block subcontent %}
+<div style="text-align:right">
+    <a href="{% url 'manager.views.profile_sshkeys_edit' %}" class="btn btn-default btn" role="button">Add key</a>
+</div>
+<br />
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Added at</th>
+        <th style="text-align:center">Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for key in request.user.ssh_keys.all %}
+        <tr>
+            <td><a href="{% url 'manager.views.profile_sshkeys_edit' key.id %}">{{key.name}}</a></td>
+            <td>{{key.added_at}}</td>
+            <td style="text-align:center"><a href="{% url 'manager.views.profile_sshkeys_delete' key.id %}"><span class="glyphicon glyphicon-remove"></span></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

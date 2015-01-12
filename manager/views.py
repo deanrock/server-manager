@@ -8,8 +8,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 import docker
 from manager import actions, docker_api
-from manager.forms import AppForm, DomainForm, DatabaseForm
-from manager.models import App, Account, Domain, Database
+from manager.forms import AppForm, DomainForm, DatabaseForm, UserSSHKeyForm
+from manager.models import App, Account, Domain, Database, UserSSHKey
 
 
 @login_required
@@ -309,4 +309,52 @@ def update_nginx_config(request):
         {
             'action': 'Updating nginx and apache config ...',
             'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'update-nginx-config'}),
-        })
+        },
+        context_instance=RequestContext(request))
+
+
+@login_required
+def profile_sshkeys(request):
+    return render_to_response('profile/ssh_keys.html',
+        {},
+                              context_instance=RequestContext(request))
+
+
+@login_required
+def profile_sshkeys_edit(request, key=None):
+    df = modelform_factory(UserSSHKey, form=UserSSHKeyForm)
+
+    if request.method == 'POST':
+        formset = df(request.POST, request.FILES,
+                          instance=request.user.ssh_keys.filter(id=key).first())
+
+        if formset.is_valid():
+            obj = formset.save(commit=False)
+            obj.added_by = request.user
+            obj.user = request.user
+            obj.save()
+
+            return HttpResponseRedirect(reverse('manager.views.profile_sshkeys'))
+    else:
+        formset = df(instance=request.user.ssh_keys.filter(id=key).first())
+
+    return render_to_response('profile/ssh_keys_edit.html',
+                              {
+            'formset': formset
+        },
+                              context_instance=RequestContext(request))
+
+@login_required
+def profile_sshkeys_delete(request, key):
+    key = request.user.ssh_keys.filter(id=key).first()
+
+    if request.method == 'POST' and 'confirmation' in request.POST and request.POST['confirmation'] == 'yes':
+        key.delete()
+        return HttpResponseRedirect(reverse('manager.views.profile_sshkeys'))
+
+    return render_to_response('profile/ssh_keys_delete.html',
+                              {
+            'account': account,
+            'key': key
+        },
+                              context_instance=RequestContext(request))

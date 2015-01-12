@@ -8,6 +8,11 @@ urlpatterns = patterns('',
 
     url(r'^$', 'manager.views.index'),
 
+    url(r'^profile/ssh-keys/$', 'manager.views.profile_sshkeys'),
+    url(r'^profile/ssh-keys/new$', 'manager.views.profile_sshkeys_edit'),
+    url(r'^profile/ssh-keys/(?P<key>[0-9]+)$', 'manager.views.profile_sshkeys_edit'),
+    url(r'^profile/ssh-keys/(?P<key>[0-9]+)/delete$', 'manager.views.profile_sshkeys_delete'),
+
     url(r'^accounts/login/$', 'django.contrib.auth.views.login',name="auth_login"),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',{'next_page': '/'}, name="auth_logout"),
 
