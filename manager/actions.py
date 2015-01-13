@@ -57,14 +57,14 @@ def sync_accounts():
             o, e = exec_command(logs, "sudo chown %s:%s /home/%s/%s" % (account.name, account.name, account.name, dir))
 
         #.ssh/authorized_keys
-        temp_folder = utils.get_temp_folder()
+        #temp_folder = utils.get_temp_folder()
 
-        with open('%s/authorized_keys' % (temp_folder), 'w') as f:
-            f.write(authorized_keys)
+        #with open('%s/authorized_keys' % (temp_folder), 'w') as f:
+        #    f.write(authorized_keys)
 
-        o, e = exec_command(logs, "sudo cp %s/authorized_keys /home/%s/.ssh/authorized_keys" % (temp_folder, account.name))
-        o, e = exec_command(logs, "sudo chmod 700 /home/%s/.ssh/authorized_keys" % (account.name))
-        o, e = exec_command(logs, "sudo chown %s:%s /home/%s/.ssh/authorized_keys" % (account.name, account.name, account.name))
+        #o, e = exec_command(logs, "sudo cp %s/authorized_keys /home/%s/.ssh/authorized_keys" % (temp_folder, account.name))
+        #o, e = exec_command(logs, "sudo chmod 700 /home/%s/.ssh/authorized_keys" % (account.name))
+        #o, e = exec_command(logs, "sudo chown %s:%s /home/%s/.ssh/authorized_keys" % (account.name, account.name, account.name))
 
 
 
