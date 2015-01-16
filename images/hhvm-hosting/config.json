@@ -1,0 +1,11 @@
+{
+	"name": "hhvm-hosting",
+	"description": "latest hhvm via fastcgi",
+	"type": "application",
+	"ports": [
+		{
+			"port": 9000,
+			"type": "fastcgi"
+		}
+	]
+}

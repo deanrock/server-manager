@@ -1,0 +1,11 @@
+{
+	"name": "php53-hosting",
+	"description": "php5.3, open_tags=On",
+	"type": "application",
+	"ports": [
+		{
+			"port": 9000,
+			"type": "fastcgi"
+		}
+	]
+}

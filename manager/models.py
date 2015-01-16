@@ -51,6 +51,7 @@ class ImageVariable(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     default = models.TextField(null=True, blank=True)
+    create_file = models.BooleanField(default=False)
 
     image = models.ForeignKey('Image', related_name='variables')
 
@@ -58,6 +59,7 @@ class ImagePort(models.Model):
     types = (
         ('fastcgi', 'FastCGI'),
         ('http', 'HTTP'),
+        ('uwsgi', 'UWSGI'),
     )
     type = models.CharField(max_length=255, choices=types)
     port = models.IntegerField()
@@ -83,13 +85,14 @@ class Image(models.Model):
 
 class AppImageVariable(models.Model):
     app = models.ForeignKey('App', related_name='variables')
-    image_variable = models.ForeignKey('ImageVariable')
+    name = models.CharField(max_length=255, default='')
     value = models.TextField()
 
 class App(models.Model):
     account = models.ForeignKey(Account, related_name='apps')
     name = models.CharField(max_length=50, validators=[appname_validator])
     image = models.ForeignKey(Image)
+    image_name = models.CharField(max_length=255, null=True, blank=True)
     container_id = models.TextField(max_length=255, null=True, blank=True)
     memory = models.IntegerField(default=256)
 

@@ -41,5 +41,8 @@ urlpatterns = patterns('',
     url(r'^update-nginx-config/$', 'manager.views.update_nginx_config'),
     url(r'^sync-databases/$', 'manager.views.sync_databases'),
 
+
+    url(r'^api/v1.0/images/(?P<id>[0-9]+)', 'manager.views.api_image'),
+    url(r'^api/v1.0/a/(?P<name>[a-z0-9-]+)/apps/(?P<id>[0-9]+)', 'manager.views.api_account_app'),
     url(r'^admin/', include(admin.site.urls)),
 )

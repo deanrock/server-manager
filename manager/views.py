@@ -1,15 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.sessions import serializers
+from django.core.serializers import serialize
 import json
 from django.core.urlresolvers import reverse
-from django.forms.models import modelform_factory
+from django.forms.models import modelform_factory, model_to_dict
 from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 import docker
 from manager import actions, docker_api
 from manager.forms import AppForm, DomainForm, DatabaseForm, UserSSHKeyForm
-from manager.models import App, Account, Domain, Database, UserSSHKey
+from manager.models import App, Account, Domain, Database, UserSSHKey, Image
 
 
 @login_required
@@ -358,3 +358,33 @@ def profile_sshkeys_delete(request, key):
             'key': key
         },
                               context_instance=RequestContext(request))
+
+
+@login_required
+def api_account_app(request, name, id):
+    account = Account.objects.filter(name=name).first()
+    app = account.apps.filter(id=id).first()
+
+    dict = model_to_dict(app)
+    dict['variables'] = []
+
+    for v in app.variables.all():
+        dict['variables'].append(model_to_dict(v))
+
+    data = json.dumps(dict)
+    return HttpResponse(data, content_type='application/json')
+
+
+@login_required
+def api_image(request, id):
+    image = Image.objects.filter(id=id).first()
+
+    dict = model_to_dict(image)
+    dict['variables'] = []
+
+    for v in image.variables.all():
+        dict['variables'].append(model_to_dict(v))
+
+    data = json.dumps(dict)
+    return HttpResponse(data, content_type='application/json')
+

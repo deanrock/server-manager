@@ -1,0 +1,11 @@
+{
+	"name": "php56-hosting",
+	"description": "latest php5.6-fpm",
+	"type": "application",
+	"ports": [
+		{
+			"port": 9000,
+			"type": "fastcgi"
+		}
+	]
+}
