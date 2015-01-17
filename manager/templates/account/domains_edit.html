@@ -145,6 +145,11 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
     proxy_set_header X-Forwarded-Port $server_port;
     proxy_set_header X-Request-Start $msec;
 }</script>
+<script id="nginx6" type="text/x-handlebars-template">location / {
+    include uwsgi_params;
+    uwsgi_pass #app_9000_ip#:9000;
+    uwsgi_intercept_errors on;
+}</script>
 <script id="apache1" type="text/x-handlebars-template">DocumentRoot /home/ACCOUNT/domains/DOMAIN/www
 
 <php>#php56_9000_ip#</php>
@@ -167,7 +172,8 @@ var examples_nginx = [
     {'name': 'PHP (Drupal specific)', 'value': 'nginx2'},
     {'name': 'ProxyPass', 'value': 'nginx3'},
     {'name': 'ProxyPass + WebSockets', 'value': 'nginx5'},
-    {'name': 'Proxy to Apache', 'value': 'nginx4'}
+    {'name': 'Proxy to Apache', 'value': 'nginx4'},
+    {'name': 'Python (UWSGI)', 'value': 'nginx6'}
 ];
 
 var examples_apache = [

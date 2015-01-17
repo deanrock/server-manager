@@ -9,7 +9,7 @@ from django.template import RequestContext
 import docker
 from manager import actions, docker_api
 from manager.forms import AppForm, DomainForm, DatabaseForm, UserSSHKeyForm
-from manager.models import App, Account, Domain, Database, UserSSHKey, Image
+from manager.models import App, Account, Domain, Database, UserSSHKey, Image, AppImageVariable
 
 
 @login_required
@@ -71,11 +71,12 @@ def account(request, name):
 @login_required
 def account_apps_edit(request, name, app=None):
     account = Account.objects.filter(name=name).first()
+    app = account.apps.filter(id=app).first()
     af = modelform_factory(App, form=AppForm)
 
     if request.method == 'POST':
         formset = af(request.POST, request.FILES,
-                          instance=account.apps.filter(id=app).first())
+                          instance=app)
 
         if formset.is_valid():
             obj = formset.save(commit=False)
@@ -83,14 +84,36 @@ def account_apps_edit(request, name, app=None):
             obj.added_by = request.user
             obj.save()
 
+            vars = obj.image.variables.all()
+
+            for v in vars:
+                prev = obj.variables.filter(name=v.name).first()
+
+                if prev:
+                    prev.delete()
+
+                field = 'id_variable_%s' % v.name
+                if field in request.POST and request.POST[field].rstrip() != '':
+                    prev = AppImageVariable()
+                    prev.app = obj
+                    prev.name = v.name
+                    prev.value = request.POST[field]
+                    prev.save()
+
             return HttpResponseRedirect(reverse('manager.views.account_apps', kwargs={'name': account.name}))
     else:
-        formset = af(instance=account.apps.filter(id=app).first())
+        formset = af(instance=app)
+
+    variables = {}
+    if app:
+        for v in app.variables.all():
+            variables[v.name] = v.value
 
     return render_to_response('account/apps_edit.html',
                               {
             'account': account,
-            'formset': formset
+            'formset': formset,
+            'variables': json.dumps(variables),
         },
                               context_instance=RequestContext(request))
 

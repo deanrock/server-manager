@@ -148,17 +148,47 @@ class App(models.Model):
                 if (os.path.isfile(full_file_name)) and file_name != 'Dockerfile':
                     shutil.copy(full_file_name, temp_folder)
 
-            dockerfile = os.path.join(temp_folder, "Dockerfile")
-
             userid, err = utils.exec_command(logs, 'id -u %s' % self.account.name)
 
+            def copy_file(name):
+                if os.path.exists(os.path.join(self.image.folder(), name)):
+                    with open(os.path.join(self.image.folder(), name),'r') as read:
+                        contents = read.read()
+
+                        contents = contents.replace("#user#", self.account.name). \
+                            replace("#uid#", userid.rstrip())
+
+                        contents = contents.replace("#appname#", self.name)
+
+                        variables = {}
+                        names = []
+
+                        for v in self.image.variables.all():
+                            if v.default:
+                                variables[v.name] = v.default
+
+                            names.append(v.name)
+
+                        for v in self.variables.all():
+                            for n in names:
+                                if v.name in n:
+                                    variables[v.name] = v.value
+
+                        logs.add("variables:\n %s" % variables)
+
+                        for v in variables:
+                            contents = contents.replace('#variable_%s#' % v, variables[v])
 
 
-            with open(os.path.join(self.image.folder(), "Dockerfile"),'r') as read:
-                with open(dockerfile, 'w') as write:
-                    for line in read:
-                        write.write(line.replace("#user#", self.account.name). \
-                            replace("#uid#", userid.rstrip()))
+                        logs.add("%s:\n%s" % (name, contents))
+
+                        new_name = os.path.join(temp_folder, name)
+                        with open(new_name, 'w') as write:
+                            write.write(contents)
+
+            copy_file('Dockerfile')
+            copy_file('start.sh')
+
         except Exception as e:
             logs.add("error while preparing Dockerfile ... %s" % str(e))
 

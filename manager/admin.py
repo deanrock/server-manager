@@ -58,20 +58,6 @@ class DatabaseAdmin(MyModelAdmin):
 
 admin.site.register(Database, DatabaseAdmin)
 
-class DomainAdmin(MyModelAdmin):
-    list_display = ['name', 'account', 'redirect_url', 'apache_enabled']
-    readonly_fields = ('added_by',)
-    change_list_template = 'admin/domains.html'
-
-    def save_model(self, request, obj, form, change):
-        try:
-            obj.added_by
-        except:
-            obj.added_by = request.user
-        obj.save()
-
-admin.site.register(Domain, DomainAdmin)
-
 
 class AccountAdmin(MyModelAdmin):
     change_list_template = 'admin/accounts.html'

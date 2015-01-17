@@ -16,7 +16,7 @@
 
             for(var x in data) {
                 var line = data[x];
-                line = line.replace('\n', '<br />');
+                line = line.replace(new RegExp('\n', 'g'), '<br />');
 
                 $('#action-response').append('<br /><span style=\'color:red\'>-&gt; </span> '+ line);
             }

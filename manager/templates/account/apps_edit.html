@@ -17,12 +17,12 @@
 <script id="variableForm" type="text/x-handlebars-template">
 	{% verbatim %}
 	<div class="form-group">
-            <label class="control-label  " for="id_variable_{{id}}">{{name}} ({{description}})</label>
+            <label class="control-label  " for="id_variable_{{name}}">{{name}} ({{description}})</label>
         <div class=" ">
         	{{#if create_file}}
-				<textarea class=" form-control" cols="40" id="id_variable_{{id}}" name="id_variable_{{id}}" rows="10"></textarea>
+				<textarea class=" form-control" cols="40" id="id_variable_{{name}}" name="id_variable_{{name}}" rows="10"></textarea>
         	{{else}}
-        		<input class=" form-control" id="id_variable_{{id}}" name="id_variable_{{id}}" placeholder="{{default}}" type="text" value="" /> 
+        		<input class=" form-control" id="id_variable_{{name}}" name="id_variable_{{name}}" placeholder="{{default}}" type="text" value="" /> 
         	{{/if}}
         </div>
 	</div>
@@ -31,6 +31,8 @@
 <script type="text/javascript">
 	var source   = $("#variableForm").html();
     var variableTemplate = Handlebars.compile(source);
+
+    var variables = {{variables|safe}};
 
 	var get_image_variables = function() {
 		$('#id_image').find('option:selected').each(function() {
@@ -46,6 +48,12 @@
 
 	       					$('.variables').append(variableTemplate(variable));
 	       				}
+	       			}
+
+	       			for(var v in variables) {
+	       				var variable = variables[v];
+
+	       				$('#id_variable_' + v).val(variable);
 	       			}
 				})
 			}
