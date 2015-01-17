@@ -72,25 +72,6 @@ class DomainAdmin(MyModelAdmin):
 
 admin.site.register(Domain, DomainAdmin)
 
-class ImagePortInline(admin.StackedInline):
-    model = ImagePort
-
-class ImageVariableInline(admin.StackedInline):
-    model = ImageVariable
-
-
-class ImageAdmin(MyModelAdmin):
-    inlines = (ImagePortInline, ImageVariableInline, )
-    readonly_fields = ('added_by',)
-
-    def save_model(self, request, obj, form, change):
-        try:
-            obj.added_by
-        except:
-            obj.added_by = request.user
-        obj.save()
-
-admin.site.register(Image, ImageAdmin)
 
 class AccountAdmin(MyModelAdmin):
     change_list_template = 'admin/accounts.html'

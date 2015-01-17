@@ -1,4 +1,5 @@
 {
+    "id": 4,
 	"name": "php56-extreme-hosting",
 	"description": "latest php5.6-fpm - max children: 50, min: 10",
 	"type": "application",

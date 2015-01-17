@@ -11,7 +11,7 @@ class AppForm(ModelForm):
 class DomainForm(ModelForm):
     class Meta:
         model = Domain
-        fields = ['name', 'redirect_url', 'nginx_config', 'apache_config', 'apache_enabled']
+        fields = ['name', 'redirect_url', 'nginx_config', 'apache_config', 'apache_enabled', 'ssl_enabled']
 
 class DatabaseForm(ModelForm):
     class Meta:

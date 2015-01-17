@@ -1,4 +1,5 @@
 {
+    "id": 1,
 	"name": "hhvm-hosting",
 	"description": "latest hhvm via fastcgi",
 	"type": "application",

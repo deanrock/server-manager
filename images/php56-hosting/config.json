@@ -1,4 +1,5 @@
 {
+    "id": 2,
 	"name": "php56-hosting",
 	"description": "latest php5.6-fpm",
 	"type": "application",

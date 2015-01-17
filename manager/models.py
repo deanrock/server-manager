@@ -44,6 +44,8 @@ class Domain(models.Model):
 
     apache_enabled = models.BooleanField(default=False, blank=True)
 
+    ssl_enabled = models.BooleanField(default=False, blank=True)
+
     added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     added_by = models.ForeignKey(User)
 
@@ -75,7 +77,6 @@ class Image(models.Model):
     type = models.CharField(max_length=255, choices=types)
 
     added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    added_by = models.ForeignKey(User)
 
     def folder(self):
         return os.path.abspath(os.path.join(settings.BASE_DIR, '../', 'images/', self.name)) #'%s/../images/%s' % (settings.BASE_DIR, self.name)
@@ -92,7 +93,6 @@ class App(models.Model):
     account = models.ForeignKey(Account, related_name='apps')
     name = models.CharField(max_length=50, validators=[appname_validator])
     image = models.ForeignKey(Image)
-    image_name = models.CharField(max_length=255, null=True, blank=True)
     container_id = models.TextField(max_length=255, null=True, blank=True)
     memory = models.IntegerField(default=256)
 

@@ -1,4 +1,5 @@
 {
+    "id": 3,
 	"name": "php56-legacy-hosting",
 	"description": "legacy:\n- shorttags=On",
 	"type": "application",
