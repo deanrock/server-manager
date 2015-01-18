@@ -173,7 +173,8 @@ def update_nginx_config():
 
             conf = render_to_string('system/nginx_vhost.conf', {
                 'domain': domain.name,
-                'config': nginx
+                'config': nginx,
+                'ssl_enabled': domain.ssl_enabled,
             })
 
             fname = os.path.join('/etc/nginx/manager', '%s_%s.conf' % (account.name, domain.name))
