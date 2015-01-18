@@ -177,7 +177,10 @@ def update_nginx_config():
                 'ssl_enabled': domain.ssl_enabled,
             })
 
-            fname = os.path.join('/etc/nginx/manager', '%s_%s.conf' % (account.name, domain.name))
+            if domain.ssl_enabled:
+                fname = os.path.join('/etc/nginx/manager', '%s_%s_ssl.conf' % (account.name, domain.name))
+            else:
+                fname = os.path.join('/etc/nginx/manager', '%s_%s.conf' % (account.name, domain.name))
 
             with open(fname, 'w') as f:
                 f.write(conf)
