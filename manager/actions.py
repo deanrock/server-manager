@@ -49,7 +49,7 @@ def sync_accounts():
 
         o, e = exec_command(logs, "sudo adduser nginx %s" % account.name)
         o, e = exec_command(logs, "sudo adduser apache %s" % account.name)
-        o, e = exec_command(logs, "sudo adduser sftponly %s" % account.name)
+        o, e = exec_command(logs, "sudo adduser %s sftponly" % account.name)
 
         for dir in dirs:
             o, e = exec_command(logs, "sudo mkdir -p /home/%s/%s" % (account.name, dir))
