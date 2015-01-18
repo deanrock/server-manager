@@ -2,7 +2,7 @@ cd #variable_chdir_path#
 
 if [ ! -d #variable_virtualenv_path# ];
 then
-    /usr/local/opt/python-2.7/bin/pyvenv #variable_virtualenv_path#
+    virtualenv #variable_virtualenv_path#
 fi
 
 source #variable_virtualenv_path#bin/activate
