@@ -12,3 +12,5 @@ RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/lo
 RUN pear channel-discover pear.drush.org && pear install drush/drush
 
 RUN drush
+
+ADD php.ini /etc/php5/cli/php.ini
