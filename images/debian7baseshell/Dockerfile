@@ -4,4 +4,4 @@ RUN apt-get update && apt-get install -y git subversion mercurial strace tar wge
 
 RUN mkdir /mystuff
 ADD start.sh /mystuff/
-
+ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
