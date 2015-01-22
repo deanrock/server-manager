@@ -19,7 +19,7 @@
 	<div class="form-group">
             <label class="control-label  " for="id_variable_{{name}}">{{name}} ({{description}})</label>
         <div class=" ">
-        	{{#if create_file}}
+        	{{#if filename}}
 				<textarea class=" form-control" cols="40" id="id_variable_{{name}}" name="id_variable_{{name}}" rows="10"></textarea>
         	{{else}}
         		<input class=" form-control" id="id_variable_{{name}}" name="id_variable_{{name}}" placeholder="{{default}}" type="text" value="" /> 
@@ -53,6 +53,7 @@
 	       			for(var v in variables) {
 	       				var variable = variables[v];
 
+                        console.log(v);
 	       				$('#id_variable_' + v).val(variable);
 	       			}
 				})

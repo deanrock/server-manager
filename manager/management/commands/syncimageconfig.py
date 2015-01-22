@@ -53,11 +53,16 @@ class Command(BaseCommand):
 
                         if 'variables' in j:
                             for var in j['variables']:
+                                print (var)
                                 v = ImageVariable()
                                 v.name = var['name']
                                 v.description = var['description']
 
                                 if 'default' in var:
                                     v.default = var['default']
+
+                                if 'filename' in var:
+                                    v.filename = var['filename']
+
                                 v.image = obj
                                 v.save()

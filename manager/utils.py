@@ -1,3 +1,4 @@
+
 import tempfile
 import shutil
 from subprocess import Popen, PIPE
@@ -16,7 +17,7 @@ class Logs:
         self.logs = []
 
     def add(self, obj):
-        self.logs.append(str(obj))
+        self.logs.append(unicode(obj))
 
     def append(self, logs):
         for x in logs.logs:

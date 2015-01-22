@@ -1,4 +1,5 @@
 import json
+import codecs
 import shutil
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -53,7 +54,7 @@ class ImageVariable(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     default = models.TextField(null=True, blank=True)
-    create_file = models.BooleanField(default=False)
+    filename = models.CharField(null=True, blank=True, max_length=255)
 
     image = models.ForeignKey('Image', related_name='variables')
 
@@ -141,58 +142,70 @@ class App(models.Model):
         logs.add("image folder %s" % self.image.folder())
         logs.add("temp folder %s" % temp_folder)
 
-        try:
-            src_files = os.listdir(self.image.folder())
-            for file_name in src_files:
-                full_file_name = os.path.join(self.image.folder(), file_name)
-                if (os.path.isfile(full_file_name)) and file_name != 'Dockerfile':
-                    shutil.copy(full_file_name, temp_folder)
+        #try:
+        src_files = os.listdir(self.image.folder())
+        for file_name in src_files:
+            full_file_name = os.path.join(self.image.folder(), file_name)
+            if (os.path.isfile(full_file_name)) and file_name != 'Dockerfile':
+                shutil.copy(full_file_name, temp_folder)
 
-            userid, err = utils.exec_command(logs, 'id -u %s' % self.account.name)
+        userid, err = utils.exec_command(logs, 'id -u %s' % self.account.name)
 
-            def copy_file(name):
-                if os.path.exists(os.path.join(self.image.folder(), name)):
-                    with open(os.path.join(self.image.folder(), name),'r') as read:
-                        contents = read.read()
+        def copy_file(name, append=None):
+            if os.path.exists(os.path.join(self.image.folder(), name)):
+                with codecs.open(os.path.join(self.image.folder(), name),'r', encoding='utf8') as read:
+                    contents = read.read()
 
-                        contents = contents.replace("#user#", self.account.name). \
-                            replace("#uid#", userid.rstrip())
+                    contents = contents.replace("#user#", self.account.name). \
+                        replace("#uid#", userid.rstrip())
 
-                        contents = contents.replace("#appname#", self.name)
+                    contents = contents.replace("#appname#", self.name)
 
-                        variables = {}
-                        names = []
+                    variables = {}
+                    names = []
 
-                        for v in self.image.variables.all():
-                            if v.default:
-                                variables[v.name] = v.default
+                    for v in self.image.variables.all():
+                        if v.default:
+                            variables[v.name] = v.default
 
-                            names.append(v.name)
+                        names.append(v.name)
 
-                        for v in self.variables.all():
-                            for n in names:
-                                if v.name in n:
-                                    variables[v.name] = v.value
+                    for v in self.variables.all():
+                        for n in names:
+                            if v.name in n:
+                                variables[v.name] = v.value
 
-                        logs.add("variables:\n %s" % variables)
+                    logs.add("variables:\n %s" % variables)
 
-                        for v in variables:
-                            contents = contents.replace('#variable_%s#' % v, variables[v])
+                    for v in variables:
+                        contents = contents.replace('#variable_%s#' % v, variables[v])
+
+                    if append:
+                        contents = contents + "\n" + append + "\n"
+
+                    logs.add("%s:\n%s" % (name, contents))
+
+                    new_name = os.path.join(temp_folder, name)
+                    with codecs.open(new_name, 'w', encoding='utf8') as write:
+                        write.write(contents)
+
+        copy_file('Dockerfile')
+        copy_file('start.sh')
+
+        file_variables = {}
+        for v in self.image.variables.all():
+            if v.filename:
+                file_variables[v.name] = v
+
+        for v in self.variables.all():
+            if v.name in file_variables:
+                copy_file(file_variables[v.name].filename, append=v.value)
 
 
-                        logs.add("%s:\n%s" % (name, contents))
+        #except Exception as e:
+        #    logs.add("error while preparing Dockerfile ... %s" % str(e))
 
-                        new_name = os.path.join(temp_folder, name)
-                        with open(new_name, 'w') as write:
-                            write.write(contents)
-
-            copy_file('Dockerfile')
-            copy_file('start.sh')
-
-        except Exception as e:
-            logs.add("error while preparing Dockerfile ... %s" % str(e))
-
-            return logs
+        #    return logs
 
         #build image
         try:
