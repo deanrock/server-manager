@@ -86,6 +86,8 @@ def rebuild_base_image():
         "python34-base-hosting",
         "php53-base-hosting",
         "python27-base-hosting",
+        "java8-base-shell",
+        "java8-base-hosting",
     ]
 
     for image in images:
