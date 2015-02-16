@@ -10,6 +10,6 @@ RUN chown -R #user#:#user# /mystuff && chmod +x /mystuff/start.sh
 
 USER #user#
 
-EXPOSE 9000
+EXPOSE 8080
 
 CMD /bin/bash -c "/mystuff/start.sh"

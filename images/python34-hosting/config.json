@@ -16,7 +16,7 @@
 		},
 		{
 			"name": "command",
-			"description": "Command to run (e.g. python34 application.py)"
+			"description": "Command to run (e.g. python application.py)"
 		},
 		{
 			"name": "virtualenv_path",
