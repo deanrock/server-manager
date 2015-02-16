@@ -1,5 +1,5 @@
 {
-    "id": 12,
+    "id": 13,
 	"name": "java8-hosting",
 	"description": "java8 hosting (standalone application with embedded server (e.g. tomcat/jetty))",
 	"type": "application",
