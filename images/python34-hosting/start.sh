@@ -11,4 +11,4 @@ pip install -r #variable_requirements_file#
 
 mkdir -p /home/#user#/apps/#appname#/logs && chown -R #user#:#user# /home/#user#/apps/#appname#/logs
 
-#command#
+#variable_command#
