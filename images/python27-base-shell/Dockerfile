@@ -1,4 +1,4 @@
-FROM manager/debian7baseshell
+FROM manager/python27-base
 
-RUN apt-get install -y python-virtualenv python-dev
-
+RUN mkdir /mystuff
+ADD start.sh /mystuff/

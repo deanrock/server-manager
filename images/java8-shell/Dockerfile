@@ -1,6 +1,9 @@
-FROM manager/java8-base-shell
+FROM manager/java8-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
+
+RUN mkdir /mystuff
+ADD start.sh /mystuff/
 
 USER #user#
 

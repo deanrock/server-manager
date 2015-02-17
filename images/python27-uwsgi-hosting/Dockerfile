@@ -1,4 +1,4 @@
-FROM manager/python27-base-hosting
+FROM manager/python27-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 

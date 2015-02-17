@@ -78,17 +78,21 @@ def rebuild_base_image():
     images = [
         "debian7base",
         "debian7basehosting",
+        "debian7baseshell",
+
+        "php53-base-hosting",
+
         "php56-base",
         "php56-base-hosting",
-        "debian7baseshell",
         "php56-base-shell",
+
+        "python27-base",
         "python27-base-shell",
+
+        "python34-base",
         "python34-base-shell",
-        "python34-base-hosting",
-        "php53-base-hosting",
-        "python27-base-hosting",
-        "java8-base-shell",
-        "java8-base-hosting",
+
+        "java8-base",
     ]
 
     for image in images:
