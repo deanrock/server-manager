@@ -9,7 +9,10 @@ RUN echo "deb http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.l
 
 RUN apt-get install -y php5-gd php5-mysql
 
-RUN cd /tmp && wget -O wkhtmltox.deb  http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.2.1/wkhtmltox-0.12.2.1_linux-wheezy-amd64.deb && \
+#wkhtmltox
+RUN apt-get install -y fontconfig libxrender1 xfonts-base xfonts-75dpi && \
+	cd /tmp && \
+	wget -O wkhtmltox.deb  http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.2.1/wkhtmltox-0.12.2.1_linux-wheezy-amd64.deb && \
 	dpkg -i wkhtmltox.deb
 
 #RUN pear clear-cache && pear update-channels
