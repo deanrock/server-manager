@@ -93,6 +93,7 @@ def rebuild_base_image():
         "python34-base-shell",
 
         "java8-base",
+        "java8-base-shell",
     ]
 
     for image in images:
