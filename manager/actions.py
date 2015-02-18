@@ -94,6 +94,9 @@ def rebuild_base_image():
 
         "java8-base",
         "java8-base-shell",
+
+        "go1.4-base",
+        "go1.4-base-shell",
     ]
 
     for image in images:
