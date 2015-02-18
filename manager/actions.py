@@ -98,7 +98,7 @@ def rebuild_base_image():
         "go1.4-base",
         "go1.4-base-shell",
 
-        "nodejs0.12-hosting",
+        "nodejs0.12-base",
         "nodejs0.12-base-shell",
     ]
 
