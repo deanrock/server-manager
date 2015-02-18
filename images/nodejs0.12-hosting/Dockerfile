@@ -1,4 +1,4 @@
-FROM manager/nodejs0.12-hosting
+FROM manager/nodejs0.12-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 
