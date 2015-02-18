@@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
 import os
 import sys
 
-shells = ["php56", "python27", "python34", "java8", "go1.4"]
+shells = ["php56", "python27", "python34", "java8", "go1.4", "nodejs0.12"]
 users = [o for o in os.listdir("/home/") if os.path.isdir(os.path.join("/home/",o))]
 
 if len(sys.argv) == 3:
