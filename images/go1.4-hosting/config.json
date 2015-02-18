@@ -1,0 +1,22 @@
+{
+    "id": 14,
+	"name": "go1.4-hosting",
+	"description": "go1.4 hosting (standalone app)",
+	"type": "application",
+	"ports": [
+		{
+			"port": 8080,
+			"type": "http"
+		}
+	],
+	"variables": [
+		{
+			"name": "chdir_path",
+			"description": "path to chdir to before running the command"
+		},
+		{
+			"name": "command",
+			"description": "Command to run (e.g. export GOPATH=\"`pwd`/go/\" && export GOBIN=\"$GOPATH/bin\" && go run server.go)"
+		}
+	]
+}
