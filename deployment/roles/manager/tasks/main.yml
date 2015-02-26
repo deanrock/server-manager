@@ -26,3 +26,9 @@
     - gcc
     - python-dev
     - python-virtualenv
+
+- name: copy init.d config
+  action: template src=init_d_manager.conf dest=/etc/init.d/manager mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager defaults
