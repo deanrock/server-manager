@@ -8,5 +8,17 @@
 			"port": 9000,
 			"type": "fastcgi"
 		}
+	],
+	"variables": [
+		{
+			"name": "php_config",
+			"description": "custom php.ini config (will be appended after default php.ini)",
+			"filename": "php.ini"
+		},
+		{
+			"name": "php_fpm_config",
+			"description": "custom php-fpm pool config (will be appended after default php-fpm pool config)",
+			"filename": "www.conf"
+		}
 	]
 }
