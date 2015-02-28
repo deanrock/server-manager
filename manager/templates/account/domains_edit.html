@@ -191,6 +191,9 @@ var editors = {};
         editor.setTheme("ace/theme/chrome");
         editor.setFontSize("12px")
         editor.getSession().setMode("ace/mode/markdown");
+        editor.setAutoScrollEditorIntoView(true);
+        editor.setOption("maxLines", 3000);
+        editor.setOption("minLines", 20);
 
         editors[textarea_id] = editor;
         var textarea = $('#' + textarea_id).hide();
