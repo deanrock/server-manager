@@ -10,20 +10,26 @@
 <p>{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}</p>
 {% endif %}
 
-<form method="post" action="{% url 'auth_login' %}">{% csrf_token %}
-<table>
-<tr>
-    <td>{% trans form.username.label_tag %}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{% trans form.password.label_tag %}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
 
-<input type="submit" value="{% trans "login" %}" />
+    <link href="/static/css/login.css" rel="stylesheet">
+
+
+      <form class="form-signin" method="post" action="{% url 'auth_login' %}">
+        <h2 class="form-signin-heading">Login</h2>
+{% csrf_token %}
+
 <input type="hidden" name="next" value="{{ next }}" />
-</form>
+
+        <label for="inputEmail" class="sr-only">Username</label>
+        <input type="username" id="username" class="form-control" name="username" placeholder="Username" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
+        <!--<div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>-->
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+      </form>
 
 {% endblock %}

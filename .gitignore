@@ -73,3 +73,5 @@ tile.hosts
 brick.hosts
 backup_*.db
 
+
+proxy/libs/

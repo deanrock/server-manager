@@ -1,0 +1,8 @@
+- name: mkdir go1.4
+  file: path=/usr/local/go1.4 state=directory
+
+- name: download go1.4
+  get_url: url=https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz dest=/usr/local/go1.4/go1.4.tar.gz mode=0644
+
+- name: extract go1.4
+  shell: tar -C /usr/local/go1.4/ -xzf /usr/local/go1.4/go1.4.tar.gz creates=/usr/local/go1.4/go/bin/go

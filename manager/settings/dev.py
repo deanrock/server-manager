@@ -9,3 +9,10 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 MYSQL_ROOT_PASSWORD = 'mypassword2012'
+
+DATABASES['manager'] = {
+    'NAME': 'manager',
+    'ENGINE': 'django.db.backends.mysql',
+    'USER': 'manager',
+    'PASSWORD': 'ret56786vew9enr89'
+}

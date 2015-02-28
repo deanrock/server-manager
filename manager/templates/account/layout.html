@@ -1,11 +1,18 @@
 {% extends "layout.html" %}
 
-{% block content %}
+{% block container %}
 {% url 'manager.views.account' account.name as ourl %}
 {% url 'manager.views.account_apps' account.name as aurl %}
 {% url 'manager.views.account_domains' account.name as durl %}
 {% url 'manager.views.account_databases' account.name as dburl %}
 
+<div class="jumbotron account-menu">
+    <div class="container">
+      <h1>{{account.name}}</h1>
+      <div><div>{{account.description}}</div></div>
+    </div>
+  </div>
+  <div class="container">
          <div class="row row-offcanvas row-offcanvas-right">
 
             <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
@@ -30,4 +37,5 @@
 
 
       </div><!--/row-->
+      </div>
  {% endblock %}
