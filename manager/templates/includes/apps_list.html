@@ -10,6 +10,7 @@
         <th></th>
         <th></th>
         <th></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -22,6 +23,7 @@
             <td>{{app.status}}</td>
             <td>{{app.image.name}}</td>
             <td>{{app.memory}} M</td>
+            <td><a href="{% url 'manager.views.account_apps_logs' app.account.name app.id %}" title="Show logs"><span class="glyphicon glyphicon glyphicon-list"></span></a></td>
             <td><a href="{% url 'manager.views.account_apps_action' app.account.name app.id 'start' %}" title="Start"><span class="glyphicon glyphicon-play"></span></a></td>
             <td><a href="{% url 'manager.views.account_apps_action' app.account.name app.id 'stop' %}" title="Stop"><span class="glyphicon glyphicon-stop"></span></a></a></td>
             <td><a href="{% url 'manager.views.account_apps_action' app.account.name app.id 'redeploy' %}" title="Redeploy"><span class="glyphicon glyphicon-repeat"></span></a></a></td>

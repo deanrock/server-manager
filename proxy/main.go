@@ -7,6 +7,7 @@ import (
     "github.com/gorilla/websocket"
     "sync"
     "time"
+    "bufio"
     "errors"
     "fmt"
     "github.com/gin-gonic/gin"
@@ -39,6 +40,8 @@ var connections = struct {
     m map[*websocket.Conn]bool
 }{m: make(map[*websocket.Conn]bool)}
 
+var docker *dockerclient.DockerClient
+
 func wsHandler(w http.ResponseWriter, r *http.Request) {
     conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
     if _, ok := err.(websocket.HandshakeError); ok {
@@ -62,6 +65,42 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
             connections.Unlock()
             conn.Close()
             return
+        }
+    }
+}
+
+func containerLogsHandler(c *gin.Context) {
+    conn, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
+    if _, ok := err.(websocket.HandshakeError); ok {
+        http.Error(c.Writer, "Not a websocket handshake", 400)
+        return
+    } else if err != nil {
+        log.Println(err)
+        return
+    }
+
+    options := dockerclient.LogOptions{
+        Follow: true,
+        Stdout: true,
+        Stderr: true,
+        Timestamps: true,
+    }
+
+    reader, err := docker.ContainerLogs(c.Params.ByName("id"), &options)
+    defer reader.Close()
+    rd := bufio.NewReader(reader)
+    for {
+        str, err := rd.ReadString('\n')
+        if err != nil {
+            log.Printf("Read Error:", err)
+            return
+        }
+
+        if len(str) > 8 {
+            if err := conn.WriteMessage(websocket.TextMessage, []byte(str[8:])); err != nil {
+                conn.Close()
+                break
+            }
         }
     }
 }
@@ -94,7 +133,7 @@ func Authentication() gin.HandlerFunc {
 func main() {
     //Docker
     // Init the client
-    docker, _ := dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
+    docker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
     // Listen to events
     docker.StartMonitorEvents(dockerEventCallback, nil)
@@ -112,6 +151,8 @@ func main() {
         authorized.GET("/ws/", func(c *gin.Context) {
             wsHandler(c.Writer, c.Request)
         })
+
+        authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
     }
 
     s := &http.Server{

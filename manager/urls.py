@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^a/(?P<name>[a-z0-9-]+)/$', 'manager.views.account'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/$', 'manager.views.account_apps'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)$', 'manager.views.account_apps_edit'),
+    url(r'^a/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)/logs$', 'manager.views.account_apps_logs'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)/(?P<action>[a-z]+)/ajax', 'manager.views.account_apps_action_ajax'),
     url(r'^a/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)/(?P<action>[a-z]+)/', 'manager.views.account_apps_action'),
 

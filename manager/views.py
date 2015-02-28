@@ -164,6 +164,39 @@ def account_apps_action(request, name, app, action):
 
 
 @login_required
+def account_apps_logs(request, name, app):
+    account = Account.objects.filter(name=name).first()
+    app = account.apps.filter(id=app).first()
+
+    containers = docker_api.cli.containers()
+    mapping = {}
+    for c in containers:
+        try:
+            name = c['Names'][0].replace('/', '')
+
+            mapping[name] = c
+        except Exception as e:
+            print(e)
+
+    print mapping
+
+   
+    if app.container_name() in mapping:
+        app.status = mapping[app.container_name()]['Status']
+        app.container_id = mapping[app.container_name()]['Id']
+
+        if 'Up ' in app.status:
+            app.up = True
+
+    return render_to_response("account/apps_logs.html",
+        {
+            'account': account,
+            'app': app,
+        },
+        context_instance=RequestContext(request))
+
+
+@login_required
 def account_apps(request, name):
     account = Account.objects.filter(name=name).first()
     apps = account.apps.all()

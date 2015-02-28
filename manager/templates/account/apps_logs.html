@@ -1,0 +1,33 @@
+{% extends "account/layout.html" %}
+{% load bootstrap %}
+{% block subcontent %}
+
+
+<div style="width:100%;text-align:center">
+    <h3>Displaying logs for {{app.name}} app for {{account.name}}</h3>
+
+<br />
+
+<ul class="logs" style="text-align:left"></ul>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+
+
+var logs = new WebSocket('ws://'+location.host+'/api/v1/containers/{{app.container_id}}/logs');
+
+
+logs.onopen = function() {
+    console.log('open container logs ws')
+}
+
+logs.onmessage = function(msg) {
+    console.log(msg)
+    $('.logs').append('<li>'+msg.data+'</li>');
+}
+
+</script>
+{% endblock %}
