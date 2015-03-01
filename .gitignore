@@ -75,6 +75,9 @@ backup_*.db
 
 
 proxy/libs/
+go-libs/
+ondemand/ondemand
+
 ssl.crt
 ssl.key
 
