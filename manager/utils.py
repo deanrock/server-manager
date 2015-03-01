@@ -17,7 +17,10 @@ class Logs:
         self.logs = []
 
     def add(self, obj, flag=None):
-        self.logs.append({'message': unicode(obj), 'flag': flag})
+        try:
+            self.logs.append({'message': unicode(obj), 'flag': flag})
+        except:
+            self.logs.append({'message': unicode(obj, 'utf-8'), 'flag': flag})
 
     def append(self, logs):
         for x in logs.logs:
