@@ -1,6 +1,59 @@
 {% extends "account/layout.html" %}
 
 {% block subcontent %}
+<h3 style="margin-top:0px">Interactive shell</h3>
 
+<form class="form-inline" id="interactive-shell-form">
+  <div class="form-group">
+    <select class="form-control" id="shells">
 
+</select>
+  </div>
+  
+  <button type="submit" class="submit btn btn-primary">Start</button>
+  <button class="stop btn btn-default" style="display:none">Stop</button>
+</form>
+<br />
+<div id="shell">
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+$.get( "/api/v1/shells", function(data) {
+	for (var i in data) {
+		var x = data[i];
+		$('#shells').append('<option value="'+x+'">'+x+'</option>');
+	}
+});
+var shell = null;
+
+$('#interactive-shell-form').submit(function() {
+	if (shell == null) {
+		var selected = $('#shells option:selected').val();
+		shell = new AccountShell('{{account.name}}', selected, document.getElementById('shell'));
+		$('#interactive-shell-form select:first').prop('disabled', true);
+		$('#interactive-shell-form button.submit').prop('disabled', true);
+		$('#interactive-shell-form button.stop').show();
+	}
+
+	return false;
+
+});
+
+$('#interactive-shell-form button.stop').click(function() {
+	if (shell!= null) {
+		shell.stop();
+
+		setTimeout(function() {
+			$('#interactive-shell-form select:first').prop('disabled', false);
+			$('#interactive-shell-form button.submit').prop('disabled', false);
+			$('#interactive-shell-form button.stop').hide();
+			shell=null;
+		}, 0);
+	}
+});
+
+</script>
 {% endblock %}

@@ -12,6 +12,7 @@ import (
     "fmt"
     "github.com/gin-gonic/gin"
     "github.com/samalba/dockerclient"
+    "github.com/fsouza/go-dockerclient"
 )
 
 
@@ -40,7 +41,10 @@ var connections = struct {
     m map[*websocket.Conn]bool
 }{m: make(map[*websocket.Conn]bool)}
 
-var docker *dockerclient.DockerClient
+var mydocker *dockerclient.DockerClient
+var dockerClient *docker.Client
+
+var shell Shell
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
     conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
@@ -86,7 +90,7 @@ func containerLogsHandler(c *gin.Context) {
         Timestamps: true,
     }
 
-    reader, err := docker.ContainerLogs(c.Params.ByName("id"), &options)
+    reader, err := mydocker.ContainerLogs(c.Params.ByName("id"), &options)
     defer reader.Close()
     rd := bufio.NewReader(reader)
     for {
@@ -133,10 +137,18 @@ func Authentication() gin.HandlerFunc {
 func main() {
     //Docker
     // Init the client
-    docker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
+    mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
     // Listen to events
-    docker.StartMonitorEvents(dockerEventCallback, nil)
+    mydocker.StartMonitorEvents(dockerEventCallback, nil)
+
+    //go-dockerclient
+    endpoint := "unix:///var/run/docker.sock"
+    dockerClient, _ = docker.NewClient(endpoint)
+
+    //Shell
+    shell = Shell{}
+    shell.getDockerImages()
 
 
     //HTTP
@@ -153,6 +165,12 @@ func main() {
         })
 
         authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
+
+        authorized.GET("/api/v1/account/:account/shell", shell.containerAttachHandler)
+
+        authorized.GET("/api/v1/shells", func(c *gin.Context) {
+            c.JSON(200, shell.ShellImages)
+        })
     }
 
     s := &http.Server{

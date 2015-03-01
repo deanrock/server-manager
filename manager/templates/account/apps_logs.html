@@ -17,7 +17,7 @@
 <script>
 
 
-var logs = new WebSocket('ws://'+location.host+'/api/v1/containers/{{app.container_id}}/logs');
+var logs = new WebSocket(getWebsocketHost()+'/api/v1/containers/{{app.container_id}}/logs');
 
 
 logs.onopen = function() {

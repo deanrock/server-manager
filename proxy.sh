@@ -11,5 +11,5 @@ export GOBIN=$DIR/proxy/libs/bin/
 
 /usr/local/go1.4/go/bin/go get
 /usr/local/go1.4/go/bin/go install
-/usr/local/go1.4/go/bin/go run main.go session.go
+/usr/local/go1.4/go/bin/go run main.go session.go shell.go
 
