@@ -1,5 +1,5 @@
 function getWebsocketHost() {
-	if (location.protocol == 'https') {
+	if (location.protocol == 'https:') {
 		return 'wss://'+location.host;
 	}else{
 		return 'ws://'+location.host;

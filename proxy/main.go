@@ -6,6 +6,7 @@ import (
     "net/http/httputil"
     "github.com/gorilla/websocket"
     "sync"
+    //"os"
     "time"
     "bufio"
     "errors"
@@ -187,5 +188,13 @@ func main() {
     r.Static("/static/js", "../manager/static/js")
 
     r.NoRoute(proxyRequest)
-    log.Fatal(s.ListenAndServe())
+
+    //certFile := "../ssl.crt"
+    //keyFile := "../ssl.key"
+
+    /*if _, err := os.Stat(certFile); err == nil {
+        log.Fatal(s.ListenAndServeTLS(certFile, keyFile))
+    }else{*/
+        log.Fatal(s.ListenAndServe())
+    //}
 }
