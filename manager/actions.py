@@ -203,8 +203,8 @@ def update_nginx_config():
             o, e = exec_command(logs, "sudo nginx -t")
 
             if 'emerg' in e:
-                logs.add('NGINX CONFIG TEST FAILED!')
-                return logs
+                logs.add('NGINX CONFIG TEST FAILED!', 'fail')
+                os.remove(fname)
 
 
             #apache
@@ -237,8 +237,8 @@ def update_nginx_config():
                 o, e = exec_command(logs, "sudo apachectl configtest")
 
             if 'failed' in o:
-                logs.add('APACHE CONFIG TEST FAILED!')
-                return logs
+                logs.add('APACHE CONFIG TEST FAILED!', 'fail')
+                os.remove(fname)
 
 
     #reload nginx
