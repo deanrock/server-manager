@@ -13,6 +13,20 @@ db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric cha
 appname_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_-]*$', 'Only alphanumeric characters, underscore and \'-\' are allowed.')
 
 
+class CronJob(models.Model):
+    name = models.CharField(max_length=255)
+    account = models.ForeignKey('Account', related_name='cronjobs')
+    image = models.ForeignKey('Image')
+
+    directory = models.CharField(max_length=255)
+    script_file = models.CharField(max_length=255)
+    timeout = models.IntegerField(default=60)#seconds
+    cron_expression = models.CharField(max_length=255)
+
+    added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    added_by = models.ForeignKey(User)
+
+
 class UserSSHKey(models.Model):
     user = models.ForeignKey(User, related_name='ssh_keys')
 

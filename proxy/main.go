@@ -14,6 +14,12 @@ import (
     "github.com/gin-gonic/gin"
     "github.com/samalba/dockerclient"
     "github.com/fsouza/go-dockerclient"
+    //"database/sql"
+    //"github.com/coopernurse/gorp"
+    "github.com/jinzhu/gorm"
+    _ "github.com/mattn/go-sqlite3"
+    "./controllers"
+    "./shared"
 )
 
 
@@ -147,6 +153,18 @@ func main() {
     endpoint := "unix:///var/run/docker.sock"
     dockerClient, _ = docker.NewClient(endpoint)
 
+    sharedContext := &shared.SharedContext{}
+
+    //sqlite
+    db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
+
+    if err != nil {
+        log.Fatal("database error", err)
+    }
+
+    sharedContext.PersistentDB = db
+
+
     //Shell
     shell = Shell{}
     shell.getDockerImages()
@@ -172,6 +190,32 @@ func main() {
         authorized.GET("/api/v1/shells", func(c *gin.Context) {
             c.JSON(200, shell.ShellImages)
         })
+
+        //accounts
+        accounts := &controllers.AccountsAPI{
+            Context: sharedContext,
+        }
+
+        authorized.GET("/api/v1/accounts", accounts.ListAccounts)
+        authorized.GET("/api/v1/accounts/:name", accounts.GetAccountByName)
+
+        //cronjobs
+        cronJobs := &controllers.CronJobsAPI{
+            Context: sharedContext,
+        }
+
+        authorized.GET("/api/v1/accounts/:name/cronjobs", cronJobs.ListCronjobs)
+        authorized.GET("/api/v1/accounts/:name/cronjobs/:id", cronJobs.GetCronjob)
+        authorized.PUT("/api/v1/accounts/:name/cronjobs/:id", cronJobs.EditCronjob)
+        authorized.POST("/api/v1/accounts/:name/cronjobs", cronJobs.AddCronjob)
+
+        /*authorized.GET("/", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })
+
+        authorized.GET("/a/*params", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })*/
     }
 
     s := &http.Server{
@@ -186,6 +230,7 @@ func main() {
     r.Static("/static/bootstrap", "../manager/static/bootstrap")
     r.Static("/static/css", "../manager/static/css")
     r.Static("/static/js", "../manager/static/js")
+    r.Static("/static/templates", "../manager/static/templates")
 
     r.NoRoute(proxyRequest)
 
