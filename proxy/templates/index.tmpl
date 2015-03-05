@@ -1,12 +1,12 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="managerApp">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <base href="/">
 
     <title>Manager</title>
 
@@ -15,7 +15,8 @@
     <link href="/static/css/style.css" rel="stylesheet">
   </head>
 
-  <body>
+  <body ng-controller="mainCtrl">
+
     <nav class="navbar navbar-fixed-top navbar-inverse main-navbar">
       <div class="container">
         <div class="navbar-header">
@@ -25,12 +26,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Manager: {{server_friendly_name}}</a>
+          <a class="navbar-brand" href="/">Manager: {server_friendly_name}</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="/">Accounts</a></li>
-            <li class=""><a href="{% url 'manager.views.containers' %}">Containers</a></li>
+            <li class=""><a href="/containers/">Containers</a></li>
             <li class="dropdown">
                 <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sync <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -41,13 +42,13 @@
                <li><a href="{% url 'manager.views.rebuild_base_image' %}">Rebuild base Docker images</a></li>
                 </ul>
             </li>
-            <li><a href="{% url 'admin:index' %}">Django Admin</a></li>
+            <li><a href="/admin/">Django Admin</a></li>
 
           </ul>
 
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{request.user}} <span class="caret"></span></a>
+                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{request.user} <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                 <li><a href="{% url 'manager.views.profile_sshkeys' %}">SSH keys</a></li>
                 </ul>
@@ -60,31 +61,23 @@
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
 
-{% block container %}
-    <div class="container">
-    
-     {% block content %}
-     {% endblock %}
 
-      <hr>
 
-      <footer>
-      </footer>
-
-    </div><!--/.container-->
-{% endblock %}
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+    <div id="mainView" ng-view></div>
     <script src="/static/js/jquery-2.1.3.min.js"></script>
     <script src="/static/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/ng-layout.js"></script>
     <script src="/static/js/handlebars-v2.0.0.js"></script>
+    <script src="/static/js/jquery.iframe-auto-height.modified.js"></script>
+    <script src="/static/js/jquery.browser.js"></script>
     <script src="/static/js/reconnecting-websocket.min.js"></script>
     <script src="/static/js/term.js"></script>
     <script src="/static/js/javascript.js"></script>
-  {% block javascript %}
-  {% endblock %}
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/controllers.js"></script>
+    <script src="/static/js/services.js"></script>
+    <script src="/static/js/directives.js"></script>
   </body>
 </html>

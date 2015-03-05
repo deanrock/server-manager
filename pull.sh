@@ -1,6 +1,9 @@
 #!/bin/bash
 #!/bin/bash
 
+green='\033[0;32m'
+NC='\033[0m' # No Color
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd $DIR
@@ -27,18 +30,30 @@ sudo cp shell/shell.py /usr/bin/shell
 
 
 
-#build proxy
+#golang build stuff
 
 cd $DIR
 
 mkdir -p ./bin
 
-cd ./proxy
-
 export GOROOT=/usr/local/go1.4/go
 export GOPATH=$DIR/go-libs/
 export GOBIN=$DIR/go-libs/bin/
 
+echo -e "${green}[go] compiling proxy ...${NC}"
+cd $DIR/proxy
+
+echo -e "${green}[go] getting libraries ...${NC}"
 /usr/local/go1.4/go/bin/go get
 /usr/local/go1.4/go/bin/go install
 /usr/local/go1.4/go/bin/go build -o ../bin/proxy main.go session.go shell.go
+
+echo -e "${green}[go] compiling cron ...${NC}"
+cd $DIR/cron
+
+echo -e "${green}[go] getting libraries ...${NC}"
+/usr/local/go1.4/go/bin/go get
+/usr/local/go1.4/go/bin/go install
+/usr/local/go1.4/go/bin/go build -o ../bin/cron main.go
+
+echo -e "${green}[all] finished${NC}"

@@ -1,0 +1,19 @@
+<ng-layout src="static/templates/account/layout.html">
+    <div content_for="content">
+        <h3 style="margin-top:0px">Interactive shell</h3>
+
+        <form class="form-inline" ng-submit="submit()">
+            <div class="form-group">
+                <select class="form-control" ng-model="shell" ng-options="s as s for s in shells">
+                </select>
+            </div>
+
+            <button type="submit" class="submit btn btn-primary">Start</button>
+            <button class="stop btn btn-default" style="display:none">Stop</button>
+        </form>
+        <br />
+        <div id="shell">
+        </div>
+
+    </div>
+</ng-layout>
