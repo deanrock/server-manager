@@ -20,6 +20,13 @@ if [ $1 = "cron" ]; then
 	/usr/local/go1.4/go/bin/go get
 	/usr/local/go1.4/go/bin/go install
 	/usr/local/go1.4/go/bin/go run main.go
+elif [ $1 = "uptime-updater" ]; then
+	echo "uptime updater"
+
+	cd ./uptime-updater
+	/usr/local/go1.4/go/bin/go get
+	/usr/local/go1.4/go/bin/go install
+	/usr/local/go1.4/go/bin/go run main.go
 elif [ $1 = "proxy" ]; then
 	echo "proxy"
 
@@ -34,6 +41,16 @@ elif [ $1 = "ondemand" ]; then
 		/usr/local/go1.4/go/bin/go get
 	/usr/local/go1.4/go/bin/go install
 	/usr/local/go1.4/go/bin/go run main.go
+elif [ $1 = "shell" ]; then
+	echo "shell"
+
+	cd ./realshell
+		/usr/local/go1.4/go/bin/go get
+	/usr/local/go1.4/go/bin/go install
+	/usr/local/go1.4/go/bin/go build -o shell shell.go
+	sudo mv shell /usr/bin/manager-shell
+	sudo chown root:root /usr/bin/manager-shell
+	sudo chmod u+s /usr/bin/manager-shell
 elif [ $1 = "manager" ]; then
 	echo "manager"
 
