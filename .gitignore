@@ -81,3 +81,4 @@ ondemand/ondemand
 ssl.crt
 ssl.key
 
+config.json
