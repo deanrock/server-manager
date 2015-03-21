@@ -33,7 +33,7 @@ type Shell struct {
 }
 
 func (shell *Shell) Mylog(text string) {
-	f, err := os.OpenFile("/test.log", os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile("/var/log/manager/manager-shell.log", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 	    panic(err)
 	}
