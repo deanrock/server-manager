@@ -7,6 +7,7 @@ from manager import docker_api, utils
 import os
 from django.db import models
 from django.contrib.auth.models import User
+import utils
 
 account_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z-]*$', 'Only alphanumeric characters and \'-\' are allowed.')
 db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric characters and underscore are allowed.')
@@ -46,6 +47,18 @@ class Account(models.Model):
 
     users = models.ManyToManyField(User, related_name='users')
 
+    def variables(self):
+        v = {
+            "user": self.name
+        }
+
+        logs = utils.Logs()
+        userid, err = utils.exec_command(logs, 'id -u %s' % self.name)
+        v["uid"] = userid.rstrip()
+
+        return v
+
+
     def __str__(self):
         return '%s (%s)' % (self.name, self.description)
 
@@ -77,6 +90,7 @@ class ImagePort(models.Model):
         ('fastcgi', 'FastCGI'),
         ('http', 'HTTP'),
         ('uwsgi', 'UWSGI'),
+        ('tcp', 'TCP'),
     )
     type = models.CharField(max_length=255, choices=types)
     port = models.IntegerField()
@@ -88,6 +102,7 @@ class Image(models.Model):
     description = models.TextField()
     types = (
         ('application', 'Application'),
+        ('database', 'Database'),
     )
     type = models.CharField(max_length=255, choices=types)
 
@@ -113,6 +128,9 @@ class App(models.Model):
 
     added_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     added_by = models.ForeignKey(User)
+
+    class Meta:
+        unique_together = ('name', 'account',)
 
     def container_name(self):
         return 'app-%s-%s' % (self.account.name, self.name)
@@ -166,6 +184,7 @@ class App(models.Model):
         userid, err = utils.exec_command(logs, 'id -u %s' % self.account.name)
 
         def copy_file(name, append=None):
+            print name
             if os.path.exists(os.path.join(self.image.folder(), name)):
                 with codecs.open(os.path.join(self.image.folder(), name),'r', encoding='utf8') as read:
                     contents = read.read()
@@ -203,6 +222,7 @@ class App(models.Model):
                     with codecs.open(new_name, 'w', encoding='utf8') as write:
                         write.write(contents)
 
+
         copy_file('Dockerfile')
         copy_file('start.sh')
 
@@ -211,9 +231,16 @@ class App(models.Model):
             if v.filename:
                 file_variables[v.name] = v
 
+        found = []
+
         for v in self.variables.all():
             if v.name in file_variables:
+                found.append(v.name)
                 copy_file(file_variables[v.name].filename, append=v.value)
+
+        for v in file_variables:
+            if v not in found:
+                copy_file(file_variables[v].filename)
 
 
         #except Exception as e:
@@ -228,7 +255,7 @@ class App(models.Model):
             ):
                 logs.add(line)
 
-            utils.delete_temp_folder(temp_folder)
+            #utils.delete_temp_folder(temp_folder)
         except Exception as e:
             logs.add("error while building image ... %s" % str(e))
             return logs
@@ -244,15 +271,45 @@ class App(models.Model):
             logs.add(json.dumps(container))
 
             homefolder = '/home/%s' % self.account.name
+
+            hosts = {
+                'mysql': '172.17.42.1'
+            }
+
+            docker_mapping={}
+
+            containers = docker_api.cli.containers()
+
+            for c in containers:
+                name = None
+                try:
+                    name = c['Names'][0].strip('/')
+                except:
+                    continue
+
+                ip = None
+                try:
+                    ip = docker_api.cli.inspect_container(name)['NetworkSettings']['IPAddress']
+                except:
+                    continue
+
+                docker_mapping[name] = ip
+
+            print docker_mapping
+
+            for app in self.account.apps.filter(image__type='database'):
+                    if app.container_name() in docker_mapping:
+                        hosts[app.name] = docker_mapping[app.container_name()]
+
+            print hosts
+
             try:
                 response = docker_api.cli.start(container=container.get('Id'),
                                                 restart_policy={
                                             "MaximumRetryCount": 0,
                                             "Name": "always"
                                         },
-                                                extra_hosts={
-                                                    'mysql': '172.17.42.1'
-                                                },
+                                                extra_hosts=hosts,
                                                 binds={
                                 homefolder: {
                                     'bind': homefolder

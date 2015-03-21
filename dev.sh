@@ -47,8 +47,8 @@ elif [ $1 = "shell" ]; then
 	cd ./realshell
 	/usr/local/go1.4/go/bin/go get
 	/usr/local/go1.4/go/bin/go install
-	/usr/local/go1.4/go/bin/gofmt -w ./
-	/usr/local/go1.4/go/bin/go build -o shell shell.go
+	#/usr/local/go1.4/go/bin/gofmt -w ./
+	/usr/local/go1.4/go/bin/go build -o shell main.go
 	sudo mv shell /usr/bin/manager-shell
 	sudo chown root:root /usr/bin/manager-shell
 	sudo chmod u+s /usr/bin/manager-shell

@@ -20,7 +20,7 @@
             <label class="control-label  " for="id_variable_{{name}}">{{name}} ({{description}})</label>
         <div class=" ">
         	{{#if filename}}
-				<textarea class=" form-control" cols="40" id="id_variable_{{name}}" name="id_variable_{{name}}" rows="10"></textarea>
+				<textarea class=" form-control" cols="40" id="id_variable_{{name}}" name="id_variable_{{name}}" placeholder="{{default}}" rows="10"></textarea>
         	{{else}}
         		<input class=" form-control" id="id_variable_{{name}}" name="id_variable_{{name}}" placeholder="{{default}}" type="text" value="" /> 
         	{{/if}}
@@ -29,40 +29,61 @@
 	{% endverbatim %}
 </script>
 <script type="text/javascript">
+	var account = '{{account.name}}';
 	var source   = $("#variableForm").html();
     var variableTemplate = Handlebars.compile(source);
 
     var variables = {{variables|safe}};
 
-	var get_image_variables = function() {
-		$('#id_image').find('option:selected').each(function() {
-			var id = $(this).attr('value');
+    $.get('/api/v1.0/a/'+account+'/variables', function(data) {
+    	function replaced(c) {
+    		if (c== null) {
+    			return c;
+    		}
+    		for(var i in data) {
+    			var v = data[i];
+    			var re = new RegExp('#'+i+'#', "g");
+    			c = c.replace(re, v);
+    		}
 
-			if (id) {
-				$.get('/api/v1.0/images/'+id, function(data) {
-					if (data.variables) {
-						$('.variables').html('<br /><h4>Image variables</h4>');
+    		var re = new RegExp('#appname#', "g");
+    		c = c.replace(re, account);
 
-						for (var v in data.variables) {
-							var variable = data.variables[v];
+    		return c;
+    	}
 
-	       					$('.variables').append(variableTemplate(variable));
-	       				}
-	       			}
+		var get_image_variables = function() {
+			$('#id_image').find('option:selected').each(function() {
+				var id = $(this).attr('value');
 
-	       			for(var v in variables) {
-	       				var variable = variables[v];
+				if (id) {
+					$.get('/api/v1.0/images/'+id, function(data) {
+						if (data.variables) {
+							$('.variables').html('<br /><h4>Image variables</h4>');
 
-                        console.log(v);
-	       				$('#id_variable_' + v).val(variable);
-	       			}
-				})
-			}
-		});
-	}
-	$('#id_image').change(function() {
+							for (var v in data.variables) {
+								var variable = data.variables[v];
+
+								variable.default = replaced(variable.default);
+
+		       					$('.variables').append(variableTemplate(variable));
+		       				}
+		       			}
+
+		       			for(var v in variables) {
+		       				var variable = variables[v];
+
+	                        console.log(v);
+		       				$('#id_variable_' + v).val(variable);
+		       			}
+					})
+				}
+			});
+		}
+		$('#id_image').change(function() {
+			get_image_variables();
+		})
 		get_image_variables();
-	})
-	get_image_variables();
+	});
 </script>
 {% endblock %}
