@@ -17,7 +17,11 @@ func (api *AccountsAPI) ListAccounts(c *gin.Context) {
 }
 
 func (api *AccountsAPI) GetAccountByName(c *gin.Context) {
-	var account models.Account
-	api.Context.PersistentDB.Where("name = ?", c.Params.ByName("name")).First(&account)
+	account := models.GetAccountByName(c.Params.ByName("name"), api.Context)
 	c.JSON(200, account)
+}
+
+func (api *AccountsAPI) GetApps(c *gin.Context) {
+	account := models.GetAccountByName(c.Params.ByName("name"), api.Context)
+	c.JSON(200, account.Apps())
 }

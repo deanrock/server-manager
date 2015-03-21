@@ -20,6 +20,8 @@ import (
     _ "github.com/mattn/go-sqlite3"
     "./controllers"
     "./shared"
+    "./models"
+    "./shell"
 )
 
 
@@ -50,8 +52,6 @@ var connections = struct {
 
 var mydocker *dockerclient.DockerClient
 var dockerClient *docker.Client
-
-var shell Shell
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
     conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
@@ -164,12 +164,6 @@ func main() {
 
     sharedContext.PersistentDB = db
 
-
-    //Shell
-    shell = Shell{}
-    shell.getDockerImages()
-
-
     //HTTP
     r := gin.Default()
 
@@ -185,10 +179,23 @@ func main() {
 
         authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
 
-        authorized.GET("/api/v1/account/:account/shell", shell.containerAttachHandler)
+        authorized.GET("/api/v1/account/:account/shell", func(c *gin.Context) {
+            s := shell.Shell{}
+            s.GetDockerImages()
+            s.ContainerAttachHandler(c)
+        })
 
         authorized.GET("/api/v1/shells", func(c *gin.Context) {
-            c.JSON(200, shell.ShellImages)
+            s := shell.Shell{}
+            s.GetDockerImages()
+            c.JSON(200, s.ShellImages)
+        })
+
+        //images
+        authorized.GET("/api/v1/images", func(c *gin.Context) {
+            var images []models.Image
+            sharedContext.PersistentDB.Find(&images)
+            c.JSON(200, images)
         })
 
         //accounts
@@ -198,6 +205,7 @@ func main() {
 
         authorized.GET("/api/v1/accounts", accounts.ListAccounts)
         authorized.GET("/api/v1/accounts/:name", accounts.GetAccountByName)
+        authorized.GET("/api/v1/accounts/:name/apps", accounts.GetApps)
 
         //cronjobs
         cronJobs := &controllers.CronJobsAPI{

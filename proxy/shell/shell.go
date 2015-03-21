@@ -1,4 +1,4 @@
-package main
+package shell
 
 import (
 	//"bufio"
@@ -6,6 +6,8 @@ import (
 	//	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"io"
+	"os"
+	"github.com/docker/docker/pkg/term"
 	"os/exec"
 	"strings"
 	"log"
@@ -13,14 +15,75 @@ import (
 	//"time"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	gosignal "os/signal"
+	"github.com/docker/docker/pkg/signal"
 )
 
 type Shell struct {
 	Images []string
 	ShellImages []string
+	Cmd []string
+	Tty bool
+	DockerClient *docker.Client
+
+	// inFd holds file descriptor of the client's STDIN, if it's a valid file
+	InFd uintptr
+	// outFd holds file descriptor of the client's STDOUT, if it's a valid file
+	OutFd uintptr
 }
 
-func (s *Shell) getDockerImages() {
+func (shell *Shell) Mylog(text string) {
+	f, err := os.OpenFile("/test.log", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+	    panic(err)
+	}
+
+	defer f.Close()
+if _, err = f.WriteString("\n"); err != nil {
+	    panic(err)
+	}
+	if _, err = f.WriteString(text); err != nil {
+	    panic(err)
+	}
+}
+
+func (shell *Shell) ResizeTty(id string, isExec bool) {
+	height, width := shell.GetTtySize()
+	if height == 0 && width == 0 {
+		return
+	}
+	
+	shell.DockerClient.ResizeContainerTTY(id, height, width)
+}
+
+func (shell *Shell) MonitorTtySize(id string, isExec bool) error {
+	shell.ResizeTty(id, isExec)
+
+	sigchan := make(chan os.Signal, 1)
+	gosignal.Notify(sigchan, signal.SIGWINCH)
+	go func() {
+		for _ = range sigchan {
+			shell.ResizeTty(id, isExec)
+		}
+	}()
+	return nil
+}
+
+func (shell *Shell) GetTtySize() (int, int) {
+	if !shell.Tty {
+		return 0, 0
+	}
+	ws, err := term.GetWinsize(shell.OutFd)
+	if err != nil {
+		log.Printf("Error getting size: %s", err)
+		if ws == nil {
+			return 0, 0
+		}
+	}
+	return int(ws.Height), int(ws.Width)
+}
+
+func (s *Shell) GetDockerImages() {
 	endpoint := "unix:///var/run/docker.sock"
     client, _ := docker.NewClient(endpoint)
     imgs, _ := client.ListImages(docker.ListImagesOptions{All: false})
@@ -44,7 +107,7 @@ func (s *Shell) getDockerImages() {
     }
 }
 
-func (s *Shell) containerAttachHandler(c *gin.Context) {
+func (s *Shell) ContainerAttachHandler(c *gin.Context) {
 	//go-dockerclient
 	endpoint := "unix:///var/run/docker.sock"
 	dockerClient, _ := docker.NewClient(endpoint)

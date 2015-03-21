@@ -33,7 +33,7 @@ elif [ $1 = "proxy" ]; then
 	cd ./proxy
 	/usr/local/go1.4/go/bin/go get
 	/usr/local/go1.4/go/bin/go install
-	/usr/local/go1.4/go/bin/go run main.go session.go shell.go
+	/usr/local/go1.4/go/bin/go run main.go session.go
 elif [ $1 = "ondemand" ]; then
 	echo "ondemand"
 
@@ -45,8 +45,9 @@ elif [ $1 = "shell" ]; then
 	echo "shell"
 
 	cd ./realshell
-		/usr/local/go1.4/go/bin/go get
+	/usr/local/go1.4/go/bin/go get
 	/usr/local/go1.4/go/bin/go install
+	/usr/local/go1.4/go/bin/gofmt -w ./
 	/usr/local/go1.4/go/bin/go build -o shell shell.go
 	sudo mv shell /usr/bin/manager-shell
 	sudo chown root:root /usr/bin/manager-shell

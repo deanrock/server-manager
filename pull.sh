@@ -56,4 +56,15 @@ echo -e "${green}[go] getting libraries ...${NC}"
 /usr/local/go1.4/go/bin/go install
 /usr/local/go1.4/go/bin/go build -o ../bin/cron main.go
 
+echo -e "${green}[go] compiling manager shell ...${NC}"
+cd $DIR/realshell
+
+echo -e "${green}[go] getting libraries ...${NC}"
+/usr/local/go1.4/go/bin/go get
+/usr/local/go1.4/go/bin/go install
+/usr/local/go1.4/go/bin/go build -o ../bin/realshell main.go
+sudo mv ../bin/realshell /usr/bin/manager-shell
+sudo chown root:root /usr/bin/manager-shell
+sudo chmod u+s /usr/bin/manager-shell
+
 echo -e "${green}[all] finished${NC}"
