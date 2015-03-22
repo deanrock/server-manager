@@ -32,6 +32,7 @@ type Shell struct {
 	Tty bool
 	DockerClient *docker.Client
 	ContainerID string
+	Environment string
 
 	// inFd holds file descriptor of the client's STDIN, if it's a valid file
 	InFd uintptr
@@ -143,6 +144,7 @@ type AttachOptions struct {
 	OutputStream io.Writer
 	ErrorStream  io.Writer
 	InputStream  io.Reader
+	Success      chan struct{}
 }
 
 func (shell *Shell) Attach(options AttachOptions) (error) {
@@ -152,6 +154,7 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 			Tty:       shell.Tty,
 			Cmd:       shell.Cmd,
 			Image:     "manager/" + options.ShellImage,
+			Hostname:  shell.Environment,
 		},
 	})
 
@@ -204,6 +207,10 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 			RawTerminal:  shell.Tty,
 		})
 	}()
+
+	if options.Success != nil {
+		options.Success <- struct{}{}
+	}
 
 	if err != nil {
 		return fmt.Errorf("cannot attach to container ", err)
