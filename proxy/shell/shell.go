@@ -145,6 +145,7 @@ type AttachOptions struct {
 	ErrorStream  io.Writer
 	InputStream  io.Reader
 	Success      chan struct{}
+	Detach       chan error
 }
 
 func (shell *Shell) Attach(options AttachOptions) (error) {
@@ -214,6 +215,13 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 
 	if err != nil {
 		return fmt.Errorf("cannot attach to container ", err)
+	}
+
+	if options.Detach != nil {
+		go func() {
+			err := <- options.Detach
+			errs <- err
+		}()
 	}
 
 	myerr := <- errs
@@ -358,12 +366,15 @@ func WebSocketShell(c *gin.Context) {
 	r, w := io.Pipe()
 	stdinR, stdinW := io.Pipe()
 
+	detach := make(chan error)
+
 	go func() {
 		errs <- s.Attach(AttachOptions{
 			ShellImage:    shell_image,
 			InputStream:   stdinR,
 			OutputStream:  w,
 			ErrorStream:   w,
+			Detach:        detach,
 		})
 	}()
 
@@ -382,25 +393,29 @@ func WebSocketShell(c *gin.Context) {
 			n, err := reader.Read(data)
 
 			if err != nil {
-				log.Printf("error while reading from docker stream ", err)
+				errs <- fmt.Errorf("error while reading from docker stream ", err)
+				return
 			}
 
 			 if err := conn.WriteMessage(websocket.TextMessage, data[:n]); err != nil {
                 conn.Close()
-                break
+                errs <- errors.New("error while writing to websocket stream")
+                return
             }
 		}
 	}(r)
 
-	for {
-        _, p, err := conn.ReadMessage()
-        if err != nil {
-            log.Printf("error while reading from websocket ", err)
-            return
-        }
+	go func(writer io.Writer) {
+		for {
+	        _, p, err := conn.ReadMessage()
+	        if err != nil {
+	            errs <- fmt.Errorf("error while reading from websocket ", err)
+	            return
+	        }
 
-        stdinW.Write(p)
-    }
+	        writer.Write(p)
+	    }
+	}(stdinW)
 
-    <- errs
+    detach <- <- errs
 }
