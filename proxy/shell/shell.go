@@ -1,9 +1,7 @@
 package shell
 
 import (
-	//"bufio"
 	"net/http"
-	//	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"io"
 	"os"
@@ -11,8 +9,13 @@ import (
 	"os/exec"
 	"strings"
 	"log"
-	//"os"
-	//"time"
+	"fmt"
+	"io/ioutil"
+	"time"
+	"path"
+	"bufio"
+	"bytes"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	gosignal "os/signal"
@@ -20,11 +23,15 @@ import (
 )
 
 type Shell struct {
+	LogPrefix string
+	AccountName string
+	AccountUid  string
 	Images []string
 	ShellImages []string
 	Cmd []string
 	Tty bool
 	DockerClient *docker.Client
+	ContainerID string
 
 	// inFd holds file descriptor of the client's STDIN, if it's a valid file
 	InFd uintptr
@@ -32,19 +39,204 @@ type Shell struct {
 	OutFd uintptr
 }
 
-func (shell *Shell) Mylog(text string) {
-	f, err := os.OpenFile("/var/log/manager/manager-shell.log", os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-	    panic(err)
+func (s *Shell) BuildShellImage(env string) (string, error) {
+	base_image := fmt.Sprintf("%s-base-shell", env)
+
+	found := false
+	for _, e := range s.ShellImages {
+		if e == base_image {
+			found = true
+		}
 	}
 
+	if !found {
+		return "", fmt.Errorf("base shell %s not found", base_image)
+	}
+
+	//build shell image if it doesnt exist
+	shell_image := fmt.Sprintf("shell-%s-%s", s.AccountName, env)
+
+	for _, e := range s.Images {
+		if e == shell_image {
+			return shell_image, nil
+		}
+	}
+
+	//couldn't find image, build it
+	temp, err := ioutil.TempDir("", "manager-")
+
+	if err != nil {
+		return "", fmt.Errorf("cannot create temp folder: %s", err)
+	}
+
+	defer os.RemoveAll(temp)
+
+	image_folder := fmt.Sprintf("/home/manager/server-manager/images/%s/",
+		base_image)
+
+	if _, err := os.Stat(image_folder); os.IsNotExist(err) {
+	    return "", fmt.Errorf("no such file or directory: %s", image_folder)
+	}
+
+	files, _ := ioutil.ReadDir(image_folder)
+    for _, f := range files {
+        //copy file
+		out_file, err := os.Create(path.Join(temp, f.Name()))
+
+	    if err != nil {
+	        return "", fmt.Errorf("cannot create temp file %s", err)
+	    }
+
+	    defer out_file.Close()
+
+        in_file, err := os.Open(path.Join(image_folder, f.Name()))
+		if err != nil {
+		    return "", fmt.Errorf("cannot open file to read %s", err)
+		}
+		defer in_file.Close()
+
+		scanner := bufio.NewScanner(in_file)
+		for scanner.Scan() {
+		    _, err := io.WriteString(out_file, scanner.Text()+"\n")
+		    if err != nil {
+		    	return "", fmt.Errorf("error writing temp file %s", err)
+		    }
+		}
+
+		if err := scanner.Err(); err != nil {
+		    return "", fmt.Errorf("error scanning file %s", err)
+		}
+
+		if f.Name() == "Dockerfile" {
+			_, err := io.WriteString(out_file,
+				fmt.Sprintf("RUN echo \"%s:x:%s:\" >> /etc/group && echo \"%s:x:%s:%s:,,,:/home/%s:/bin/bash\" >> /etc/passwd\n\nUSER %s\n",
+					s.AccountName,
+					s.AccountUid,
+					s.AccountName,
+					s.AccountUid,
+					s.AccountUid,
+					s.AccountName,
+					s.AccountName))
+
+		    if err != nil {
+		    	return "", fmt.Errorf("error writing to Dockerfile %s", err)
+		    }
+		}
+    }
+
+    var buf bytes.Buffer
+	err = s.DockerClient.BuildImage(docker.BuildImageOptions{
+		Name:				fmt.Sprintf("manager/%s", shell_image),
+		ContextDir:			temp,
+		OutputStream:		&buf,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("building image error %s", err)
+	}
+
+	return shell_image, nil
+}
+
+type AttachOptions struct {
+	ShellImage   string
+	OutputStream io.Writer
+	ErrorStream  io.Writer
+	InputStream  io.Reader
+}
+
+func (shell *Shell) Attach(options AttachOptions) (error) {
+	container, err := shell.DockerClient.CreateContainer(docker.CreateContainerOptions{
+		Config: &docker.Config{
+			OpenStdin: true,
+			Tty:       shell.Tty,
+			Cmd:       shell.Cmd,
+			Image:     "manager/" + options.ShellImage,
+		},
+	})
+
+	if err != nil {
+		return fmt.Errorf("couldn't create container %s (image: %s)", err, options.ShellImage)
+	}
+
+	defer func() {
+		shell.Log("info", "cleanup shell %s %s", shell.AccountName, options.ShellImage)
+
+		if container != nil {
+			shell.DockerClient.RemoveContainer(docker.RemoveContainerOptions{
+				ID:    container.ID,
+				Force: true,
+			})
+
+			if err != nil {
+				shell.LogError(fmt.Errorf("error while cleaning up %s", err))
+			}
+		}
+	}()
+
+	if err != nil {
+		return fmt.Errorf("cannot create container ", err)
+	}
+
+	err = shell.DockerClient.StartContainer(container.ID,
+		&docker.HostConfig{
+			Binds:      []string{"/home/" + shell.AccountName + ":/home/" + shell.AccountName},
+			ExtraHosts: []string{"mysql:172.17.42.1"},
+		})
+
+	if err != nil {
+		return fmt.Errorf("cannot start container ", err)
+	}
+
+	shell.ContainerID = container.ID
+
+	errs := make(chan error)
+	go func() {
+		errs <- shell.DockerClient.AttachToContainer(docker.AttachToContainerOptions{
+			Container:    container.ID,
+			OutputStream: options.OutputStream,
+			ErrorStream:  options.ErrorStream,
+			InputStream:  options.InputStream,
+			Stdout:       true,
+			Stdin:        true,
+			Stderr:       true,
+			Stream:       true,
+			RawTerminal:  shell.Tty,
+		})
+	}()
+
+	if err != nil {
+		return fmt.Errorf("cannot attach to container ", err)
+	}
+
+	myerr := <- errs
+
+	if myerr != nil {
+		return fmt.Errorf("attach error %s", err)
+	}
+
+	return nil
+}
+
+func (shell *Shell) Log(tag string, message string, args ...string) {
+	f, err := os.OpenFile("/var/log/manager/manager-shell.log",
+		os.O_APPEND|os.O_WRONLY,0600)
+	if err != nil {
+		return
+	}
 	defer f.Close()
-if _, err = f.WriteString("\n"); err != nil {
-	    panic(err)
+
+	if _, err = f.WriteString(fmt.Sprintf("%s %s [%s] %s\n",
+		time.Now(),
+		shell.LogPrefix,
+		tag,
+		fmt.Sprintf(message, args))); err != nil {
+		return
 	}
-	if _, err = f.WriteString(text); err != nil {
-	    panic(err)
-	}
+}
+
+func (shell *Shell) LogError(err error) {
+	shell.Log("error", fmt.Sprintf("%s", err))
 }
 
 func (shell *Shell) ResizeTty(id string, isExec bool) {
@@ -107,66 +299,66 @@ func (s *Shell) GetDockerImages() {
     }
 }
 
-func (s *Shell) ContainerAttachHandler(c *gin.Context) {
-	//go-dockerclient
-	endpoint := "unix:///var/run/docker.sock"
-	dockerClient, _ := docker.NewClient(endpoint)
+func WebSocketShell(c *gin.Context) {
+	s := Shell{
+		LogPrefix: "[web shell]",
+	}
 
 	//environment
 	account := c.Params.ByName("account")
-	env := c.Request.URL.Query().Get("env")
-
-	found := false
-	for _, e := range s.ShellImages {
-		if e == env {
-			found = true
-		}
-	}
-	
-	if !found {
-		return
-	}
-
+	env := strings.Replace(c.Request.URL.Query().Get("env"), "-base-shell", "", 1)
+	fmt.Printf(env)
 	out, err := exec.Command("id","-u",account).Output()
 
-	container, err := dockerClient.CreateContainer(docker.CreateContainerOptions{
-		Config: &docker.Config{
-			OpenStdin: true,
-			Tty: true,
-			Cmd:   []string{"/mystuff/start.sh"},
-			Image: "manager/"+env,
-			Env: []string{"USER="+account, "USERID="+strings.Replace(string(out), "\n", "", 1)},
-		},
-	})
-
-	defer func() {
-		//cleanup
-    	log.Printf("cleanup shell %s %s", account, env)
-    	err := dockerClient.RemoveContainer(docker.RemoveContainerOptions{
-    		ID: container.ID,
-    		Force: true,
-    	})
-
-    	if err != nil {
-    		log.Printf("error while cleaning up ", err)
-    	}
-	}()
-
 	if err != nil {
-		log.Printf("cannot create container ", err)
 		return
 	}
 
-	err = dockerClient.StartContainer(container.ID,
-		&docker.HostConfig{
-			Binds: []string{"/home/"+account+":/home/"+account},
-			ExtraHosts: []string{"mysql:172.17.42.1"},
+	uid := strings.Replace(string(out), "\n", "", 1)
+
+
+	s.Log("info", "user: %s (%s)", account, uid)
+
+	s.Cmd = []string{"/bin/bash"}
+	s.Tty = true
+
+	s.Log("info", "cmd: %s", strings.Join(s.Cmd, " "))
+
+	//go-dockerclient
+	endpoint := "unix:///var/run/docker.sock"
+	s.DockerClient, err = docker.NewClient(endpoint)
+
+	if err != nil {
+		s.LogError(errors.New("cannot connect to docker client"))
+		return
+	}
+
+	s.GetDockerImages()
+
+	//environment
+	s.AccountName = account
+	s.AccountUid = uid
+
+	shell_image, err := s.BuildShellImage(env)
+
+	if err != nil {
+		s.LogError(err)
+		return
+	}
+
+	errs := make(chan error)
+
+	r, w := io.Pipe()
+	stdinR, stdinW := io.Pipe()
+
+	go func() {
+		errs <- s.Attach(AttachOptions{
+			ShellImage:    shell_image,
+			InputStream:   stdinR,
+			OutputStream:  w,
+			ErrorStream:   w,
 		})
-
-	if err != nil {
-		log.Printf("cannot start container ", err)
-		return
-	}
+	}()
 
     conn, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
     if _, ok := err.(websocket.HandshakeError); ok {
@@ -176,25 +368,6 @@ func (s *Shell) ContainerAttachHandler(c *gin.Context) {
         log.Println(err)
         return
     }
-
-	r, w := io.Pipe()
-	stdinR, stdinW := io.Pipe()
-
-	go dockerClient.AttachToContainer(docker.AttachToContainerOptions{
-		Container:    container.ID,
-		OutputStream: w,
-		ErrorStream:  w,
-		InputStream:  stdinR,
-		Stdout:       true,
-		Stdin:        true,
-		Stderr:       true,
-		Stream:       true,
-		RawTerminal: true,
-	})
-	if err != nil {
-		log.Printf("cannot attach to container ", err)
-		return
-	}
 
 	go func(reader io.Reader) {
 		for {
@@ -221,4 +394,6 @@ func (s *Shell) ContainerAttachHandler(c *gin.Context) {
 
         stdinW.Write(p)
     }
+
+    <- errs
 }

@@ -180,9 +180,7 @@ func main() {
         authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
 
         authorized.GET("/api/v1/account/:account/shell", func(c *gin.Context) {
-            s := shell.Shell{}
-            s.GetDockerImages()
-            s.ContainerAttachHandler(c)
+            shell.WebSocketShell(c)
         })
 
         authorized.GET("/api/v1/shells", func(c *gin.Context) {
