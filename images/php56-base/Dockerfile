@@ -69,3 +69,6 @@ RUN echo "deb http://www.deb-multimedia.org wheezy main non-free" >> /etc/apt/so
 	mkdir -p /usr/local/share/ffmpeg  && \
 	checkinstall -D --install=no --pkgname=ffmpeg-full --autodoinst=yes -y && \
 	dpkg -i ffmpeg-full_*-1_amd64.deb
+
+
+ADD cli_php.ini /etc/php5/cli/php.ini
