@@ -67,6 +67,7 @@ def sync_accounts():
         o, e = exec_command(logs, "sudo chmod 700 /home/%s/.ssh/authorized_keys" % (account.name))
         o, e = exec_command(logs, "sudo chown %s:%s /home/%s/.ssh/authorized_keys" % (account.name, account.name, account.name))
 
+        o, e = exec_command(logs, "sudo chsh -s /usr/bin/manager-shell %s" % (account.name))
 
 
     return logs
