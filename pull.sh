@@ -46,7 +46,7 @@ cd $DIR/proxy
 echo -e "${green}[go] getting libraries ...${NC}"
 /usr/local/go1.4/go/bin/go get
 /usr/local/go1.4/go/bin/go install
-/usr/local/go1.4/go/bin/go build -o ../bin/proxy main.go session.go shell.go
+/usr/local/go1.4/go/bin/go build -o ../bin/proxy main.go session.go
 
 echo -e "${green}[go] compiling cron ...${NC}"
 cd $DIR/cron
