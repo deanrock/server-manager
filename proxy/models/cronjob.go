@@ -4,11 +4,20 @@ import (
 	"time"
 )
 
+type CronJobForm struct {
+	Name string `form:"name"`
+	Directory string `form:"directory"`
+	Command string `form:"command"`
+	Timeout int `form:"timeout"`
+	Cron_expression string `form:"cron_expression"`
+	Image_id int `form:"image_id"`
+}
+
 type CronJob struct {
 	Id int
 	Name string
 	Directory string
-	Script_file string
+	Command string
 	Timeout int
 	Cron_expression string
 	Added_at time.Time
@@ -24,7 +33,7 @@ func (c CronJob) TableName() string {
 //("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 //"name" varchar(255) NOT NULL,
 //"directory" varchar(255) NOT NULL, 
-//"script_file" varchar(255) NOT NULL,
+//"command" varchar(255) NOT NULL,
 //"timeout" integer NOT NULL,
 //"cron_expression" varchar(255) NOT NULL,
 //"added_at" datetime NULL,

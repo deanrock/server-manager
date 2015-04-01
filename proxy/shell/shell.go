@@ -234,6 +234,11 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 }
 
 func (shell *Shell) Log(tag string, message string, args ...string) {
+	fmt.Printf(fmt.Sprintf("%s %s [%s] %s\n",
+		time.Now(),
+		shell.LogPrefix,
+		tag,
+		fmt.Sprintf(message, args)))
 	f, err := os.OpenFile("/var/log/manager/manager-shell.log",
 		os.O_APPEND|os.O_WRONLY,0600)
 	if err != nil {

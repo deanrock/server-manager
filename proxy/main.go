@@ -25,6 +25,8 @@ import (
 )
 
 
+var sharedContext *shared.SharedContext
+
 // Docker
 func dockerEventCallback(event *dockerclient.Event, ec chan error, args ...interface{}) {
     log.Printf("Received event: %#v\n", *event)
@@ -140,6 +142,21 @@ func Authentication() gin.HandlerFunc {
     }
 }
 
+func RequireAccount() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        name := c.Params.ByName("name")
+        account := models.GetAccountByName(name, sharedContext)
+
+        if account != nil {
+            c.Set("account", account)
+        }else{
+            c.Fail(404, errors.New("Not Found"))
+        }
+
+        c.Next()
+    }
+}
+
  
 func main() {
     //Docker
@@ -153,7 +170,7 @@ func main() {
     endpoint := "unix:///var/run/docker.sock"
     dockerClient, _ = docker.NewClient(endpoint)
 
-    sharedContext := &shared.SharedContext{}
+    sharedContext = &shared.SharedContext{}
 
     //sqlite
     db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
@@ -202,26 +219,40 @@ func main() {
         }
 
         authorized.GET("/api/v1/accounts", accounts.ListAccounts)
-        authorized.GET("/api/v1/accounts/:name", accounts.GetAccountByName)
-        authorized.GET("/api/v1/accounts/:name/apps", accounts.GetApps)
 
-        //cronjobs
-        cronJobs := &controllers.CronJobsAPI{
-            Context: sharedContext,
+        requiresAccount := r.Group("/api/v1/accounts/:name")
+
+        requiresAccount.Use(RequireAccount())
+        {
+            requiresAccount.GET("", accounts.GetAccountByName)
+            requiresAccount.GET("/apps", accounts.GetApps)
+
+            //cronjobs
+            cronJobs := &controllers.CronJobsAPI{
+                Context: sharedContext,
+            }
+
+            requiresAccount.GET("/cronjobs", cronJobs.ListCronjobs)
+            requiresAccount.GET("/cronjobs/:id", cronJobs.GetCronjob)
+            requiresAccount.PUT("/cronjobs/:id", cronJobs.EditCronjob)
+            requiresAccount.POST("/cronjobs", cronJobs.AddCronjob)
         }
 
-        authorized.GET("/api/v1/accounts/:name/cronjobs", cronJobs.ListCronjobs)
-        authorized.GET("/api/v1/accounts/:name/cronjobs/:id", cronJobs.GetCronjob)
-        authorized.PUT("/api/v1/accounts/:name/cronjobs/:id", cronJobs.EditCronjob)
-        authorized.POST("/api/v1/accounts/:name/cronjobs", cronJobs.AddCronjob)
-
-        /*authorized.GET("/", func(c *gin.Context) {
+        authorized.GET("/", func(c *gin.Context) {
             c.HTML(200, "index.tmpl", nil)
         })
 
         authorized.GET("/a/*params", func(c *gin.Context) {
             c.HTML(200, "index.tmpl", nil)
-        })*/
+        })
+
+        authorized.GET("/sync/*params", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })
+
+        authorized.GET("/containers", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })
     }
 
     s := &http.Server{

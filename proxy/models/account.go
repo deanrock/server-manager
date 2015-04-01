@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 	"../shared"
+	"github.com/gin-gonic/gin"
 )
 
 type Account struct {
@@ -15,13 +16,20 @@ type Account struct {
 	context *shared.SharedContext
 }
 
+func AccountFromContext(c *gin.Context) *Account {
+	a := c.MustGet("account").(*Account)
+	return a
+}
+
 func (a Account) TableName() string {
     return "manager_account"
 }
 
 func GetAccountByName(name string, c *shared.SharedContext) *Account {
 	var account Account
-	c.PersistentDB.Where("name = ?", name).First(&account)
+	if err := c.PersistentDB.Where("name = ?", name).First(&account).Error; err != nil {
+		return nil
+	}
 
 	account.context = c
 	return &account
