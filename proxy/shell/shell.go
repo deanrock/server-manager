@@ -259,6 +259,10 @@ func (shell *Shell) LogError(err error) {
 	shell.Log("error", fmt.Sprintf("%s", err))
 }
 
+func (shell *Shell) ResizeTtyTo(id string, height int, width int) {
+	shell.DockerClient.ResizeContainerTTY(id, height, width)
+}
+
 func (shell *Shell) ResizeTty(id string, isExec bool) {
 	height, width := shell.GetTtySize()
 	if height == 0 && width == 0 {
