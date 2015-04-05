@@ -26,7 +26,7 @@ cp manager/db.sqlite3 ./backup_db_`date +"%Y-%m-%d_%H-%M-%S"`.db
 python manage.py migrate --settings=manager.settings.$1
 python manage.py syncimageconfig --settings=manager.settings.$1
 
-sudo cp shell/shell.py /usr/bin/shell
+sudo rm /usr/bin/shell #remove old python shell if still exists
 
 
 
