@@ -5,6 +5,7 @@ import (
 	"../proxy/shared"
 	"../proxy/models"
 	"fmt"
+	"os/exec"
 	//"github.com/docker/docker/pkg/term"
 	"github.com/fsouza/go-dockerclient"
 	//"errors"
@@ -68,7 +69,7 @@ func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error)
 	return nil, errors.New("cannot authenticate user")
 }
 
-func handleChannels(chans <-chan ssh.NewChannel) {
+func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 	for newChannel := range chans {
 		if t := newChannel.ChannelType(); t != "session" {
 			newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", t))
@@ -77,15 +78,13 @@ func handleChannels(chans <-chan ssh.NewChannel) {
 
 		channel, requests, err := newChannel.Accept()
 		if err != nil {
-			log.Printf("couldn not accept channel: %s", err)
+			log.Printf("could not accept channel: %s", err)
 			continue
 		}
 
 		s := shell.Shell{
 			LogPrefix: "[ssh]",
 		}
-
-		//s.Log("info", "user: %s (%s)", u.Name, u.Uid)
 
 		//go-dockerclient
 		endpoint := "unix:///var/run/docker.sock"
@@ -101,11 +100,17 @@ func handleChannels(chans <-chan ssh.NewChannel) {
 		s.Cmd = []string{"/bin/bash"}
 		s.Tty = true
 
-		s.AccountName = "flask"
-		s.AccountUid = "1005"
-		env := "php56"
+		s.AccountName = sshConn.User()
 
-		fmt.Printf("before req in\n")
+		out, err := exec.Command("id","-u",s.AccountName).Output()
+
+		if err != nil {
+			return
+		}
+
+		uid := strings.Replace(string(out), "\n", "", 1)
+		s.AccountUid = uid
+		env := "php56"
 
 		w := uint32(0)
 		h := uint32(0)
@@ -351,7 +356,7 @@ func main() {
 	keyPath := "./id_rsa"
 
 	if os.Getenv("KEY_FILE") != "" {
-		keyPath = os.Getenv(keyPath)
+		keyPath = os.Getenv("KEY_FILE")
 	}
 
 	privateKey, err := ioutil.ReadFile(keyPath)
@@ -395,6 +400,6 @@ func main() {
 
 		log.Printf("new ssh connection from %s (%s)", sshConn.RemoteAddr(), sshConn.ClientVersion())
 
-		go handleChannels(chans)
+		go handleChannels(sshConn, chans)
 	}
 }

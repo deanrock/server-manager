@@ -39,6 +39,12 @@
 - name: set manager to run on boot
   shell: update-rc.d manager-proxy defaults
 
+- name: copy init.d config
+  action: template src=init_d_ssh.conf dest=/etc/init.d/manager-ssh-server mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager-ssh-server defaults
+
 - name: create log folder
   file: path=/var/log/manager/ state=directory
 
