@@ -7,6 +7,9 @@ import (
     "github.com/gorilla/websocket"
     "sync"
     //"os"
+    "bytes"
+    "io/ioutil"
+    "encoding/json"
     "time"
     "bufio"
     "errors"
@@ -133,9 +136,12 @@ func Authentication() gin.HandlerFunc {
         userId := readCookie(c)
 
         if userId != nil {
+            c.Set("uid", userId)
             log.Printf("OK")
         }else{
-            c.Fail(401, errors.New("Unauthorized"))
+            //c.Fail(401, errors.New("Unauthorized"))
+            c.Redirect(http.StatusSeeOther, "/accounts/login/?next=/")
+            c.Abort()
         }
 
         c.Next()
@@ -157,8 +163,21 @@ func RequireAccount() gin.HandlerFunc {
     }
 }
 
- 
+type Config struct {
+    Server_name string `json:"server_name"`
+}
+
+type Profile struct {
+    ServerConfig Config `json:"config"`
+    User models.User `json:"user"`
+}
+
 func main() {
+    c, _ := ioutil.ReadFile("../config.json")
+    dec := json.NewDecoder(bytes.NewReader(c))
+    var config Config
+    dec.Decode(&config)
+
     //Docker
     // Init the client
     mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
@@ -198,6 +217,17 @@ func main() {
 
         authorized.GET("/api/v1/account/:account/shell", func(c *gin.Context) {
             shell.WebSocketShell(c)
+        })
+
+        authorized.GET("/api/v1/profile", func (c *gin.Context) {
+            uid := c.MustGet("uid").(*int)
+            user, _ := models.FindUserById(sharedContext, *uid)
+            p := Profile{
+                ServerConfig:    config,
+                User:            *user,
+            }
+
+            c.JSON(200, p)
         })
 
         authorized.GET("/api/v1/shells", func(c *gin.Context) {
@@ -251,6 +281,10 @@ func main() {
         })
 
         authorized.GET("/containers", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })
+
+        authorized.GET("/profile/*params", func(c *gin.Context) {
             c.HTML(200, "index.tmpl", nil)
         })
     }

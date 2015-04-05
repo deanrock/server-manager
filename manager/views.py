@@ -26,32 +26,6 @@ def action_ajax(request, action):
     data = json.dumps(logs.logs)
     return HttpResponse(data, content_type='application/json')
 
-
-@login_required
-def rebuild_base_image(request):
-    return render_to_response('sync_action.html',
-        {
-            'action': 'Rebuilding base image',
-            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'rebuild-base-image'}),
-        })
-
-@login_required
-def sync_users(request):
-    return render_to_response('sync_action.html',
-        {
-            'action': 'Syncing users',
-            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'sync-users'}),
-        })
-
-
-@login_required
-def sync_databases(request):
-    return render_to_response('sync_action.html',
-        {
-            'action': 'Syncing databases',
-            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'sync-databases'}),
-        })
-
 @login_required
 def index(request):
     return render_to_response('index.html',
@@ -197,6 +171,17 @@ def account_apps_logs(request, name, app):
 
 
 @login_required
+def account_cronjobs(request, name):
+    account = Account.objects.filter(name=name).first()
+
+    return render_to_response('account/cronjobs.html',
+                              {
+            'account': account,
+        },
+                              context_instance=RequestContext(request))
+
+
+@login_required
 def account_apps(request, name):
     account = Account.objects.filter(name=name).first()
     apps = account.apps.all()
@@ -241,21 +226,34 @@ def containers(request):
         except Exception as e:
             print(e)
 
-    print mapping
+    dapps = []
 
     for app in apps:
+        app.up = False
+        app.status = ''
+
         if app.container_name() in mapping:
             app.status = mapping[app.container_name()]
 
             if 'Up ' in app.status:
                 app.up = True
 
-    return render_to_response('containers.html',
-                              {
-            'account': account,
-            'apps': apps,
-        },
-                              context_instance=RequestContext(request))
+        dapps.append({
+            'id': app.id,
+            'memory': app.memory,
+            'up': app.up,
+            'status': app.status,
+            'account': app.account.id,
+            'account_name': app.account.name,
+            'name': app.name,
+            'image': app.image.name,
+            })
+
+    
+
+
+    data = json.dumps(dapps)
+    return HttpResponse(data, content_type='application/json')
 
 @login_required
 def account_domains(request, name):
@@ -357,17 +355,6 @@ def account_databases_edit(request, name, database=None):
             'formset': formset
         },
                               context_instance=RequestContext(request))
-
-
-@login_required
-def update_nginx_config(request):
-    return render_to_response('sync_action.html',
-        {
-            'action': 'Updating nginx and apache config ...',
-            'action_url': reverse('manager.views.action_ajax', kwargs={'action': 'update-nginx-config'}),
-        },
-        context_instance=RequestContext(request))
-
 
 @login_required
 def profile_sshkeys(request):

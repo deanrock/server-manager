@@ -20,7 +20,7 @@ class CronJob(models.Model):
     image = models.ForeignKey('Image')
 
     directory = models.CharField(max_length=255)
-    script_file = models.CharField(max_length=255)
+    command = models.CharField(max_length=255)
     timeout = models.IntegerField(default=60)#seconds
     cron_expression = models.CharField(max_length=255)
 

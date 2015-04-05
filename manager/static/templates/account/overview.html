@@ -4,12 +4,12 @@
 
         <form class="form-inline" ng-submit="submit()">
             <div class="form-group">
-                <select class="form-control" ng-model="shell" ng-options="s as s for s in shells">
+                <select ng-disabled="started" class="form-control" ng-model="shell" ng-options="s as s for s in shells">
                 </select>
             </div>
 
-            <button type="submit" class="submit btn btn-primary">Start</button>
-            <button class="stop btn btn-default" style="display:none">Stop</button>
+            <button ng-disabled="started" type="submit" class="submit btn btn-primary">Start</button>
+            <button ng-hide="!started" type="button" ng-click="stop()" class="stop btn btn-default">Stop</button>
         </form>
         <br />
         <div id="shell">
