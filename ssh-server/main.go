@@ -342,6 +342,14 @@ func parseDims(b []byte) (uint32, uint32) {
 }
 
 func main() {
+	f, err := os.OpenFile("/var/log/manager/ssh-server.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+	    log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+
 	sharedContext = &shared.SharedContext{}
 
     //sqlite

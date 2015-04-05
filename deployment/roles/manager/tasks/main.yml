@@ -46,7 +46,7 @@
   shell: update-rc.d manager-ssh-server defaults
 
 - name: create log folder
-  file: path=/var/log/manager/ state=directory
+  file: path=/var/log/manager/ state=directory owner=manager group=manager
 
 - name: create manager-shell log file
   file: path=/var/log/manager/manager-shell.log state=touch owner=manager group=manager
