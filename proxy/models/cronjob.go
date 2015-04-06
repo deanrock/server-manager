@@ -10,33 +10,21 @@ type CronJobForm struct {
 	Command string `form:"command"`
 	Timeout int `form:"timeout"`
 	Cron_expression string `form:"cron_expression"`
-	Image_id int `form:"image_id"`
+	Image string `form:"image"`
+	Enabled bool `form:"enabled"`
 }
 
 type CronJob struct {
-	Id int
-	Name string
-	Directory string
-	Command string
-	Timeout int
-	Cron_expression string
-	Added_at time.Time
-	Account_id int
-	Added_by_id int
-	Image_id int
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Directory string `json:"directory"`
+	Command string `json:"command"`
+	Timeout int `json:"timeout"`
+	Cron_expression string `json:"cron_expression"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Account_id int `json:"account"`
+	Added_by_id int `json:"added_by"`
+	Image string `json:"image"`
+	Enabled bool `json:"enabled"`
 }
-
-func (c CronJob) TableName() string {
-    return "manager_cronjob"
-}
-
-//("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-//"name" varchar(255) NOT NULL,
-//"directory" varchar(255) NOT NULL, 
-//"command" varchar(255) NOT NULL,
-//"timeout" integer NOT NULL,
-//"cron_expression" varchar(255) NOT NULL,
-//"added_at" datetime NULL,
-//"account_id" integer NOT NULL REFERENCES "manager_account" ("id"),
-//"added_by_id" integer NOT NULL REFERENCES "auth_user" ("id"),
-//"image_id" integer NOT NULL REFERENCES "manager_image" ("id"));

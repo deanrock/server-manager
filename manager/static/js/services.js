@@ -35,7 +35,35 @@ srv.factory('managerServices', function($http) {
                 return response.data;
             });
             return resp;
-        }
+        },
+        getCronjobs: function(name) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/cronjobs').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getCronjob: function(name, id) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/cronjobs/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addCronjob: function(name, params) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/cronjobs', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editCronjob: function(name, id, params) {
+            var resp = $http.put('/api/v1/accounts/'+name+'/cronjobs/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
     }
     return managerServices;
 });

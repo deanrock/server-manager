@@ -1,5 +1,37 @@
 <ng-layout src="static/templates/account/layout.html">
     <div content_for="content">
-        
+		<div style="text-align:right">
+			<a href="/a/{{account.name}}/cronjobs/add" class="btn btn-default btn" role="button">Add cronjob</a>
+		</div>
+		<br />
+
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Status</th>
+					<th>Cron</th>
+					<th>Image</th>
+					<th>Timeout</th>
+					<th>Enabled</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="cronjob in cronjobs">
+					<td><a href="/a/{{ account.name }}/cronjobs/{{ cronjob.id }}">{{cronjob.name}}</a></td>
+					<td>
+						<span ng-if="cronjob.last_execution_status" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
+						<span ng-if="!cronjob.last_execution_status" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
+					</td>
+					<td>{{cronjob.cron_expression}}</td>
+					<td>{{cronjob.image}}</td>
+					<td>{{cronjob.timeout}} s</td>
+					<td>
+						<span ng-if="cronjob.enabled" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
+						<span ng-if="!cronjob.enabled" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
     </div>
 </ng-layout>

@@ -4,19 +4,31 @@ import (
 )
 
 type FormError struct {
-	Name string `json:"name"`
 	Error string `json:"error"`
 }
 
 type FormErrors struct {
-	Errors []FormError `json:"errors"`
+	Errors map[string][]FormError `json:"errors"`
+}
+
+func NewFormErrors() FormErrors {
+	f := FormErrors{
+		Errors:  make(map[string][]FormError),
+	}
+
+	return f
 }
 
 func (fe *FormErrors) Add(name string, error string) {
-	fe.Errors = append(fe.Errors, FormError{
-		Name: name,
+	e := FormError{
 		Error: error,
-	})
+	}
+
+	if _, ok := fe.Errors[name]; ok {
+		fe.Errors[name] = append(fe.Errors[name], e)
+	}else{
+		fe.Errors[name] = []FormError{e}
+	}
 }
 
 func (fe *FormErrors) HasErrors() bool {

@@ -165,10 +165,11 @@ func RequireAccount() gin.HandlerFunc {
 
 type Config struct {
     Server_name string `json:"server_name"`
+    Mysql_connection_string string `json:"mysql_connection_string"`
 }
 
 type Profile struct {
-    ServerConfig Config `json:"config"`
+    Server_name string `json:"server_name"`
     User models.User `json:"user"`
 }
 
@@ -193,12 +194,23 @@ func main() {
 
     //sqlite
     db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
-
     if err != nil {
         log.Fatal("database error", err)
     }
 
     sharedContext.PersistentDB = db
+    sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
+
+    //log DB
+    log_db, err := gorm.Open("sqlite3", "../manager/db_log.sqlite3")
+    if err != nil {
+        log.Fatal("database error", err)
+    }
+
+    sharedContext.LogDB = log_db
+    sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
+
+
 
     //HTTP
     r := gin.Default()
@@ -223,7 +235,7 @@ func main() {
             uid := c.MustGet("uid").(*int)
             user, _ := models.FindUserById(sharedContext, *uid)
             p := Profile{
-                ServerConfig:    config,
+                Server_name:     config.Server_name,
                 User:            *user,
             }
 
@@ -250,7 +262,7 @@ func main() {
 
         authorized.GET("/api/v1/accounts", accounts.ListAccounts)
 
-        requiresAccount := r.Group("/api/v1/accounts/:name")
+        requiresAccount := authorized.Group("/api/v1/accounts/:name")
 
         requiresAccount.Use(RequireAccount())
         {

@@ -59,6 +59,61 @@ controller('accountCronjobs', ['$scope', 'managerServices', '$location', '$route
     managerServices.getAccountByName($routeParams.account).then(function(data){
         $scope.account = data;
     });
+
+    managerServices.getCronjobs($routeParams.account).then(function(data) {
+        $scope.cronjobs = data;
+    });
+}]).
+controller('accountCronjobAdd', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'cronjobs';
+    $scope.form = {
+        'timeout': 300
+    };
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+        $scope.form.directory = '/home/'+data.name+'/';
+    });
+
+    managerServices.getShells().then(function(data){
+        $scope.shells = data;
+        $scope.form.image = data[0];
+    });
+
+    $scope.submit = function() {
+        managerServices.addCronjob($routeParams.account, $scope.form).then(function(data) {
+            $location.path('/a/'+$scope.account.name+'/cronjobs');
+        },
+        function(err) {
+            $scope.errors = err.data.errors;
+            console.log(err)
+        });
+    }
+}]).
+controller('accountCronjobEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'cronjobs';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getShells().then(function(data){
+        $scope.shells = data;
+    });
+
+    managerServices.getCronjob($routeParams.account, $routeParams.id).then(function(data){
+        $scope.form = data;
+
+        $scope.submit = function() {
+            managerServices.editCronjob($routeParams.account, $scope.form.id, $scope.form).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/cronjobs');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err)
+            });
+        }
+    });
 }]).
 controller('sync', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     if ($routeParams.action == "images") {

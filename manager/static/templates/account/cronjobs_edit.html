@@ -1,0 +1,63 @@
+<ng-layout src="static/templates/account/layout.html">
+    <div content_for="content">
+        <form ng-submit="submit()">
+            <div class="form-group" ng-class="{'has-error': errors.name}">
+                <label class="control-label" for="name">Name</label>
+                <div class=" ">
+                    <input class="form-control" id="name" ng-model="form.name" maxlength="50" name="name" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.name">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.directory}">
+                <label class="control-label" for="directory">Directory (directory to chdir to)</label>
+                <div class=" ">
+                    <input class="form-control" id="directory" maxlength="255" ng-model="form.directory" name="directory" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.directory">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.command}">
+                <label class="control-label" for="command">Command (e.g. php ./cron.php)</label>
+                <div class=" ">
+                    <input class="form-control" id="command" ng-model="form.command" maxlength="255" name="command" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.command">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.timeout}">
+                <label class="control-label" for="timeout">Timeout (in seconds, max: 3600s)</label>
+                <div class=" ">
+                    <input class="form-control" id="timeout" ng-model="form.timeout" maxlength="255" name="timeout" type="number" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.timeout">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.image}">
+                <label class="control-label" for="image">Image</label>
+                <div class=" ">
+                    <select ng-disabled="started" class="form-control" ng-model="form.image" ng-options="s as s for s in shells">
+                    </select>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.image">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.cron_expression}">
+                <label class="control-label" for="cron_expression">Cron expression</label>
+                <div class=" ">
+                    <input class="form-control" id="cron_expression" ng-model="form.cron_expression" maxlength="255" name="cron_expression" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.cron_expression">{{error.error}}</span>
+            </div>
+
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="form.enabled"> Enabled
+                </label>
+                <span class="help-block" ng-repeat="error in errors.enabled">{{error.error}}</span>
+            </div>
+
+            <button type="submit" class="btn btn-default">Save</button>
+        </form>
+    </div>
+</ng-layout>

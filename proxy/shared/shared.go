@@ -6,6 +6,6 @@ import (
 
 type SharedContext struct {
     PersistentDB gorm.DB
-    DB gorm.DB
+    LogDB gorm.DB
 }
 
