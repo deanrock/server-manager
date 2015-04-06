@@ -31,10 +31,13 @@ import (
 var sharedContext *shared.SharedContext
 
 // Docker
-func dockerEventCallback(event *dockerclient.Event, ec chan error, args ...interface{}) {
-    log.Printf("Received event: %#v\n", *event)
+func dockerEvents(listener chan *docker.APIEvents) {
+    for {
+        event := <- listener
+        log.Printf("Received event: %#v\n", *event)
 
-    broadcast(fmt.Sprintf("Received event: %#v\n", *event))
+        broadcast(fmt.Sprintf("Received event: %#v\n", *event))
+    }
 }
 
 
@@ -183,12 +186,14 @@ func main() {
     // Init the client
     mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
-    // Listen to events
-    mydocker.StartMonitorEvents(dockerEventCallback, nil)
-
     //go-dockerclient
     endpoint := "unix:///var/run/docker.sock"
     dockerClient, _ = docker.NewClient(endpoint)
+
+    //Listen to events
+    listener := make(chan *docker.APIEvents)
+    go dockerEvents(listener)
+    dockerClient.AddEventListener(listener)
 
     sharedContext = &shared.SharedContext{}
 
@@ -209,8 +214,6 @@ func main() {
 
     sharedContext.LogDB = log_db
     sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
-
-
 
     //HTTP
     r := gin.Default()
