@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	s.Log("info", "user: %s (%s)", u.Name, u.Uid)
+	//s.Log("info", "user: %s (%s)", u.Name, u.Uid)
 
 	//go-dockerclient
 	endpoint := "unix:///var/run/docker.sock"
@@ -51,7 +51,7 @@ func main() {
 		}
 	}
 
-	s.Log("info", "cmd: %s", strings.Join(s.Cmd, " "))
+	//s.Log("info", "cmd: %s", strings.Join(s.Cmd, " "))
 
 	//environment
 	s.AccountName = u.Username
