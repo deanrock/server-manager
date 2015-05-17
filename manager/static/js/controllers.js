@@ -1,8 +1,10 @@
 var ctrls = angular.module('managerControllers', []);
 
 
-ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', function($scope, $rootScope, managerServices) {
-    $scope.lol = "lal";
+ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$window', function($scope, $rootScope, managerServices, $window) {
+    $scope.djangoAdmin = function() {
+        $window.location = '/admin'
+    }
 }]).
 controller('accounts', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
     $scope.accounts = [];

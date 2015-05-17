@@ -302,6 +302,7 @@ func main() {
     r.Static("/static/css", "../manager/static/css")
     r.Static("/static/js", "../manager/static/js")
     r.Static("/static/templates", "../manager/static/templates")
+    r.Static("/static/admin", "../env/lib/python2.7/site-packages/django/contrib/admin/static/admin")
 
     r.NoRoute(proxyRequest)
 
