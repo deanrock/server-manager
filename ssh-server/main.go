@@ -84,6 +84,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 		s := shell.Shell{
 			LogPrefix: "[ssh]",
+			SharedContext: sharedContext,
 		}
 
 		//go-dockerclient

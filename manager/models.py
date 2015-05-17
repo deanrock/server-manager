@@ -282,11 +282,14 @@ class App(models.Model):
 
             print docker_mapping
 
+            links = {}
+
             for app in self.account.apps.filter(image__type='database'):
                     if app.container_name() in docker_mapping:
                         hosts[app.name] = docker_mapping[app.container_name()]
+                        links[app.container_name()] = app.name
 
-            print hosts
+            print links
 
             try:
                 response = docker_api.cli.start(container=container.get('Id'),
@@ -295,6 +298,7 @@ class App(models.Model):
                                             "Name": "always"
                                         },
                                                 extra_hosts=hosts,
+                                                links=links,
                                                 binds={
                                 homefolder: {
                                     'bind': homefolder

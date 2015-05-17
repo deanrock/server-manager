@@ -20,9 +20,13 @@ import (
 	"github.com/gorilla/websocket"
 	gosignal "os/signal"
 	"github.com/docker/docker/pkg/signal"
+	"../shared"
+	"../models"
 )
 
 type Shell struct {
+	SharedContext *shared.SharedContext
+
 	LogPrefix string
 	AccountName string
 	AccountUid  string
@@ -167,10 +171,30 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 }
 
 func (shell *Shell) StartContainer() error {
+	account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
+	shell.GetDockerImages()
+
+    apps := account.Apps()
+
+    var images []models.Image
+	shell.SharedContext.PersistentDB.Find(&images)
+
+	var links []string
+
+    for _, app := range(apps) {
+	    for _, img := range(images) {
+			if img.Id == app.Image_id && img.Type == "database" {
+				name := fmt.Sprintf("app-%s-%s:%s", shell.AccountName, app.Name, app.Name)
+				links = append(links, name)
+			}
+		}
+	}
+
 	err := shell.DockerClient.StartContainer(shell.ContainerID,
 		&docker.HostConfig{
 			Binds:      []string{"/home/" + shell.AccountName + ":/home/" + shell.AccountName},
 			ExtraHosts: []string{"mysql:172.17.42.1"},
+			Links:      links,
 		})
 
 	return err
@@ -341,9 +365,10 @@ func (s *Shell) GetDockerImages() {
     }
 }
 
-func WebSocketShell(c *gin.Context) {
+func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	s := Shell{
 		LogPrefix: "[web shell]",
+		SharedContext: sharedContext,
 	}
 
 	//environment

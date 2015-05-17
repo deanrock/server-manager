@@ -8,7 +8,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-MYSQL_ROOT_PASSWORD = 'mypassword2012'
+MYSQL_ROOT_PASSWORD = 'password'
 
 DATABASES['manager'] = {
     'NAME': 'manager',

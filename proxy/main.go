@@ -216,7 +216,7 @@ func main() {
         authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
 
         authorized.GET("/api/v1/account/:account/shell", func(c *gin.Context) {
-            shell.WebSocketShell(c)
+            shell.WebSocketShell(c, sharedContext)
         })
 
         authorized.GET("/api/v1/profile", func (c *gin.Context) {
