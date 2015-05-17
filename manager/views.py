@@ -148,7 +148,7 @@ def account_apps(request, name):
     mapping = {}
     for c in containers:
         try:
-            name = c['Names'][0].replace('/', '')
+            name = c['Names'][-1].replace('/', '')
 
             mapping[name] = (c['Status'], c['Id'])
         except Exception as e:
