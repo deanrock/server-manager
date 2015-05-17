@@ -190,13 +190,15 @@ def containers(request):
     mapping = {}
     for c in containers:
         try:
-            name = c['Names'][0].replace('/', '')
+            name = c['Names'][-1].replace('/', '')
 
             mapping[name] = c['Status']
         except Exception as e:
             print(e)
 
     dapps = []
+
+    print (mapping)
 
     for app in apps:
         app.up = False
