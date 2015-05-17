@@ -42,6 +42,10 @@ Development env setup
 
 	(vagrant)$ sudo chmod 775 /var/log/manager/
 
+10. change mysql password (set to 'password' for dev) and remove test data:
+	
+	(vagrant)$ mysql_secure_installation
+
 
 Your dev env should be kinda ready.
 
