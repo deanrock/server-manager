@@ -1,0 +1,12 @@
+<ng-layout src="static/templates/account/layout.html">
+<div content_for="content">
+	<div style="width:100%;text-align:center">
+	    <h3>Displaying logs for {{app.name}} app for {{account.name}}</h3>
+
+		<br />
+
+		<ul class="logs" style="text-align:left">
+			<li ng-repeat="log in logs track by $index">{{log}}</li>
+		</ul>
+	</div>
+</div>

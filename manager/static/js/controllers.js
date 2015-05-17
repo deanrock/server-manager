@@ -53,6 +53,129 @@ controller('accountOverview', ['$scope', 'managerServices', '$location', '$route
         }
     }
 }]).
+controller('accountApps', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.apps = [];
+    $scope.action = 'apps';
+    console.log($routeParams.account)
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getApps($routeParams.account).then(function(data){
+        console.log(data)
+        $scope.apps = data;
+    })
+}]).
+controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.apps = [];
+    $scope.action = 'apps';
+    $scope.logs = [];
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+
+        managerServices.getApp($routeParams.account, $routeParams.id).then(function(data) {
+            console.log(data)
+            $scope.app = data;
+
+            managerServices.getApps($routeParams.account).then(function(data){
+                $scope.apps = data;
+
+                $scope.container_id = null;
+
+                for (var a in $scope.apps) {
+                    if ($scope.apps[a].id == $scope.app.id) {
+                        $scope.container_id = $scope.apps[a].container_id;
+                    }
+                }
+
+                var logs = new WebSocket(getWebsocketHost()+'/api/v1/containers/'+$scope.container_id+'/logs');
+
+
+                logs.onopen = function() {
+                    console.log('open container logs ws')
+                }
+
+                logs.onmessage = function(msg) {
+                    $scope.$apply(function() {
+                        $scope.logs.push(msg.data);
+                    })
+                    
+                    console.log(msg)
+                }
+            });
+        });
+    });
+}]).
+controller('accountAppAction', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.apps = [];
+    $scope.action = 'apps';
+
+    $scope.appAction = $routeParams.action;
+    $scope.appActionText = null;
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+
+        managerServices.getApp($routeParams.account, $routeParams.id).then(function(data) {
+            console.log(data)
+            $scope.app = data;
+
+            switch($scope.appAction) {
+                case "redeploy":
+                    $scope.appActionText = 'Redeploying '+$scope.app.name+' for '+$scope.account.name+' ...';
+                    break;
+                case "stop":
+                    $scope.appActionText = 'Stopping '+$scope.app.name+' for '+$scope.account.name+' ...';
+                    break;
+                case "start":
+                    $scope.appActionText = 'Starting '+$scope.app.name+' for '+$scope.account.name+' ...';
+                    break;
+                default:
+                    $scope.appActionText = 'WRONG ACTION!';
+                    $scope.appAction = null;
+                    break;
+            }
+
+            if ($scope.appAction != null) {
+                $scope.loader = true;
+
+                $scope.fails = [];
+                $scope.appActionResponse = '';
+                managerServices.executeAppAction($scope.account.name, $scope.app.id,
+                    $scope.appAction).then(function(data) {
+                        console.log(data);
+
+                        $scope.loader = false;
+                        $scope.appActionResponse += '<b>Response:</b><br />';
+
+                        for(var x in data) {
+                            var line = data[x];
+
+                            if (typeof line === 'string') {
+                                line = line.replace(new RegExp('\n', 'g'), '<br />');
+
+                                $scope.appActionResponse +='<br /><span style=\'color:red\'>-&gt; </span> '+ line;
+                            }else{
+                                var background = line.flag == 'fail' ? 'red;color:white;padding:10px 0 10px 0' : 'white';
+                                $scope.appActionResponse +='<br /><div style="background:'+background+'"><span style=\'color:red\'>-&gt; </span>'+ line.message+'</div>';
+
+                                if (line.flag=='fail') {
+                                    $scope.fails.push(line);
+                                }
+                            }
+                        }
+
+
+                        if ($scope.fails.length > 0) {
+                            $scope.error = '<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>  '+fails.length+' failure(s)!</div>';
+                        }
+                    });
+            }
+        });
+    });
+}]).
 controller('accountCronjobs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.action = 'cronjobs';
 

@@ -30,6 +30,22 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/account/cronjobs_edit.html',
         controller: 'accountCronjobEdit',
     }).
+    when('/a/:account/apps', {
+        templateUrl: 'static/templates/account/apps.html',
+        controller: 'accountApps',
+    }).
+    when('/a/:account/apps/:action', {
+        templateUrl: 'static/templates/account/frame.html',
+        controller: 'account',
+    }).
+    when('/a/:account/apps/:id/logs', {
+        templateUrl: 'static/templates/account/apps_logs.html',
+        controller: 'accountAppLogs',
+    }).
+    when('/a/:account/apps/:id/:action', {
+        templateUrl: 'static/templates/account/apps_action.html',
+        controller: 'accountAppAction',
+    }).
     when('/a/:account/:action', {
         templateUrl: 'static/templates/account/frame.html',
         controller: 'account',

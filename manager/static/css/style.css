@@ -19,6 +19,7 @@ body > .container {
 
 .account-menu {
   padding:0px 0px 10px 0px;
+  min-height: 73px;
 }
 
 .account-menu h1 {

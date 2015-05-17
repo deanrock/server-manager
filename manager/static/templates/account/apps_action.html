@@ -1,0 +1,16 @@
+<ng-layout src="static/templates/account/layout.html">
+    <div content_for="content">
+        <div id="error"></div>
+        <div style="width:100%;text-align:center">
+        <h3>{{appActionText}}</h3>
+        <div id="action-loader" ng-hide="!loader" style="position:relative;text-align:center;margin: 0px auto;width: 140px">
+            <div class="pace pace-active">
+                <div class="pace-progress" data-progress="50" data-progress-text="50%" >
+                    <div class="pace-progress-inner"></div></div><div class="pace-activity"></div></div>
+        </div>
+        </div>
+        <br />
+
+        <div id="action-response" ng-bind-html="appActionResponse | unsafe"></div>
+    </div>
+

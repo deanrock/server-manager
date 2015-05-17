@@ -43,6 +43,27 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getApps: function(name) {
+            var resp = $http.get('/djapi/v1/accounts/'+name+'/apps').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getApp: function(name, id) {
+            var resp = $http.get('/djapi/v1/accounts/'+name+'/apps/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        executeAppAction: function(name, id, action) {
+            var resp = $http.post('/djapi/v1/accounts/'+name+'/apps/'+id+'/'+action+'/ajax').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getCronjob: function(name, id) {
             var resp = $http.get('/api/v1/accounts/'+name+'/cronjobs/'+id).
             then(function(response) {

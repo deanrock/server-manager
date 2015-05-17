@@ -1,0 +1,10 @@
+<ng-layout src="static/templates/account/layout.html">
+    <div content_for="content">
+		<div style="text-align:right">
+			<a href="/a/{{account.name}}/apps/add" class="btn btn-default btn" role="button">Add app</a>
+		</div>
+		<br />
+
+    	<ng-include src="'static/templates/includes/apps_list.html'"></ng-include>
+	</div>
+</div>

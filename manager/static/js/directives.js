@@ -28,3 +28,9 @@ drcs.directive('forceReload',function($location,$route){
         });
     }   
 });
+
+drcs.filter('unsafe', function($sce) {
+    return function(val) {
+        return $sce.trustAsHtml(val);
+    };
+});
