@@ -19,7 +19,7 @@ import (
     "github.com/fsouza/go-dockerclient"
     //"database/sql"
     //"github.com/coopernurse/gorp"
-    "github.com/jinzhu/gorm"
+    //"github.com/jinzhu/gorm"
     _ "github.com/mattn/go-sqlite3"
     "./controllers"
     "./shared"
@@ -196,23 +196,8 @@ func main() {
     dockerClient.AddEventListener(listener)
 
     sharedContext = &shared.SharedContext{}
-
-    //sqlite
-    db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
-    if err != nil {
-        log.Fatal("database error", err)
-    }
-
-    sharedContext.PersistentDB = db
+    sharedContext.OpenDB()
     sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
-
-    //log DB
-    log_db, err := gorm.Open("sqlite3", "../manager/db_log.sqlite3")
-    if err != nil {
-        log.Fatal("database error", err)
-    }
-
-    sharedContext.LogDB = log_db
     sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
 
     //HTTP

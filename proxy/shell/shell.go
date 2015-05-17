@@ -148,17 +148,49 @@ type AttachOptions struct {
 	Detach       chan error
 }
 
-func (shell *Shell) Attach(options AttachOptions) (error) {
+func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error) {
 	container, err := shell.DockerClient.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
 			OpenStdin: true,
 			Tty:       shell.Tty,
 			Cmd:       shell.Cmd,
-			Image:     "manager/" + options.ShellImage,
+			Image:     "manager/" + shellImage,
 			Hostname:  shell.Environment,
 		},
 	})
 
+	if err == nil {
+		shell.ContainerID = container.ID
+	}
+
+	return container, err
+}
+
+func (shell *Shell) StartContainer() error {
+	err := shell.DockerClient.StartContainer(shell.ContainerID,
+		&docker.HostConfig{
+			Binds:      []string{"/home/" + shell.AccountName + ":/home/" + shell.AccountName},
+			ExtraHosts: []string{"mysql:172.17.42.1"},
+		})
+
+	return err
+}
+
+func (shell *Shell) RemoveContainer() error {
+	if shell.ContainerID != "" {
+		err := shell.DockerClient.RemoveContainer(docker.RemoveContainerOptions{
+			ID:    shell.ContainerID,
+			Force: true,
+		})
+
+		return err
+	}
+
+	return nil
+}
+
+func (shell *Shell) Attach(options AttachOptions) (error) {
+	container, err := shell.CreateContainer(options.ShellImage)
 	if err != nil {
 		return fmt.Errorf("couldn't create container %s (image: %s)", err, options.ShellImage)
 	}
@@ -167,10 +199,7 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 		shell.Log("info", "cleanup shell %s %s", shell.AccountName, options.ShellImage)
 
 		if container != nil {
-			shell.DockerClient.RemoveContainer(docker.RemoveContainerOptions{
-				ID:    container.ID,
-				Force: true,
-			})
+			err := shell.RemoveContainer()
 
 			if err != nil {
 				shell.LogError(fmt.Errorf("error while cleaning up %s", err))
@@ -178,21 +207,10 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 		}
 	}()
 
-	if err != nil {
-		return fmt.Errorf("cannot create container ", err)
-	}
-
-	err = shell.DockerClient.StartContainer(container.ID,
-		&docker.HostConfig{
-			Binds:      []string{"/home/" + shell.AccountName + ":/home/" + shell.AccountName},
-			ExtraHosts: []string{"mysql:172.17.42.1"},
-		})
-
+	err = shell.StartContainer()
 	if err != nil {
 		return fmt.Errorf("cannot start container ", err)
 	}
-
-	shell.ContainerID = container.ID
 
 	errs := make(chan error)
 	go func() {

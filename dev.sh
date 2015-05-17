@@ -64,7 +64,7 @@ elif [ $1 = "manager" ]; then
 
 	source env/bin/activate
 	python manage.py update-nginx-config --settings=manager.settings.dev
-	python manage.py runserver 0.0.0.0:5555 --settings=manager.settings.dev
+	python manage.py runserver 0.0.0.0:5555 --settings=manager.settings.dev --noreload
 else
 	echo "wrong argument"
 fi
