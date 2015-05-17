@@ -1,0 +1,20 @@
+{
+    "id": 16,
+	"name": "redis",
+	"description": "redis instance (WARNING: data is semi-persistant! Use it for caching ONLY!",
+	"type": "database",
+	"ports": [
+		{
+			"port": 6379,
+			"type": "tcp"
+		}
+	],
+	"variables": [
+		{
+			"name": "redis_config",
+			"description": "redis settings",
+			"filename": "redis.conf",
+			"default": "#you don't need to use 'dir' directive, because we already set default data folder"
+		}
+	]
+}

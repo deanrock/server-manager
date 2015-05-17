@@ -1,0 +1,14 @@
+{
+    "id": 17,
+	"name": "memcached",
+	"description": "memcache instance",
+	"type": "database",
+	"ports": [
+		{
+			"port": 11211,
+			"type": "tcp"
+		}
+	],
+	"variables": [
+	]
+}
