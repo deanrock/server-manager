@@ -171,21 +171,23 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 }
 
 func (shell *Shell) StartContainer() error {
-	account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
-	shell.GetDockerImages()
-
-    apps := account.Apps()
-
-    var images []models.Image
-	shell.SharedContext.PersistentDB.Find(&images)
-
 	var links []string
+	
+	if shell.SharedContext != nil {
+		account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
+		shell.GetDockerImages()
 
-    for _, app := range(apps) {
-	    for _, img := range(images) {
-			if img.Id == app.Image_id && img.Type == "database" {
-				name := fmt.Sprintf("app-%s-%s:%s", shell.AccountName, app.Name, app.Name)
-				links = append(links, name)
+	    apps := account.Apps()
+
+	    var images []models.Image
+		shell.SharedContext.PersistentDB.Find(&images)
+
+	    for _, app := range(apps) {
+		    for _, img := range(images) {
+				if img.Id == app.Image_id && img.Type == "database" {
+					name := fmt.Sprintf("app-%s-%s:%s", shell.AccountName, app.Name, app.Name)
+					links = append(links, name)
+				}
 			}
 		}
 	}
