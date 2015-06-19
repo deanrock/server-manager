@@ -20,7 +20,7 @@ RUN drush
 
 RUN mkdir /tmp/php5-memcached && \
 	cd /tmp/php5-memcached && \
-	apt-get install -y php5-dev pkg-config php-pear && \
+	apt-get install -y php5-dev pkg-config php-pear libmemcached-dev && \
 	pecl install igbinary && \
 	pecl_memcached_ver="2.2.0" && \
 	pecl download memcached-${pecl_memcached_ver} && \
