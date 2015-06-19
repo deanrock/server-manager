@@ -18,4 +18,17 @@ RUN pear channel-discover pear.drush.org && pear install drush/drush
 
 RUN drush
 
+RUN mkdir /tmp/php5-memcached &&
+	cd /tmp/php5-memcached &&
+	apt-get install -y php5-dev pkg-config php-pear &&
+	pecl install igbinary &&
+	pecl_memcached_ver="2.2.0" &&
+	pecl download memcached-${pecl_memcached_ver} &&
+	tar xzvf memcached-${pecl_memcached_ver}.tgz &&
+	cd memcached-${pecl_memcached_ver}/ &&
+	phpize &&
+	./configure --enable-memcached-igbinary --disable-memcached-sasl &&
+	make &&
+	make install
+
 ADD cli_php.ini /etc/php5/cli/php.ini
