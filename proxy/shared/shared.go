@@ -3,12 +3,14 @@ package shared
 import (
 	"github.com/jinzhu/gorm"
     _ "github.com/mattn/go-sqlite3"
+    "github.com/fsouza/go-dockerclient"
     "log"
 )
 
 type SharedContext struct {
     PersistentDB gorm.DB
     LogDB gorm.DB
+    DockerClient *docker.Client
 }
 
 func (s *SharedContext) OpenDB() {

@@ -27,7 +27,7 @@ function AccountShell(account, shell, element) {
 
     this.term.open(element);
 
-    var url = getWebsocketHost() + '/api/v1/account/'+account+'/shell?env='+shell;
+    var url = getWebsocketHost() + '/api/v1/accounts/'+account+'/shell?env='+shell;
 	this.websocket = new WebSocket(url);
 	var that=this;
 	this.websocket.onopen = function() {

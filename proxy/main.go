@@ -25,6 +25,7 @@ import (
     "./shared"
     "./models"
     "./shell"
+    "strconv"
 )
 
 
@@ -59,7 +60,6 @@ var connections = struct {
 }{m: make(map[*websocket.Conn]bool)}
 
 var mydocker *dockerclient.DockerClient
-var dockerClient *docker.Client
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
     conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
@@ -105,7 +105,43 @@ func containerLogsHandler(c *gin.Context) {
         Timestamps: true,
     }
 
-    reader, err := mydocker.ContainerLogs(c.Params.ByName("id"), &options)
+    a := models.AccountFromContext(c)
+
+    id, e := strconv.ParseInt(c.Params.ByName("id"), 0, 64)
+    if e != nil {
+        c.String(400, "")
+        return
+    }
+
+    var container docker.APIContainers
+    var found = false
+
+    for _, app := range(a.Apps()) {
+        if app.Id == int(id) {
+            log.Println(app.Id)
+            log.Println(app)
+
+            containers, _ := sharedContext.DockerClient.ListContainers(docker.ListContainersOptions{})
+
+            name := fmt.Sprintf("/%s", app.ContainerName(a.Name))
+            for _, c := range(containers) {
+                for _, n := range(c.Names) {
+                    if n == name {
+                        container = c
+                        found = true
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+    if !found {
+        http.Error(c.Writer, "", 404)
+        return
+    }
+
+    reader, err := mydocker.ContainerLogs(container.ID, &options)
     defer reader.Close()
     rd := bufio.NewReader(reader)
     for {
@@ -186,19 +222,19 @@ func main() {
     // Init the client
     mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
-    //go-dockerclient
-    endpoint := "unix:///var/run/docker.sock"
-    dockerClient, _ = docker.NewClient(endpoint)
-
-    //Listen to events
-    listener := make(chan *docker.APIEvents)
-    go dockerEvents(listener)
-    dockerClient.AddEventListener(listener)
-
     sharedContext = &shared.SharedContext{}
     sharedContext.OpenDB()
     sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
     sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
+
+    //go-dockerclient
+    endpoint := "unix:///var/run/docker.sock"
+    sharedContext.DockerClient, _ = docker.NewClient(endpoint)
+
+    //Listen to events
+    listener := make(chan *docker.APIEvents)
+    go dockerEvents(listener)
+    sharedContext.DockerClient.AddEventListener(listener)
 
     //HTTP
     r := gin.Default()
@@ -211,12 +247,6 @@ func main() {
     {
         authorized.GET("/ws/", func(c *gin.Context) {
             wsHandler(c.Writer, c.Request)
-        })
-
-        authorized.GET("/api/v1/containers/:id/logs", containerLogsHandler)
-
-        authorized.GET("/api/v1/account/:account/shell", func(c *gin.Context) {
-            shell.WebSocketShell(c, sharedContext)
         })
 
         authorized.GET("/api/v1/profile", func (c *gin.Context) {
@@ -255,7 +285,15 @@ func main() {
         requiresAccount.Use(RequireAccount())
         {
             requiresAccount.GET("", accounts.GetAccountByName)
+
+            //apps
             requiresAccount.GET("/apps", accounts.GetApps)
+            requiresAccount.GET("/apps/:id/logs", containerLogsHandler)
+
+            //other
+            requiresAccount.GET("/shell", func(c *gin.Context) {
+                shell.WebSocketShell(c, sharedContext)
+            })
 
             //cronjobs
             cronJobs := &controllers.CronJobsAPI{

@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+	"fmt"
 )
 
 type App struct {
@@ -17,4 +18,8 @@ type App struct {
 
 func (c App) TableName() string {
     return "manager_app"
+}
+
+func (c App) ContainerName(accountName string) string {
+	return fmt.Sprintf("app-%s-%s", accountName, c.Name)
 }

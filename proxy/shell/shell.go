@@ -374,10 +374,10 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	}
 
 	//environment
-	account := c.Params.ByName("account")
+	a := models.AccountFromContext(c)
 	env := strings.Replace(c.Request.URL.Query().Get("env"), "-base-shell", "", 1)
 	fmt.Printf(env)
-	out, err := exec.Command("id","-u",account).Output()
+	out, err := exec.Command("id","-u",a.Name).Output()
 
 	if err != nil {
 		return
@@ -386,7 +386,7 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	uid := strings.Replace(string(out), "\n", "", 1)
 
 
-	s.Log("info", "user: %s (%s)", account, uid)
+	s.Log("info", "user: %s (%s)", a.Name, uid)
 
 	s.Cmd = []string{"/bin/bash"}
 	s.Tty = true
@@ -405,7 +405,7 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	s.GetDockerImages()
 
 	//environment
-	s.AccountName = account
+	s.AccountName = a.Name
 	s.AccountUid = uid
 
 	shell_image, err := s.BuildShellImage(env)

@@ -84,16 +84,7 @@ controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeP
             managerServices.getApps($routeParams.account).then(function(data){
                 $scope.apps = data;
 
-                $scope.container_id = null;
-
-                for (var a in $scope.apps) {
-                    if ($scope.apps[a].id == $scope.app.id) {
-                        $scope.container_id = $scope.apps[a].container_id;
-                    }
-                }
-
-                var logs = new WebSocket(getWebsocketHost()+'/api/v1/containers/'+$scope.container_id+'/logs');
-
+                var logs = new WebSocket(getWebsocketHost()+'/api/v1/accounts/'+$scope.account.name+'/apps/'+$scope.app.id+'/logs');
 
                 logs.onopen = function() {
                     console.log('open container logs ws')
