@@ -101,11 +101,14 @@ def rebuild_base_image():
 
         "nodejs0.12-base",
         "nodejs0.12-base-shell",
+
+        "ruby22-base",
+        "ruby22-base-shell",
     ]
 
     for image in images:
         folder = os.path.abspath(os.path.join(settings.BASE_DIR, '../', 'images/', image))
-
+        print (image)
         #build image
         for line in docker_api.cli.build(
            path=folder, rm=True, tag='manager/%s' % image

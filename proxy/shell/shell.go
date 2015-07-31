@@ -353,16 +353,17 @@ func (s *Shell) GetDockerImages() {
 
     for _, img := range imgs {
         if len(img.RepoTags) > 0 {
-        	tag := img.RepoTags[0]
-        	if strings.Contains(tag, "manager/") {
-        		tag = strings.Replace(tag, "manager/", "", 1)
-        		tag = strings.Replace(tag, ":latest", "", 1)
-            	s.Images = append(s.Images, tag)
+        	for _, tag := range(img.RepoTags) {
+	        	if strings.Contains(tag, "manager/") {
+	        		tag = strings.Replace(tag, "manager/", "", 1)
+	        		tag = strings.Replace(tag, ":latest", "", 1)
+	            	s.Images = append(s.Images, tag)
 
-            	if strings.Contains(tag, "-shell") {
-            		s.ShellImages = append(s.ShellImages, tag)
-            	}
-            }
+	            	if strings.Contains(tag, "-shell") {
+	            		s.ShellImages = append(s.ShellImages, tag)
+	            	}
+	            }
+	        }
         }
     }
 }
