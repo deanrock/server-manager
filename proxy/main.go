@@ -226,6 +226,44 @@ func RequireAccount() gin.HandlerFunc {
     }
 }
 
+func RequireUserAccess(accessName string) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        name := c.Params.ByName("name")
+        account := models.GetAccountByName(name, sharedContext)
+
+        if account != nil {
+            userAccess := c.MustGet("userAccess").([]models.UserAccess)
+
+            found := false
+            for _, ua := range(userAccess) {
+                if ua.Account_id == account.Id {
+                    if accessName == "shell_access" && ua.ShellAccess == true {
+                        found = true
+                    }else if accessName == "app_access" && ua.ShellAccess == true {
+                        found = true
+                    }else if accessName == "cronjob_access" && ua.ShellAccess == true {
+                        found = true
+                    }else if accessName == "domain_access" && ua.ShellAccess == true {
+                        found = true
+                    }else if accessName == "ssh_access" && ua.ShellAccess == true {
+                        found = true
+                    }else if accessName == "database_access" && ua.ShellAccess == true {
+                        found = true
+                    }
+                }
+            }
+
+            if !found {
+                c.Fail(401, errors.New("user doesnt have access to this resource"))
+            }
+        }else{
+            c.Fail(404, errors.New("Not Found"))
+        }
+
+        c.Next()
+    }
+}
+
 func RequireStaff() gin.HandlerFunc {
     return func(c *gin.Context) {
         user := c.MustGet("user").(models.User)
@@ -331,11 +369,11 @@ func main() {
             requiresAccount.GET("", accounts.GetAccountByName)
 
             //apps
-            requiresAccount.GET("/apps", accounts.GetApps)
-            requiresAccount.GET("/apps/:id/logs", containerLogsHandler)
+            requiresAccount.GET("/apps", RequireUserAccess("shell_access"), accounts.GetApps)
+            requiresAccount.GET("/apps/:id/logs", RequireUserAccess("shell_access"), containerLogsHandler)
 
-            //other
-            requiresAccount.GET("/shell", func(c *gin.Context) {
+            //shell
+            requiresAccount.GET("/shell", RequireUserAccess("shell_access"), func(c *gin.Context) {
                 shell.WebSocketShell(c, sharedContext)
             })
 
@@ -344,10 +382,10 @@ func main() {
                 Context: sharedContext,
             }
 
-            requiresAccount.GET("/cronjobs", cronJobs.ListCronjobs)
-            requiresAccount.GET("/cronjobs/:id", cronJobs.GetCronjob)
-            requiresAccount.PUT("/cronjobs/:id", cronJobs.EditCronjob)
-            requiresAccount.POST("/cronjobs", cronJobs.AddCronjob)
+            requiresAccount.GET("/cronjobs", RequireUserAccess("cronjob_access"), cronJobs.ListCronjobs)
+            requiresAccount.GET("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.GetCronjob)
+            requiresAccount.PUT("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.EditCronjob)
+            requiresAccount.POST("/cronjobs", RequireUserAccess("cronjob_access"), cronJobs.AddCronjob)
         }
 
         //users

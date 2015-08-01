@@ -3,7 +3,7 @@ import MySQLdb
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-
+from django.db import connection
 from manager import docker_api
 from manager.models import Account, Domain, Database
 from manager.utils import exec_command, Logs
@@ -14,19 +14,6 @@ import utils
 
 def sync_accounts():
     logs = Logs()
-
-    #ssh keys file
-    ssh_keys = []
-
-    for user in User.objects.all():
-        for key in user.ssh_keys.all():
-            ssh_keys.append(key.ssh_key)
-
-    authorized_keys = render_to_string('system/authorized_keys', {
-        'keys': ssh_keys
-    })
-
-    logs.add(authorized_keys)
 
 
     #get all accounts
@@ -43,7 +30,6 @@ def sync_accounts():
         dirs = [
             "apps",
             "domains",
-            "logs",
             ".ssh"
         ]
 
@@ -56,6 +42,25 @@ def sync_accounts():
 
             o, e = exec_command(logs, "sudo chmod 750 /home/%s/%s" % (account.name, dir))
             o, e = exec_command(logs, "sudo chown %s:%s /home/%s/%s" % (account.name, account.name, account.name, dir))
+
+
+        #ssh keys file
+        ssh_keys = []
+
+        for user in User.objects.all():
+            cursor = connection.cursor()
+            cursor.execute("SELECT ssh_access FROM user_accesses WHERE user_id=%s AND account_id=%s", (user.id, account.id))
+            
+            x = cursor.fetchone()
+            if x and x[0] == True:
+                for key in user.ssh_keys.all():
+                    ssh_keys.append(key.ssh_key)
+
+        authorized_keys = render_to_string('system/authorized_keys', {
+            'keys': ssh_keys
+        })
+
+        logs.add(authorized_keys)
 
         #.ssh/authorized_keys
         temp_folder = utils.get_temp_folder()

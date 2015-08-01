@@ -60,6 +60,18 @@ func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error)
 
 			log.Printf("authenticated %s by ssh key from %s (user id: %d)",
 				conn.User(), u.Username, u.Id)
+
+			var userAccess models.UserAccess
+			if err := sharedContext.PersistentDB.Where("user_id = ? AND account_id = ?", u.Id, account.Id).First(&userAccess).Error; err != nil {
+				log.Printf("user %s (%d) doesn't have access to this account %s", u.Username, u.Id, account.Name)
+				return nil, errors.New("no access")
+			}
+
+			if !userAccess.SshAccess {
+				log.Printf("user %s (%d) doesn't have SSH access to this account %s", u.Username, u.Id, account.Name)
+				return nil, errors.New("no SSH access")
+			}
+
 			return nil, nil //success
 		}
 	}
