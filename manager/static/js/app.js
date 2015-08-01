@@ -1,10 +1,22 @@
-var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'ngLayout', 'managerDirectives']);
+var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'managerDirectives', 'angular-blocks']);
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider.
     when('/', {
         templateUrl: 'static/templates/accounts.html',
         controller: 'accounts',
+    }).
+    when('/users', {
+        templateUrl: 'static/templates/users.html',
+        controller: 'users',
+    }).
+    when('/users/:id', {
+        templateUrl: 'static/templates/user/overview.html',
+        controller: 'userOverview',
+    }).
+    when('/users/:id/access', {
+        templateUrl: 'static/templates/user/access.html',
+        controller: 'userAccess',
     }).
     when('/containers', {
         templateUrl: 'static/templates/containers.html',

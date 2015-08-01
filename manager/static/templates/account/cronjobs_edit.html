@@ -1,5 +1,5 @@
-<ng-layout src="static/templates/account/layout.html">
-    <div content_for="content">
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
         <form ng-submit="submit()">
             <div class="form-group" ng-class="{'has-error': errors.name}">
                 <label class="control-label" for="name">Name</label>
@@ -60,4 +60,4 @@
             <button type="submit" class="btn btn-default">Save</button>
         </form>
     </div>
-</ng-layout>
+</div>

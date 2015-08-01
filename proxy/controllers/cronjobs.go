@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/robfig/cron"
+	"gopkg.in/robfig/cron.v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"../models"

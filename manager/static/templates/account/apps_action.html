@@ -1,5 +1,5 @@
-<ng-layout src="static/templates/account/layout.html">
-    <div content_for="content">
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
         <div id="error"></div>
         <div style="width:100%;text-align:center">
         <h3>{{appActionText}}</h3>
@@ -13,4 +13,4 @@
 
         <div id="action-response" ng-bind-html="appActionResponse | unsafe"></div>
     </div>
-
+</div>

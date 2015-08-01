@@ -22,6 +22,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getAllAccounts: function(id) {
+            var resp = $http.get('/api/v1/all-accounts').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getAccountByName: function(name) {
             var resp = $http.get('/api/v1/accounts/'+name).
             then(function(response) {
@@ -80,6 +87,41 @@ srv.factory('managerServices', function($http) {
         },
         editCronjob: function(name, id, params) {
             var resp = $http.put('/api/v1/accounts/'+name+'/cronjobs/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getUsers: function() {
+            var resp = $http.get('/api/v1/users').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getUser: function(id) {
+            var resp = $http.get('/api/v1/users/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getUserAccess: function(id) {
+            var resp = $http.get('/api/v1/users/'+id+'/access').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        setUserAccess: function(id, account, params) {
+            var resp = $http.post('/api/v1/users/'+id+'/access/'+account, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        removeUserAccess: function(id, account) {
+            var resp = $http.delete('/api/v1/users/'+id+'/access/'+account).
             then(function(response) {
                 return response.data;
             });

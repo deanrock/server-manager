@@ -1,0 +1,41 @@
+<div data-extend-template="/static/templates/user/layout.html">
+   <div data-block="content">
+       <h3 style="margin-top:0px">Access</h3>
+
+		<table class="table">
+			<tr>
+				<th></th>
+				<th>SSH</th>
+				<th>Shell (web)</th>
+				<th>Apps</th>
+				<th>Domains</th>
+				<th>Databases</th>
+				<th>Cronjobs</th>
+				<th>all</th>
+				<th></th>
+			</tr>
+			<tr ng-repeat="a in accountAccess">
+				<td>{{a.name}}</td>
+				<td><input type="checkbox" ng-model="a.access.ssh_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.shell_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.app_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.domain_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.database_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.cronjob_access" ng-change="update(a)" /></td>
+				<td><input type="checkbox" ng-model="a.access.all" ng-change="checkAll(a)" /></td>
+				<td><a href="" ng-click="delete(a)">delete</a></td>
+			</tr>
+		</table>
+
+		<div ng-show="availableAccounts.length > 0">
+			<h4>Add account</h4>
+			<form class="form-inline ng-pristine ng-valid" ng-submit="addAccount()">
+	            <div class="form-group">
+	                <select class="form-control ng-pristine ng-valid ng-touched" ng-model="addAccountName" ng-options="a.id as a.name for a in availableAccounts"></select>
+	            </div>
+
+	            <button type="submit" class="submit btn btn-primary">Add</button>
+	        </form>
+        </div>
+   </div>
+</div>

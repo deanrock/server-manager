@@ -1,0 +1,35 @@
+<div class="jumbotron account-menu">
+    <div class="container">
+        <h1>{{user.username}}</h1>
+        <div>
+            <div></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row row-offcanvas row-offcanvas-right">
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
+            <div class="list-group">
+                <a href="/users/{{ user.id }}" class="list-group-item" ng-class="{active: tab=='overview'}" force-reload>Overview</a>
+                <a href="/users/{{ user.id }}/access" class="list-group-item" ng-class="{active: tab=='access'}" force-reload>Access</a>
+            </div>
+        </div>
+        <!--/.sidebar-offcanvas-->
+
+        <div class="col-xs-12 col-sm-9">
+
+
+            <div data-block="content">
+            </div>
+
+
+
+        </div>
+        <!--/.col-xs-12.col-sm-9-->
+    </div>
+
+</div>
+<!--/row-->
+</div>

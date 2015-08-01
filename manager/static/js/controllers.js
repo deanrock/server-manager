@@ -286,6 +286,111 @@ controller('account', ['$scope', 'managerServices', '$location', '$routeParams',
 
     $scope.action = $routeParams.action;
 }]).
+controller('users', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
+    $scope.users = [];
+
+    managerServices.getUsers().then(function(data){
+        console.log(data)
+        $scope.users = data;
+    })
+}]).
+controller('userOverview', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.tab = 'overview';
+    
+    managerServices.getUser($routeParams.id).then(function(data){
+        $scope.user = data;
+    })
+
+    $scope.action = $routeParams.action;
+}]).
+controller('userAccess', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.tab = 'access';
+
+    managerServices.getUser($routeParams.id).then(function(data){
+        $scope.user = data;
+    })
+
+    loadData();
+
+    $scope.action = $routeParams.action;
+
+    $scope.addAccount = function() {
+        managerServices.setUserAccess($routeParams.id, $scope.addAccountName, {}).then(function(data) {
+            loadData();
+        })
+    }
+
+    $scope.delete = function(a) {
+        managerServices.removeUserAccess($routeParams.id, a.id).then(function(data) {
+            loadData();
+        })
+    }
+
+    $scope.checkAll = function(a) {
+        var access = a.access;
+
+        if (access.ssh_access && access.shell_access && access.app_access &&  access.database_access && access.cronjob_access && access.domain_access) {
+            access.ssh_access = false;
+            access.shell_access = false;
+            access.app_access = false;
+            access.database_access = false;
+            access.cronjob_access = false;
+            access.domain_access = false;
+        }else{
+            access.ssh_access = true;
+            access.shell_access = true;
+            access.app_access = true;
+            access.database_access = true;
+            access.cronjob_access = true;
+            access.domain_access = true;
+        }
+
+        $scope.update(a);
+    }
+
+    $scope.update = function(a) {
+        managerServices.setUserAccess($routeParams.id, a.id, a.access).then(function(data) {
+            loadData();
+        })
+    }
+
+    function loadData() {
+        managerServices.getUserAccess($routeParams.id).then(function(data) {
+            $scope.access = data;
+
+            managerServices.getAllAccounts().then(function(data){
+                $scope.accounts = data;
+
+                $scope.availableAccounts = [];
+                $scope.accountAccess = [];
+
+                angular.forEach($scope.accounts, function(account, key) {
+                    var found = false;
+                    angular.forEach($scope.access, function (access, k) {
+                        if (access.account_id == account.id) {
+                            found = true;
+                            account.access = access;
+
+                            if (access.ssh_access && access.shell_access && access.app_access &&  access.database_access && access.cronjob_access && access.domain_access) {
+                                access.all = true;
+                            }
+
+                            $scope.accountAccess.push(account);
+                        }
+                    });
+
+                    if (!found) {
+                        $scope.availableAccounts.push(account);
+                    }
+                });
+
+                if ($scope.availableAccounts.length > 0) {
+                    $scope.addAccountName = $scope.availableAccounts[0].id;
+                }
+            })
+        })
+    }
+}]).
 controller('userSshKeys', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.suburl = '/frame/profile/ssh-keys';
 }]);

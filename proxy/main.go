@@ -175,8 +175,19 @@ func Authentication() gin.HandlerFunc {
         userId := readCookie(c)
 
         if userId != nil {
+            u, err := models.FindUserById(sharedContext, *userId)
+
+            if err != nil {
+                c.Fail(500, errors.New("cannot handle"))
+                c.Abort()
+            }
+
             c.Set("uid", userId)
-            log.Printf("OK")
+            c.Set("user", *u)
+            
+            var access []models.UserAccess
+            sharedContext.PersistentDB.Where("user_id = ?", userId).Find(&access)
+            c.Set("userAccess", access)
         }else{
             //c.Fail(401, errors.New("Unauthorized"))
             c.Redirect(http.StatusSeeOther, "/accounts/login/?next=/")
@@ -193,12 +204,38 @@ func RequireAccount() gin.HandlerFunc {
         account := models.GetAccountByName(name, sharedContext)
 
         if account != nil {
-            c.Set("account", account)
+            userAccess := c.MustGet("userAccess").([]models.UserAccess)
+
+            found := false
+            for _, ua := range(userAccess) {
+                if ua.Account_id == account.Id {
+                    found = true
+                }
+            }
+
+            if found {
+                c.Set("account", account)
+            }else{
+                c.Fail(401, errors.New("unauthorized access to account"))
+            }
         }else{
             c.Fail(404, errors.New("Not Found"))
         }
 
         c.Next()
+    }
+}
+
+func RequireStaff() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        user := c.MustGet("user").(models.User)
+
+        if user.Is_staff {
+           c.Next()
+        }else{
+            c.Fail(401, errors.New("Unauthorized"))
+            c.Abort()
+        }
     }
 }
 
@@ -224,7 +261,10 @@ func main() {
 
     sharedContext = &shared.SharedContext{}
     sharedContext.OpenDB()
+    sharedContext.PersistentDB.LogMode(true)
     sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
+    sharedContext.PersistentDB.AutoMigrate(&models.UserAccess{})
+    sharedContext.PersistentDB.Model(&models.UserAccess{}).AddUniqueIndex("idx_user_account", "user_id", "account_id")
     sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
 
     //go-dockerclient
@@ -237,7 +277,10 @@ func main() {
     sharedContext.DockerClient.AddEventListener(listener)
 
     //HTTP
-    r := gin.Default()
+    r := gin.New()
+    r.Use(gin.Logger())
+    ///////r.Use(gin.Recovery()) !!! DONT USE gin.Recovery or gin.Default, because it ignores middleware if it panics ...
+    //                               which means that panic in Authentication() or RequireStaff() can allow unauthorized users access to all paths
 
     r.LoadHTMLGlob("templates/*")
 
@@ -279,6 +322,7 @@ func main() {
         }
 
         authorized.GET("/api/v1/accounts", accounts.ListAccounts)
+        authorized.GET("/api/v1/all-accounts", RequireStaff(), accounts.ListAllAccounts)
 
         requiresAccount := authorized.Group("/api/v1/accounts/:name")
 
@@ -306,6 +350,21 @@ func main() {
             requiresAccount.POST("/cronjobs", cronJobs.AddCronjob)
         }
 
+        //users
+        users := &controllers.UsersAPI{
+            Context: sharedContext,
+        }
+
+        u := authorized.Group("/api/v1/users", RequireStaff())
+        {
+            u.GET("", users.ListUsers)
+            u.GET(":id", users.GetUser)
+            u.GET(":id/access", users.GetAccess)
+            u.POST(":id/access/:account", users.SetAccess)
+            u.DELETE(":id/access/:account", users.RemoveAccess)
+        }
+
+        //angular
         authorized.GET("/", func(c *gin.Context) {
             c.HTML(200, "index.tmpl", nil)
         })
@@ -319,6 +378,10 @@ func main() {
         })
 
         authorized.GET("/containers", func(c *gin.Context) {
+            c.HTML(200, "index.tmpl", nil)
+        })
+
+        authorized.GET("/users/*params", func(c *gin.Context) {
             c.HTML(200, "index.tmpl", nil)
         })
 
