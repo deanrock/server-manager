@@ -27,6 +27,11 @@
     - python-dev
     - python-virtualenv
 
+- name: install essential packages
+  action: apt pkg={{item}} state=installed
+  with_items:
+    - ntp
+
 - name: copy init.d config
   action: template src=init_d_manager.conf dest=/etc/init.d/manager mode=700
 
