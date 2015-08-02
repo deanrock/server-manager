@@ -1,4 +1,4 @@
-var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'managerDirectives', 'angular-blocks']);
+var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'managerDirectives', 'angular-blocks', 'ui.ace', 'ui.bootstrap']);
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider.
@@ -57,6 +57,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     when('/a/:account/apps/:id/:action', {
         templateUrl: 'static/templates/account/apps_action.html',
         controller: 'accountAppAction',
+    }).
+    when('/a/:account/domains', {
+        templateUrl: 'static/templates/account/domains.html',
+        controller: 'accountDomains',
+    }).
+    when('/a/:account/domains/add', {
+        templateUrl: 'static/templates/account/domains_edit.html',
+        controller: 'accountDomainEdit',
+    }).
+    when('/a/:account/domains/:id', {
+        templateUrl: 'static/templates/account/domains_edit.html',
+        controller: 'accountDomainEdit',
     }).
     when('/a/:account/:action', {
         templateUrl: 'static/templates/account/frame.html',

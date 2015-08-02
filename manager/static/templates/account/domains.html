@@ -1,0 +1,25 @@
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
+		<div style="text-align:right">
+			<a href="/a/{{account.name}}/domains/add" class="btn btn-default btn" role="button">Add domain</a>
+		</div>
+		<br />
+
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Redirect url</th>
+					<th>Apache enabled</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="domain in domains">
+					<td><a href="/a/{{ account.name }}/domains/{{ domain.id }}">{{domain.name}}</a></td>
+					<td>{{domain.redirect_url}}</td>
+					<td><span ng-if="domain.apache_enabled" class="glyphicon glyphicon-ok"></span></td>
+				</tr>
+			</tbody>
+		</table>
+    </div>
+</div>

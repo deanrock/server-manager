@@ -239,15 +239,15 @@ func RequireUserAccess(accessName string) gin.HandlerFunc {
                 if ua.Account_id == account.Id {
                     if accessName == "shell_access" && ua.ShellAccess == true {
                         found = true
-                    }else if accessName == "app_access" && ua.ShellAccess == true {
+                    }else if accessName == "app_access" && ua.AppAccess == true {
                         found = true
-                    }else if accessName == "cronjob_access" && ua.ShellAccess == true {
+                    }else if accessName == "cronjob_access" && ua.CronjobAccess == true {
                         found = true
-                    }else if accessName == "domain_access" && ua.ShellAccess == true {
+                    }else if accessName == "domain_access" && ua.DomainAccess == true {
                         found = true
-                    }else if accessName == "ssh_access" && ua.ShellAccess == true {
+                    }else if accessName == "ssh_access" && ua.SshAccess == true {
                         found = true
-                    }else if accessName == "database_access" && ua.ShellAccess == true {
+                    }else if accessName == "database_access" && ua.DatabaseAccess == true {
                         found = true
                     }
                 }
@@ -351,6 +351,18 @@ func main() {
         authorized.GET("/api/v1/images", func(c *gin.Context) {
             var images []models.Image
             sharedContext.PersistentDB.Find(&images)
+
+            var ports []models.ImagePort
+            sharedContext.PersistentDB.Find(&ports)
+
+            for k, i := range(images) {
+                for _, v := range(ports) {
+                    if v.Image_id == i.Id {
+                        images[k].Ports = append(images[k].Ports, v)
+                    }
+                }
+            }
+
             c.JSON(200, images)
         })
 
@@ -386,12 +398,25 @@ func main() {
             requiresAccount.GET("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.GetCronjob)
             requiresAccount.PUT("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.EditCronjob)
             requiresAccount.POST("/cronjobs", RequireUserAccess("cronjob_access"), cronJobs.AddCronjob)
+
+            //domains
+            domains := &controllers.DomainsAPI{
+                Context: sharedContext,
+            }
+
+            requiresAccount.GET("/domains", RequireUserAccess("domain_access"), domains.ListDomains)
+            requiresAccount.GET("/domains/:id", RequireUserAccess("domain_access"), domains.GetDomain)
+            requiresAccount.PUT("/domains/:id", RequireUserAccess("domain_access"), domains.EditDomain)
+            requiresAccount.DELETE("/domains/:id", RequireUserAccess("domain_access"), domains.DeleteDomain)
+            requiresAccount.POST("/domains", RequireUserAccess("domain_access"), domains.EditDomain)
         }
 
         //users
         users := &controllers.UsersAPI{
             Context: sharedContext,
         }
+
+        authorized.GET("/api/v1/profile/access/:account", users.GetMyAccess)
 
         u := authorized.Group("/api/v1/users", RequireStaff())
         {

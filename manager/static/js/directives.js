@@ -19,6 +19,36 @@ drcs.directive('autoResizingIframe', function() {
     };
 });
 
+drcs.directive('aceEditor', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            addEditor: "&"
+        },
+        link: function(scope, element, attrs) {
+            var textarea_id = element[0].id;
+            var ace_id = 'ace_'+textarea_id;
+            
+            $('#' + textarea_id).after('<pre id="'+ace_id+'" style="height:400px;width:100%"></pre>');
+            var editor = ace.edit(ace_id);
+            editor.setTheme("ace/theme/chrome");
+            editor.setFontSize("12px")
+            editor.getSession().setMode("ace/mode/markdown");
+            editor.setAutoScrollEditorIntoView(true);
+            editor.setOption("maxLines", 3000);
+            editor.setOption("minLines", 20);
+            
+            scope.addEditor({d: {name: element[0].id, editor: editor}});
+
+            var textarea = $('#' + textarea_id).hide();
+            editor.getSession().setValue(textarea.val());
+            editor.getSession().on('change', function(){
+            textarea.val(editor.getSession().getValue());
+            });
+        }
+    };
+});
+
 drcs.directive('forceReload',function($location,$route){
     return function(scope, element, attrs) {
         element.bind('click',function(){

@@ -393,4 +393,136 @@ controller('userAccess', ['$scope', 'managerServices', '$location', '$routeParam
 }]).
 controller('userSshKeys', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.suburl = '/frame/profile/ssh-keys';
+}]).
+controller('accountDomains', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'domains';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getDomains($routeParams.account).then(function(data) {
+        $scope.domains = data;
+    });
+}]).
+controller('accountDomainEdit', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', function($scope, managerServices, $location, $routeParams, $modal) {
+    $scope.action = 'domains';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    $scope.example = function(id, value) {
+       var source   = $("#" + value).html();
+       var template = Handlebars.compile(source);
+
+       if (id == 'nginx') {
+            $scope.form.nginx_config = template({});
+       }else{
+            $scope.form.apache_config = template({});
+       }
+    }
+
+    $scope.form = {};
+    if ($routeParams.id !== undefined) {
+        managerServices.getDomain($routeParams.account, $routeParams.id).then(function(data) {
+            $scope.form = data;
+        });
+    }
+
+    managerServices.getApps($routeParams.account).then(function(data) {
+        $scope.apps = data;
+
+        managerServices.getImages().then(function(data) {
+            $scope.images = data;
+            $scope.variables = [];
+
+            angular.forEach($scope.apps, function(app, key) {
+                angular.forEach($scope.images, function(image, key2) {
+                    if (image.name == app.image) {
+                        angular.forEach(image.ports, function(port, key3) {
+                            $scope.variables.push('#'+app.name+'_'+port.port+'_ip#')
+                        });
+                    }
+                });
+            });
+
+            var s = '';
+            for (v in $scope.variables) {
+                s +=', ' + $scope.variables[v];
+            }
+            $scope.variablesString = s;
+        });
+    });
+
+    $scope.nginxExamples = [
+        {'name': 'PHP (wordpress, codeigniter... rewrite)', 'value': 'nginx1'},
+        {'name': 'PHP (Drupal specific)', 'value': 'nginx2'},
+        {'name': 'ProxyPass', 'value': 'nginx3'},
+        {'name': 'ProxyPass + WebSockets', 'value': 'nginx5'},
+        {'name': 'Proxy to Apache', 'value': 'nginx4'},
+        {'name': 'Python (UWSGI)', 'value': 'nginx6'}
+    ];
+
+    $scope.apacheExamples = [
+        {'name': 'PHP FPM', 'value': 'apache1'}
+    ];
+
+    $scope.deleteDialog = function() {
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'domains_delete.html',
+            controller: 'accountDomainEditDeleteDialog',
+            size: '',
+            resolve: {
+                form: function () {
+                    return $scope.form;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (f) {
+            managerServices.deleteDomain($routeParams.account, f.id).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/domains');
+            }, function(err) {
+                console.log(err);
+            });
+        }, function () {
+
+        });
+    };
+
+    $scope.submit = function() {
+        if ($scope.form.id === undefined) {
+            managerServices.addDomain($routeParams.account, $scope.form).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/domains');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }else{
+            managerServices.editDomain($routeParams.account, $scope.form.id, $scope.form).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/domains');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }
+    };
+}]).
+controller('accountDomainEditDeleteDialog', ['$scope', '$modalInstance', 'form', function ($scope, $modalInstance, form) {
+    $scope.form = form;
+    $scope.confirm = false;
+
+    $scope.delete = function () {
+        if ($scope.confirm) {
+            $modalInstance.close($scope.form);
+        }
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 }]);

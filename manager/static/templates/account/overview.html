@@ -2,18 +2,22 @@
    <div data-block="content">
         <h3 style="margin-top:0px">Interactive shell</h3>
 
-        <form class="form-inline" ng-submit="submit()">
-            <div class="form-group">
-                <select ng-disabled="started" class="form-control" ng-model="shell" ng-options="s as s for s in shells">
-                </select>
+        <div ng-if="account.access.shell_access">
+            <form class="form-inline" ng-submit="submit()">
+                <div class="form-group">
+                    <select ng-disabled="started" class="form-control" ng-model="shell" ng-options="s as s for s in shells">
+                    </select>
+                </div>
+
+                <button ng-disabled="started" type="submit" class="submit btn btn-primary">Start</button>
+                <button ng-hide="!started" type="button" ng-click="stop()" class="stop btn btn-default">Stop</button>
+            </form>
+            <br />
+            <div id="shell">
             </div>
-
-            <button ng-disabled="started" type="submit" class="submit btn btn-primary">Start</button>
-            <button ng-hide="!started" type="button" ng-click="stop()" class="stop btn btn-default">Stop</button>
-        </form>
-        <br />
-        <div id="shell">
         </div>
-
+        <div ng-if="!account.access.shell_access">
+            You don't have permissions to access shell.
+        </div>
     </div>
 </div>

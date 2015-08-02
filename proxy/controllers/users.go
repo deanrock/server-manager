@@ -19,6 +19,13 @@ func (api *UsersAPI) ListUsers(c *gin.Context) {
     c.JSON(200, users)
 }
 
+func (api *UsersAPI) GetMyAccess(c *gin.Context) {
+    user := c.MustGet("user").(models.User)
+    var access models.UserAccess
+    api.Context.PersistentDB.Where("user_id = ? AND account_id = ?", user.Id, c.Params.ByName("account")).Find(&access)
+    c.JSON(200, access)
+}
+
 func (api *UsersAPI) GetUser(c *gin.Context) {
 	var user models.User
     if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("id")).First(&user).Error; err != nil {

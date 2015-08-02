@@ -8,6 +8,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getImages: function(id) {
+            var resp = $http.get('/api/v1/images').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getContainers: function(id) {
             var resp = $http.get('/api/v1.0/containers/').
             then(function(response) {
@@ -30,9 +37,14 @@ srv.factory('managerServices', function($http) {
             return resp;
         },
         getAccountByName: function(name) {
+            var r = null;
             var resp = $http.get('/api/v1/accounts/'+name).
             then(function(response) {
-                return response.data;
+                r = response.data;
+                return $http.get('/api/v1/profile/access/'+r.id);
+            }).then(function(response) {
+                r.access = response.data;
+                return r;
             });
             return resp;
         },
@@ -122,6 +134,41 @@ srv.factory('managerServices', function($http) {
         },
         removeUserAccess: function(id, account) {
             var resp = $http.delete('/api/v1/users/'+id+'/access/'+account).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getDomains: function(name) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/domains').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getDomain: function(name, id) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/domains/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addDomain: function(name, params) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/domains', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editDomain: function(name, id, params) {
+            var resp = $http.put('/api/v1/accounts/'+name+'/domains/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        deleteDomain: function(name, id) {
+            var resp = $http.delete('/api/v1/accounts/'+name+'/domains/'+id).
             then(function(response) {
                 return response.data;
             });

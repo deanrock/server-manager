@@ -71,6 +71,9 @@ body > .container {
 
 
 
+/* bootstrap angular */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
 
 
 

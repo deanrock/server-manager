@@ -1,0 +1,102 @@
+<script type="text/ng-template" id="domains_delete.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Do you really want to delete domain {{form.name}}?</h3>
+    </div>
+    <div class="modal-body">
+        
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="confirm" name="confirmation" value="yes"> Yes, I would like to delete this domain
+                    </label>
+                </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="delete()">Delete</button>
+    </div>
+</script>
+
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
+        <form ng-submit="submit()">
+            <p style="color:#888">Available variables: #apache#{{variablesString}}</p>
+            <div class="form-group" ng-class="{'has-error': errors.name}">
+                <label class="control-label" for="name">Name</label>
+                <div class=" ">
+                    <input class="form-control" id="name" ng-model="form.name" maxlength="255" name="name" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.name">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.directory}">
+                <label class="control-label" for="redirect_url">Redirect url</label>
+                <div class=" ">
+                    <input class="form-control" id="redirect_url" maxlength="255" ng-model="form.redirect_url" name="redirect_url" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.redirect_url">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.directory}">
+                <label class="control-label" for="redirect_url">Nginx config</label>
+                <div class=" ">
+                    <div class="clearfix">
+                        <div class="dropdown" style="float:right">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Examples <span class="caret"></span></button>
+
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation" ng-repeat="i in nginxExamples"><a role="menuitem" tabindex="-1" data-value="{{i.value}}" href="#" ng-click="example('nginx', i.value)">{{i.name}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                   <div ui-ace="{advanced: {
+                   autoScrollEditorIntoView:true,
+                   maxLines:3000,
+                   minLines: 10}}" ng-model="form.nginx_config"></div>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.nginx_config">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.directory}">
+                <label class="control-label" for="redirect_url">Apache config</label>
+                <div class=" ">
+                    <div class="clearfix">
+                        <div class="dropdown" style="float:right">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">Examples <span class="caret"></span></button>
+
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation" ng-repeat="i in apacheExamples"><a role="menuitem" tabindex="-1" data-value="{{i.value}}" href="#" ng-click="example('apache', i.value)">{{i.name}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div ui-ace="{advanced: {
+                   autoScrollEditorIntoView:true,
+                   maxLines:3000,
+                   minLines: 10}}" ng-model="form.apache_config"></div>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.apache_config">{{error.error}}</span>
+            </div>
+
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="form.apache_enabled"> Apache enabled
+                </label>
+                <span class="help-block" ng-repeat="error in errors.apache_enabled">{{error.error}}</span>
+            </div>
+
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="form.ssl_enabled"> SSL enabled
+                </label>
+                <span class="help-block" ng-repeat="error in errors.ssl_enabled">{{error.error}}</span>
+            </div>
+
+            <div style="text-align:right">
+                <a href="" ng-if="form.id" class="btn btn-default" ng-click="deleteDialog()">Delete</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
