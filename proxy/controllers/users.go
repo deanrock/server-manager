@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"../models"
 	"../shared"
-	"errors"
 	"time"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -29,7 +28,7 @@ func (api *UsersAPI) GetMyAccess(c *gin.Context) {
 func (api *UsersAPI) GetUser(c *gin.Context) {
 	var user models.User
     if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("id")).First(&user).Error; err != nil {
-        c.Fail(404, errors.New("Not Found"))
+        c.AbortWithStatus(404)
         return
     }
     c.JSON(200, user)
@@ -44,12 +43,12 @@ func (api *UsersAPI) GetAccess(c *gin.Context) {
 func (api *UsersAPI) SetAccess(c *gin.Context) {
 	var user models.User
 	if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("id")).First(&user).Error; err != nil {
-        c.Fail(404, errors.New("User Not Found"))
+        c.AbortWithStatus(404)
         return
     }
 	var account models.Account
 	if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("account")).First(&account).Error; err != nil {
-        c.Fail(404, errors.New("Account Not Found"))
+        c.AbortWithStatus(404)
         return
     }
 
@@ -84,18 +83,18 @@ func (api *UsersAPI) SetAccess(c *gin.Context) {
 func (api *UsersAPI) RemoveAccess(c *gin.Context) {
 	var user models.User
 	if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("id")).First(&user).Error; err != nil {
-        c.Fail(404, errors.New("Not Found"))
+        c.AbortWithStatus(404)
         return
     }
 	var account models.Account
 	if err := api.Context.PersistentDB.Where("id = ?", c.Params.ByName("account")).First(&account).Error; err != nil {
-        c.Fail(404, errors.New("Not Found"))
+        c.AbortWithStatus(404)
         return
     }
 
     var userAccess models.UserAccess
     if err := api.Context.PersistentDB.Where("user_id = ? AND account_id = ?", user.Id, account.Id).First(&userAccess).Error; err != nil {
-    	c.Fail(404, errors.New(" UserAccess doesn't exist"))
+    	c.AbortWithStatus(404)
     	return
     }
 

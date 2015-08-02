@@ -178,8 +178,7 @@ func Authentication() gin.HandlerFunc {
             u, err := models.FindUserById(sharedContext, *userId)
 
             if err != nil {
-                c.Fail(500, errors.New("cannot handle"))
-                c.Abort()
+                c.AbortWithError(500, errors.New("cannot handle"))
             }
 
             c.Set("uid", userId)
@@ -216,10 +215,10 @@ func RequireAccount() gin.HandlerFunc {
             if found {
                 c.Set("account", account)
             }else{
-                c.Fail(401, errors.New("unauthorized access to account"))
+                c.AbortWithError(401, errors.New("unauthorized access to account"))
             }
         }else{
-            c.Fail(404, errors.New("Not Found"))
+            c.AbortWithError(404, errors.New("Not Found"))
         }
 
         c.Next()
@@ -254,10 +253,10 @@ func RequireUserAccess(accessName string) gin.HandlerFunc {
             }
 
             if !found {
-                c.Fail(401, errors.New("user doesnt have access to this resource"))
+                c.AbortWithError(401, errors.New("user doesnt have access to this resource"))
             }
         }else{
-            c.Fail(404, errors.New("Not Found"))
+            c.AbortWithError(404, errors.New("Not Found"))
         }
 
         c.Next()
@@ -271,8 +270,7 @@ func RequireStaff() gin.HandlerFunc {
         if user.Is_staff {
            c.Next()
         }else{
-            c.Fail(401, errors.New("Unauthorized"))
-            c.Abort()
+            c.AbortWithError(401, errors.New("Unauthorized"))
         }
     }
 }
@@ -363,6 +361,17 @@ func main() {
                 }
             }
 
+            var variables []models.ImageVariable
+            sharedContext.PersistentDB.Find(&variables)
+
+            for k, i := range(images) {
+                for _, v := range(variables) {
+                    if v.Image_id == i.Id {
+                        images[k].Variables = append(images[k].Variables, v)
+                    }
+                }
+            }
+
             c.JSON(200, images)
         })
 
@@ -381,8 +390,14 @@ func main() {
             requiresAccount.GET("", accounts.GetAccountByName)
 
             //apps
-            requiresAccount.GET("/apps", RequireUserAccess("shell_access"), accounts.GetApps)
-            requiresAccount.GET("/apps/:id/logs", RequireUserAccess("shell_access"), containerLogsHandler)
+            apps := &controllers.AppsAPI{
+                Context: sharedContext,
+            }
+
+            requiresAccount.GET("/apps", RequireUserAccess("app_access"), apps.ListApps)
+            requiresAccount.GET("/apps/:id", RequireUserAccess("app_access"), apps.GetApp)
+            requiresAccount.GET("/apps/:id/variables", RequireUserAccess("app_access"), apps.GetAppVariables)
+            requiresAccount.GET("/apps/:id/logs", RequireUserAccess("app_access"), containerLogsHandler)
 
             //shell
             requiresAccount.GET("/shell", RequireUserAccess("shell_access"), func(c *gin.Context) {

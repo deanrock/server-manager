@@ -12,6 +12,7 @@ type Image struct {
 	Added_at time.Time `json:"added_at"`
 
 	Ports []ImagePort `json:"ports"`
+	Variables []ImageVariable `json:"variables"`
 }
 
 func (c Image) TableName() string {
