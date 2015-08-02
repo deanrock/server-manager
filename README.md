@@ -41,6 +41,14 @@ Installation
 * log-in as `manager` and clone repo to /home/manager/server-manager/
 * cd to server-manager/ folder and run `./pull.sh production`
 
+Create first user
+=================
+Execute as `manager` user:
+
+	$ cd ~/server-manager/
+	$ source ./env/
+	$ python manage.py createsuperuser --settings=manager.settings.production
+
 
 Development env setup
 =====================

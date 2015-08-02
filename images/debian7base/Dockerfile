@@ -55,5 +55,5 @@ RUN echo "deb http://www.deb-multimedia.org wheezy main non-free" >> /etc/apt/so
 #wkhtmltox
 RUN apt-get install -y fontconfig libxrender1 xfonts-base xfonts-75dpi && \
 	cd /tmp && \
-	wget -O wkhtmltox.deb  http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.2.1/wkhtmltox-0.12.2.1_linux-wheezy-amd64.deb && \
+	wget -O wkhtmltox.deb  http://download.gna.org/wkhtmltopdf/0.12/0.12.2.1/wkhtmltox-0.12.2.1_linux-wheezy-amd64.deb && \
 	dpkg -i wkhtmltox.deb
