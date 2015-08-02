@@ -2,6 +2,46 @@ server-manager
 ==============
 
 
+Server requirements
+===================
+
+* Debian Wheezy or Jessie
+* Python 2.7 installed
+* SSH access with user with sudo privileges
+
+Installation
+============
+
+* Install Debian Wheezy or Jessie
+* Install python2.7
+* Set-up SSH access with user (e.g. john) with sudo privileges
+* Run ansible deploy.yml playbook
+* Add user `manager` as sudo without password
+	
+	#add:
+	manager ALL=(ALL) NOPASSWD:ALL
+	#to /etc/sudoers
+
+* Install libssl-dev (for now, until we fix pull.sh script)
+* set mysql root password via mysql_secure_installation command
+* create /home/manager/server-manager/manager/settings/production.py with the contents:
+	
+	from manager.settings.base import *
+
+	# SECURITY WARNING: keep the secret key used in production secret!
+	SECRET_KEY = 'fewoigh5940659j0--0i-0i34y90u6(H$*Y0i0u%uu'
+
+	# SECURITY WARNING: don't run with debug turned on in production!
+	DEBUG = True
+
+	TEMPLATE_DEBUG = True
+
+	MYSQL_ROOT_PASSWORD = 'root_password'
+
+* log-in as `manager` and clone repo to /home/manager/server-manager/
+* cd to server-manager/ folder and run `./pull.sh production`
+
+
 Development env setup
 =====================
 

@@ -6,6 +6,11 @@
 
 - name: install nginx-full
   action: apt pkg=nginx-full default_release=wheezy-backports state=latest
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '7'
+
+- name: (jessie) install nginx-full
+  action: apt pkg=nginx-full default_release=jessie-backports state=latest
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '8'
 
 - name: create nginx config
   action: template src=nginx.conf dest=/etc/nginx/nginx.conf
