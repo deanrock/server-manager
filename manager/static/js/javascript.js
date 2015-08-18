@@ -6,18 +6,6 @@ function getWebsocketHost() {
 	}
 }
 
-
-var ws = new ReconnectingWebSocket(getWebsocketHost() + '/ws/', null, {debug: true, reconnectInterval: 3000});
-
-
-ws.onopen = function() {
-	console.log('open')
-}
-
-ws.onmessage = function(msg) {
-	console.log('message '+msg)
-}
-
 function AccountShell(account, shell, element) {
 	this.term = new Terminal({
       cols: 80,

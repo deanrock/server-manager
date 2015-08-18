@@ -76,6 +76,63 @@ body > .container {
 
 
 
+/* tasks */
+#tasks ul {
+  list-style: none;
+  position: absolute;
+  bottom: 0px;
+  right:0px;
+  z-index:10;
+  width:300px;
+}
+#tasks  li {
+  
+  padding: 5px;
+  margin-top:1px;
+  position:relative;
+}
+
+#tasks .bg {
+  position: absolute;
+  z-index:-6;
+  top:0px;
+  bottom:0px;
+  right:0px;
+  left:0px;
+  background: #dddddd;
+}
+
+#tasks .task_progress{
+  position: absolute;
+  z-index:-5;
+  top:0px;
+  bottom:0px;
+  width: 0%;
+  left:0px;
+  background: #fba92b;
+}
+
+#tasks .success{
+  position: absolute;
+  z-index:-5;
+  top:0px;
+  bottom:0px;
+  width: 100%;
+  left:0px;
+}
+
+#tasks .success.green {
+  background: #7dba37;
+}
+
+#tasks .success.red {
+  background: #d74240;
+}
+
+#tasks li .time {
+  float: right;
+}
+
 
 
 /* bouncing ball animation */

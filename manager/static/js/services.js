@@ -63,14 +63,28 @@ srv.factory('managerServices', function($http) {
             return resp;
         },
         getApps: function(name) {
-            var resp = $http.get('/djapi/v1/accounts/'+name+'/apps').
+            var resp = $http.get('/api/v1/accounts/'+name+'/apps').
             then(function(response) {
                 return response.data;
             });
             return resp;
         },
         getApp: function(name, id) {
-            var resp = $http.get('/djapi/v1/accounts/'+name+'/apps/'+id).
+            var resp = $http.get('/api/v1/accounts/'+name+'/apps/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addApp: function(name, params) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/apps', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editApp: function(name, id, params) {
+            var resp = $http.put('/api/v1/accounts/'+name+'/app/'+id, params).
             then(function(response) {
                 return response.data;
             });
@@ -174,6 +188,20 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getSyncImages: function() {
+            var resp = $http.get('/api/v1/sync/images').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        syncImage: function(name) {
+            var resp = $http.post('/api/v1/sync/images/'+name).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        }
     }
     return managerServices;
 });

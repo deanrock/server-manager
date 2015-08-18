@@ -78,50 +78,6 @@ def sync_accounts():
     return logs
 
 
-def rebuild_base_image():
-    logs = Logs()
-
-    images = [
-        "debian7base",
-        "debian7basehosting",
-        "debian7baseshell",
-
-        "php53-base-hosting",
-
-        "php56-base",
-        "php56-base-hosting",
-        "php56-base-shell",
-
-        "python27-base",
-        "python27-base-shell",
-
-        "python34-base",
-        "python34-base-shell",
-
-        "java8-base",
-        "java8-base-shell",
-
-        "go1.4-base",
-        "go1.4-base-shell",
-
-        "nodejs0.12-base",
-        "nodejs0.12-base-shell",
-
-        "ruby22-base",
-        "ruby22-base-shell",
-    ]
-
-    for image in images:
-        folder = os.path.abspath(os.path.join(settings.BASE_DIR, '../', 'images/', image))
-        print (image)
-        #build image
-        for line in docker_api.cli.build(
-           path=folder, rm=True, tag='manager/%s' % image
-        ):
-            logs.add(line)
-
-    return logs
-
 def update_nginx_config():
     logs = Logs()
 

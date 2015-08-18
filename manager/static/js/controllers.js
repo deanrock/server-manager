@@ -6,6 +6,85 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
         $window.location = '/admin'
     }
 }]).
+controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', function($scope, $rootScope, managerServices, $window, $interval) {
+    $scope.tasks = [];
+
+    function updateTask(t) {
+        var found = false;
+        angular.forEach($scope.tasks, function(v,k) {
+            if (v.id == t.id) {
+                //update
+                $scope.tasks[$scope.tasks.indexOf(v)] = t;
+                showTimeElapsed(t);
+                found = true;
+                return;
+            }
+        });
+
+        if (found) {
+            return;
+        }
+
+        t.added_at_timestamp = Date.parse(t.added_at);
+        $scope.tasks.push(t);
+        showTimeElapsed(t);
+    }
+
+    function showTimeElapsed(v) {
+        var now = new Date().getTime();
+        var e = (now - v.added_at_timestamp) / 1000;
+
+            var m = Math.floor(e/60);
+            var s = e - m*60;
+
+            var format = function(x) {
+                x = Math.floor(x);
+                if ((""+x).length == 1) {
+                    return "0"+x;
+                }
+
+                return x;
+            }
+
+            v.elapsed_time = format(m)+":"+format(s);
+    }
+
+    $interval(function() {
+        
+        angular.forEach($scope.tasks, function(v,k) {
+            showTimeElapsed(v);
+        });
+    }, 1000);
+
+    var ws = new ReconnectingWebSocket(getWebsocketHost() + '/ws/', null, {debug: true, reconnectInterval: 3000});
+
+    ws.onopen = function() {
+        console.log('open')
+    }
+
+    ws.onmessage = function(msg) {
+        console.log('messssage '+msg.data)
+
+        try {
+            var m = JSON.parse(msg.data);
+        }catch(err){
+            return;
+        }
+        if (m.type == 'my-running-tasks') {
+            $scope.$apply(function() {
+
+            angular.forEach(m.tasks, function(v, k) {
+                updateTask(v);
+            })
+        });
+        }else if (m.type == 'update-task') {
+            $scope.$apply(function() {
+
+            updateTask(m.task);
+        });
+        }
+    }
+}]).
 controller('accounts', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
     $scope.accounts = [];
 
@@ -58,7 +137,6 @@ controller('accountOverview', ['$scope', 'managerServices', '$location', '$route
 controller('accountApps', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.apps = [];
     $scope.action = 'apps';
-    console.log($routeParams.account)
 
     managerServices.getAccountByName($routeParams.account).then(function(data){
         $scope.account = data;
@@ -68,6 +146,29 @@ controller('accountApps', ['$scope', 'managerServices', '$location', '$routePara
         console.log(data)
         $scope.apps = data;
     })
+}]).
+controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.apps = [];
+    $scope.action = 'apps';
+    $scope.app = {};
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getImages().then(function(data) {
+        $scope.images = data;
+
+        if ($scope.images.length > 0) {
+            $scope.app.image = $scope.images[0].id;
+        }
+
+        if ($routeParams.id !== undefined) {
+            managerServices.getApp($routeParams.account, $routeParams.id).then(function(data){
+                $scope.app = data;
+            });
+        }
+    });
 }]).
 controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.apps = [];
@@ -232,10 +333,7 @@ controller('accountCronjobEdit', ['$scope', 'managerServices', '$location', '$ro
     });
 }]).
 controller('sync', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
-    if ($routeParams.action == "images") {
-        $scope.action_url = "/action/rebuild-base-image";
-        $scope.action = "Rebuilding base image";
-    }else if ($routeParams.action == "users") {
+    if ($routeParams.action == "users") {
         $scope.action_url = "/action/sync-users";
         $scope.action = "Syncing users";
     }else if ($routeParams.action == "databases") {
@@ -276,6 +374,19 @@ controller('sync', ['$scope', 'managerServices', '$location', '$routeParams', fu
             }
         });
     });
+}]).
+controller('syncImages', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    managerServices.getSyncImages().then(function(data) {
+        $scope.images = data;
+    });
+
+    $scope.sync = function(image) {
+        managerServices.syncImage(image).then(function(data) {
+            console.log('starting to sync ... i guess')
+        }, function(err) {
+            console.log('an error occured')
+        })
+    }
 }]).
 controller('account', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.suburl = '/frame' + $location.path();

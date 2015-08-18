@@ -36,21 +36,6 @@
     var variables = {{variables|safe}};
 
     $.get('/api/v1.0/a/'+account+'/variables', function(data) {
-    	function replaced(c) {
-    		if (c== null) {
-    			return c;
-    		}
-    		for(var i in data) {
-    			var v = data[i];
-    			var re = new RegExp('#'+i+'#', "g");
-    			c = c.replace(re, v);
-    		}
-
-    		var re = new RegExp('#appname#', "g");
-    		c = c.replace(re, account);
-
-    		return c;
-    	}
 
 		var get_image_variables = function() {
 			$('#id_image').find('option:selected').each(function() {
@@ -64,7 +49,7 @@
 							for (var v in data.variables) {
 								var variable = data.variables[v];
 
-								variable.default = replaced(variable.default);
+								//variable.default = replaced(variable.default);
 
 		       					$('.variables').append(variableTemplate(variable));
 		       				}

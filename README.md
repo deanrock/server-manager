@@ -46,7 +46,7 @@ Create first user
 Execute as `manager` user:
 
 	$ cd ~/server-manager/
-	$ source ./env/
+	$ source ./env/bin/activate
 	$ python manage.py createsuperuser --settings=manager.settings.production
 
 

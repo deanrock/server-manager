@@ -40,8 +40,7 @@ urlpatterns = patterns('',
 
     # old apis
     url(r'^api/v1.0/a/(?P<name>[a-z0-9-]+)/apps/(?P<id>[0-9]+)', 'manager.views.api_account_app'),
-    url(r'^api/v1.0/a/(?P<name>[a-z0-9-]+)/variables', 'manager.views.api_account_variables'),
-    
+
     #admin
     url(r'^admin/', include(admin.site.urls)),
 )

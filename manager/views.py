@@ -325,13 +325,6 @@ def api_account_app(request, name, id):
 
 
 @login_required
-def api_account_variables(request, name):
-    account = Account.objects.filter(name=name).first()
-
-    return HttpResponse(json.dumps(account.variables()), content_type='application/json')
-
-
-@login_required
 def api_image(request, id):
     image = Image.objects.filter(id=id).first()
 

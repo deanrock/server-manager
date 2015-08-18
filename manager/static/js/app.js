@@ -22,6 +22,10 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/containers.html',
         controller: 'containers',
     }).
+    when('/sync/images', {
+        templateUrl: 'static/templates/sync/images.html',
+        controller: 'syncImages',
+    }).
     when('/sync/:action', {
         templateUrl: 'static/templates/sync.html',
         controller: 'sync',
@@ -45,6 +49,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
     when('/a/:account/apps', {
         templateUrl: 'static/templates/account/apps.html',
         controller: 'accountApps',
+    }).
+    when('/a/:account/apps/add', {
+        templateUrl: 'static/templates/account/apps_edit.html',
+        controller: 'accountAppEdit',
+    }).
+    when('/a/:account/apps/:id', {
+        templateUrl: 'static/templates/account/apps_edit.html',
+        controller: 'accountAppEdit',
     }).
     when('/a/:account/apps/:action', {
         templateUrl: 'static/templates/account/frame.html',
