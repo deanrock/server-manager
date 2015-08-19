@@ -12,10 +12,10 @@
             <div class="form-group" ng-class="{'has-error': errors.image}">
                 <label class="control-label" for="image">Image</label>
                 <div class=" ">
-                    <select class="form-control" id="image" name="image" ng-model="app.image" ng-options="i.id as i.name for i in images">
+                    <select class="form-control" id="image" name="image" ng-model="app.image_id" ng-options="i.id as i.name for i in images">
                     </select>
                 </div>
-                <span class="help-block" ng-repeat="error in errors.image">{{error.error}}</span>
+                <span class="help-block" ng-repeat="error in errors.image_id">{{error.error}}</span>
             </div>
 
             <div class="form-group" ng-class="{'has-error': errors.memory}">
@@ -26,11 +26,18 @@
                 <span class="help-block" ng-repeat="error in errors.memory">{{error.error}}</span>
             </div>
 
-            <div class="variables">
+            <div class="variables" ng-show="variables">
                 <br />
                 <h4>Image variables</h4>
 
-                
+                <div class="form-group" ng-repeat="variable in variables">
+                    <label class="control-label" for="id_variable_{{variable.name}}">{{variable.name}} ({{variable.description}})</label>
+                    <textarea ng-show="variable.filename" class=" form-control" cols="40" id="id_variable_{{variable.name}}" name="id_variable_{{variable.name}}" placeholder="{{variable.default}}" ng-model="variable.value" rows="10"></textarea>
+                    <input ng-hide="variable.filename" class=" form-control" id="id_variable_{{variable.name}}" name="id_variable_{{variable.name}}" placeholder="{{variable.default}}" type="text" ng-model="variable.value" /> 
+                </div>
+            </div>
+            <div style="text-align:right">
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>

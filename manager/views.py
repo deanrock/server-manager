@@ -27,85 +27,6 @@ def action_ajax(request, action):
     data = json.dumps(logs.logs)
     return HttpResponse(data, content_type='application/json')
 
-@login_required
-def index(request):
-    return render_to_response('index.html',
-        {
-            'accounts': Account.objects.all(),
-        },
-                              context_instance=RequestContext(request))
-
-@login_required
-def account(request, name):
-    return render_to_response('account/overview.html',
-        {
-            'account': Account.objects.filter(name=name).first()
-        },
-                              context_instance=RequestContext(request))
-
-@login_required
-def account_apps_info(request, name, app=None):
-    account = Account.objects.filter(name=name).first()
-    app = App.objects.filter(id=app).first()
-
-    dict = model_to_dict(app)
-    dict['variables'] = []
-
-    if app:
-        for v in app.variables.all():
-            dict['variables'].append(model_to_dict(v))
-
-    return HttpResponse(json.dumps(dict), content_type='application/json')
-
-@login_required
-def account_apps_edit(request, name, app=None):
-    account = Account.objects.filter(name=name).first()
-    app = account.apps.filter(id=app).first()
-    af = modelform_factory(App, form=AppForm)
-
-    if request.method == 'POST':
-        formset = af(request.POST, request.FILES,
-                          instance=app)
-
-        if formset.is_valid():
-            obj = formset.save(commit=False)
-            obj.account = account
-            obj.added_by = request.user
-            obj.save()
-
-            vars = obj.image.variables.all()
-
-            for v in vars:
-                prev = obj.variables.filter(name=v.name).first()
-
-                if prev:
-                    prev.delete()
-
-                field = 'id_variable_%s' % v.name
-                if field in request.POST and request.POST[field].rstrip() != '':
-                    prev = AppImageVariable()
-                    prev.app = obj
-                    prev.name = v.name
-                    prev.value = request.POST[field]
-                    prev.save()
-
-            return HttpResponseRedirect(reverse('manager.views.account_apps', kwargs={'name': account.name}))
-    else:
-        formset = af(instance=app)
-
-    variables = {}
-    if app:
-        for v in app.variables.all():
-            variables[v.name] = v.value
-
-    return render_to_response('account/apps_edit.html',
-                              {
-            'account': account,
-            'formset': formset,
-            'variables': json.dumps(variables),
-        },
-                              context_instance=RequestContext(request))
-
 
 @login_required
 @csrf_exempt
@@ -126,17 +47,6 @@ def account_apps_action_ajax(request, name, app, action):
 
     data = json.dumps(logs.logs)
     return HttpResponse(data, content_type='application/json')
-
-
-@login_required
-def account_cronjobs(request, name):
-    account = Account.objects.filter(name=name).first()
-
-    return render_to_response('account/cronjobs.html',
-                              {
-            'account': account,
-        },
-                              context_instance=RequestContext(request))
 
 
 @login_required
@@ -307,33 +217,3 @@ def profile_sshkeys_delete(request, key):
             'key': key
         },
                               context_instance=RequestContext(request))
-
-
-@login_required
-def api_account_app(request, name, id):
-    account = Account.objects.filter(name=name).first()
-    app = account.apps.filter(id=id).first()
-
-    dict = model_to_dict(app)
-    dict['variables'] = []
-
-    for v in app.variables.all():
-        dict['variables'].append(model_to_dict(v))
-
-    data = json.dumps(dict)
-    return HttpResponse(data, content_type='application/json')
-
-
-@login_required
-def api_image(request, id):
-    image = Image.objects.filter(id=id).first()
-
-    dict = model_to_dict(image)
-    dict['variables'] = []
-
-    for v in image.variables.all():
-        dict['variables'].append(model_to_dict(v))
-
-    data = json.dumps(dict)
-    return HttpResponse(data, content_type='application/json')
-

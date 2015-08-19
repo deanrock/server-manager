@@ -6,7 +6,7 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
         $window.location = '/admin'
     }
 }]).
-controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', function($scope, $rootScope, managerServices, $window, $interval) {
+controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', '$location', function($scope, $rootScope, managerServices, $window, $interval, $location) {
     $scope.tasks = [];
 
     function updateTask(t) {
@@ -55,6 +55,10 @@ controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '
             showTimeElapsed(v);
         });
     }, 1000);
+
+    $scope.goTo = function(task) {
+        $location.path('/tasks/'+task.id);
+    }
 
     var ws = new ReconnectingWebSocket(getWebsocketHost() + '/ws/', null, {debug: true, reconnectInterval: 3000});
 
@@ -148,9 +152,12 @@ controller('accountApps', ['$scope', 'managerServices', '$location', '$routePara
     })
 }]).
 controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
-    $scope.apps = [];
+    $scope.images = [];
     $scope.action = 'apps';
     $scope.app = {};
+    $scope.variables = [];
+    $scope.image = null;
+    $scope.errors = {};
 
     managerServices.getAccountByName($routeParams.account).then(function(data){
         $scope.account = data;
@@ -159,16 +166,74 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
     managerServices.getImages().then(function(data) {
         $scope.images = data;
 
-        if ($scope.images.length > 0) {
-            $scope.app.image = $scope.images[0].id;
-        }
-
         if ($routeParams.id !== undefined) {
             managerServices.getApp($routeParams.account, $routeParams.id).then(function(data){
                 $scope.app = data;
+
+                if ($scope.images.length > 0) {
+                    angular.forEach($scope.images, function(v,k) {
+                        if (v.id == $scope.app.image_id) {
+                            $scope.image = v;
+                            $scope.variables = $scope.image.variables;
+
+                            angular.forEach($scope.variables, function(v,k) {
+                                angular.forEach($scope.app.variables, function (myvar, mykey) {
+                                    if (myvar.name == v.name) {
+                                        v.value = myvar.value;
+                                    }
+                                })
+                            })
+                            return;
+                        }
+                    });
+                }
+            });
+        }else{
+            $scope.app.memory=256;
+
+            if ($scope.images.length > 0) {
+                $scope.app.image_id = $scope.images[0].id;
+            }
+        }
+    });
+
+    $scope.submit = function() {
+    angular.forEach($scope.variables, function(v,k) {
+        var found = false;
+        angular.forEach($scope.app.variables, function (myvar, mykey) {
+            if (myvar.name == v.name) {
+                found = true;
+                myvar.value = v.value;
+            }
+        });
+
+        if (!found) {
+            $scope.app.variables.push({
+                'app_id': $scope.app.id,
+                'name': v.name,
+                'value': v.value
             });
         }
     });
+
+    if ($scope.app.id === undefined) {
+        managerServices.addApp($routeParams.account, $scope.app).then(function(data) {
+            $location.path('/a/'+$scope.account.name+'/apps');
+        },
+        function(err) {
+            $scope.errors = err.data.errors;
+            console.log(err);
+        });
+    }else{
+        managerServices.editApp($routeParams.account, $scope.app.id, $scope.app).then(function(data) {
+            $location.path('/a/'+$scope.account.name+'/apps');
+        },
+        function(err) {
+            $scope.errors = err.data.errors;
+            console.log(err);
+        });
+    }
+}
 }]).
 controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.apps = [];

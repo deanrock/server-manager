@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
-	"log"
-	"net/http"
-	"net/http/httputil"
-	//"os"
+	"./controllers"
+	"./models"
+	"./realtime"
+	"./shared"
+	"./shell"
 	"bufio"
 	"bytes"
 	"encoding/json"
@@ -13,19 +13,15 @@ import (
 	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/samalba/dockerclient"
 	"io/ioutil"
-	"time"
-	//"database/sql"
-	//"github.com/coopernurse/gorp"
-	//"github.com/jinzhu/gorm"
-	"./controllers"
-	"./models"
-	"./realtime"
-	"./shared"
-	"./shell"
-	_ "github.com/mattn/go-sqlite3"
+	"log"
+	"net/http"
+	"net/http/httputil"
 	"strconv"
+	"time"
 )
 
 var sharedContext *shared.SharedContext
@@ -367,8 +363,11 @@ func main() {
 				Context: sharedContext,
 			}
 
-			requiresAccount.GET("/apps", RequireUserAccess("shell_access"), apps.ListApps)
-			requiresAccount.GET("/apps/:id/logs", RequireUserAccess("shell_access"), containerLogsHandler)
+			requiresAccount.GET("/apps", RequireUserAccess("app_access"), apps.ListApps)
+			requiresAccount.GET("/apps/:id", RequireUserAccess("app_access"), apps.GetApp)
+			requiresAccount.PUT("/apps/:id", RequireUserAccess("app_access"), apps.EditApp)
+			requiresAccount.POST("/apps", RequireUserAccess("app_access"), apps.EditApp)
+			requiresAccount.GET("/apps/:id/logs", RequireUserAccess("app_access"), containerLogsHandler)
 
 			//shell
 			requiresAccount.GET("/shell", RequireUserAccess("shell_access"), func(c *gin.Context) {

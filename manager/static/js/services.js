@@ -84,7 +84,7 @@ srv.factory('managerServices', function($http) {
             return resp;
         },
         editApp: function(name, id, params) {
-            var resp = $http.put('/api/v1/accounts/'+name+'/app/'+id, params).
+            var resp = $http.put('/api/v1/accounts/'+name+'/apps/'+id, params).
             then(function(response) {
                 return response.data;
             });

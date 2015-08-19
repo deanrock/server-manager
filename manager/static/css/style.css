@@ -79,8 +79,10 @@ body > .container {
 /* tasks */
 #tasks ul {
   list-style: none;
-  position: absolute;
+  position: fixed;
   bottom: 0px;
+  padding:0px;
+  margin: 0px;
   right:0px;
   z-index:10;
   width:300px;

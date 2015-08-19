@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"../models"
 	"../shared"
+	"github.com/gin-gonic/gin"
 )
 
 type AccountsAPI struct {
@@ -17,8 +17,8 @@ func (api *AccountsAPI) ListAccounts(c *gin.Context) {
 	var allowed []models.Account
 	userAccess := c.MustGet("userAccess").([]models.UserAccess)
 
-	for _, a:= range(accounts) {
-		for _, ua := range(userAccess) {
+	for _, a := range accounts {
+		for _, ua := range userAccess {
 			if a.Id == ua.Account_id {
 				allowed = append(allowed, a)
 			}

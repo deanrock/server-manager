@@ -1,4 +1,4 @@
 <ul>
-<li ng-hide="hide" ng-repeat="task in tasks.slice().reverse()" style="clearfix"><div class="bg"></div><div class="task_progress" style="width:{{task.percent}}%"></div><div ng-class="{green: task.finished && task.success, red: task.finished && !task.success}" class="success"></div>{{task.name}}<div class="time">{{task.elapsed_time}}</div></li>
+<li ng-hide="hide" ng-repeat="task in tasks.slice().reverse()" style="clearfix" ng-click="goTo(task)"><div class="bg"></div><div class="task_progress" style="width:{{task.percent}}%"></div><div ng-class="{green: task.finished && task.success, red: task.finished && !task.success}" class="success"></div>{{task.name}}<div class="time">{{task.elapsed_time}}</div></li>
 <li ng-click="hide=!hide"><div class="bg"></div>My tasks</li>
 </ul>

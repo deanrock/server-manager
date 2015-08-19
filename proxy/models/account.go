@@ -1,17 +1,17 @@
 package models
 
 import (
-	"time"
 	"../shared"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type Account struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Added_at time.Time `json:"added_at"`
-	Added_by_id int `json:"added_by"`
-	Description string `json:"description"`
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	Added_at    time.Time `json:"added_at"`
+	Added_by_id int       `json:"added_by"`
+	Description string    `json:"description"`
 
 	context *shared.SharedContext
 }
@@ -22,7 +22,7 @@ func AccountFromContext(c *gin.Context) *Account {
 }
 
 func (a Account) TableName() string {
-    return "manager_account"
+	return "manager_account"
 }
 
 func GetAccountByName(name string, c *shared.SharedContext) *Account {

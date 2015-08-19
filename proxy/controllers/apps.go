@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	//"github.com/gin-gonic/gin/binding"
 	"../models"
-	//"time"
 	"../shared"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"time"
 )
 
 type AppsAPI struct {
@@ -22,27 +22,89 @@ func (api *AppsAPI) ListApps(c *gin.Context) {
 func (api *AppsAPI) GetApp(c *gin.Context) {
 	a := models.AccountFromContext(c)
 	var app models.App
-	
+
 	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, c.Params.ByName("id")).First(&app).Error; err != nil {
 		c.String(404, "")
 		return
 	}
+
+	api.Context.PersistentDB.Where("app_id = ?", app.Id).Find(&app.Variables)
 
 	c.JSON(200, app)
 }
 
-func (api *AppsAPI) GetAppVariables(c *gin.Context) {
+func (api *AppsAPI) validate(c *gin.Context) (*models.App, *shared.FormErrors) {
+	var form models.App
+	c.BindWith(&form, binding.JSON)
+
+	fe := shared.NewFormErrors()
+
+	if form.Name == "" {
+		fe.Add("name", "This field is required.")
+	}
+
+	if form.Memory < 0 || form.Memory > 16000 {
+		fe.Add("memory", "Valid memory is between 0 and 1600 MB.")
+	}
+
+	var images []models.Image
+	api.Context.PersistentDB.Find(&images)
+	found := false
+	for _, image := range images {
+		if image.Id == form.Image_id {
+			found = true
+			break
+		}
+	}
+	if !found {
+		fe.Add("image_id", "Image doesn't exist.")
+	}
+
+	if fe.HasErrors() {
+		return nil, &fe
+	}
+
+	return &form, nil
+}
+
+func (api *AppsAPI) EditApp(c *gin.Context) {
 	a := models.AccountFromContext(c)
+	app := models.App{}
 
-	var app models.App
-	var vars []models.AppVariable
+	id := c.Params.ByName("id")
 
-	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, c.Params.ByName("id")).First(&app).Error; err != nil {
-		c.String(404, "")
+	if id != "" {
+		if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, id).First(&app).Error; err != nil {
+			c.String(404, "")
+			return
+		}
+	} else {
+		app.Added_at = time.Now()
+		app.Added_by_id = c.MustGet("user").(models.User).Id
+		app.Account_id = a.Id
+	}
+
+	form, fe := api.validate(c)
+
+	if fe != nil {
+		c.JSON(400, fe)
 		return
 	}
-	
-	api.Context.PersistentDB.Where("app_id = ?", app.Id).Find(&vars)
 
-	c.JSON(200, vars)
+	app.Name = form.Name
+	app.Memory = form.Memory
+	app.Image_id = form.Image_id
+
+	api.Context.PersistentDB.Save(&app)
+
+	for _, variable := range form.Variables {
+		v := models.AppVariable{}
+		if err := api.Context.PersistentDB.Where("app_id=? AND name=?", app.Id, variable.Name).First(&v).Error; err != nil {
+			v.Name = variable.Name
+			v.App_id = app.Id
+		}
+
+		v.Value = variable.Value
+		api.Context.PersistentDB.Save(&v)
+	}
 }
