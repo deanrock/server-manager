@@ -10,11 +10,13 @@ controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '
     $scope.tasks = [];
 
     function setTaskInfo(t) {
-        t.info = "asf";
+        t.info = "";
         var vars = JSON.parse(t.variables);
 
         if (t.name == "start-app" || t.name == "stop-app" || t.name == "redeploy-app") {
             t.info = "("+vars.app.name+")";
+        }else if (t.name == "sync-image") {
+            t.info = "("+vars.image_name+")";
         }
     }
 
