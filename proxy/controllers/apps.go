@@ -524,7 +524,7 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 		Config: &docker.Config{
 			User:   a.Name,
 			Image:  fmt.Sprintf("manager/%s", name),
-			Memory: int64(app.Memory * 1024 * 1024 * 1024),
+			Memory: int64(app.Memory * 1024 * 1024),
 		},
 		HostConfig: &docker.HostConfig{
 			RestartPolicy: docker.RestartPolicy{
