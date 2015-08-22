@@ -199,7 +199,7 @@ func (api *AppsAPI) StartApp(c *gin.Context) {
 		return
 	}
 
-	err = container.StartContainer(a, api.Context, api.Context.DockerClient, id)
+	err = container.StartContainer(a, api.Context, api.Context.DockerClient, &app, id)
 	if err != nil {
 		task.Log(fmt.Sprintf("error starting the container: %s", err), "error", api.Context)
 		return
@@ -541,7 +541,7 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 	}
 
 	//start container
-	err = container.StartContainer(a, api.Context, api.Context.DockerClient, cont.ID)
+	err = container.StartContainer(a, api.Context, api.Context.DockerClient, &app, cont.ID)
 	if err != nil {
 		task.Log(fmt.Sprintf("error starting the container: %s", err), "error", api.Context)
 		return

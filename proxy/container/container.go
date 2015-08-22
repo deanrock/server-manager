@@ -10,7 +10,7 @@ import (
 type Container struct {
 }
 
-func StartContainer(account *models.Account, context *shared.SharedContext, dockerClient *docker.Client, containerId string) error {
+func StartContainer(account *models.Account, context *shared.SharedContext, dockerClient *docker.Client, app *models.App, containerId string) error {
 	var links []string
 
 	if context != nil {
@@ -19,9 +19,14 @@ func StartContainer(account *models.Account, context *shared.SharedContext, dock
 		var images []models.Image
 		context.PersistentDB.Find(&images)
 
+		id := -1
+		if app != nil {
+			id = app.Image_id
+		}
+
 		for _, app := range apps {
 			for _, img := range images {
-				if img.Id == app.Image_id && img.Type == "database" {
+				if img.Id == app.Image_id && img.Id != id && img.Type == "database" {
 					name := fmt.Sprintf("app-%s-%s:%s", account.Name, app.Name, app.Name)
 					links = append(links, name)
 				}

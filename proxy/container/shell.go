@@ -175,7 +175,7 @@ func (shell *Shell) StartContainer() error {
 		account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
 		shell.GetDockerImages()
 
-		err := StartContainer(account, shell.SharedContext, shell.DockerClient, shell.ContainerID)
+		err := StartContainer(account, shell.SharedContext, shell.DockerClient, nil, shell.ContainerID)
 		return err
 	}
 
