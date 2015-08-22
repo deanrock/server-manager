@@ -1,18 +1,18 @@
 package main
 
 import (
-	"../proxy/shell"
+	"../proxy/container"
+	"errors"
 	"fmt"
 	"github.com/docker/docker/pkg/term"
 	"github.com/fsouza/go-dockerclient"
-	"errors"
 	"os"
 	"os/user"
 	"strings"
 )
 
 func main() {
-	s := shell.Shell{
+	s := container.Shell{
 		LogPrefix: "[shell]",
 	}
 
@@ -62,22 +62,21 @@ func main() {
 		//ask user to select environment
 		fmt.Printf("Select environment (type the number and press Enter)\n\n")
 
-		for i, image := range(s.ShellImages) {
+		for i, image := range s.ShellImages {
 			fmt.Printf("[%d] %s\n", i+1, image)
 		}
-
 
 		for {
 			var i int
 			fmt.Printf("Choice: ")
-		    _, err = fmt.Scanf("%d", &i)
+			_, err = fmt.Scanf("%d", &i)
 
-		    if i >= 1 && i <= len(s.ShellImages) {
-		    	env = strings.Replace(
-		    		strings.Replace(s.ShellImages[i-1], "-base-shell", "", 1),
-		    		"-base-shell", "", 1)
-		    	break
-		    }
+			if i >= 1 && i <= len(s.ShellImages) {
+				env = strings.Replace(
+					strings.Replace(s.ShellImages[i-1], "-base-shell", "", 1),
+					"-base-shell", "", 1)
+				break
+			}
 		}
 	}
 
@@ -93,12 +92,12 @@ func main() {
 
 	success := make(chan struct{})
 	go func() {
-		errs <- s.Attach(shell.AttachOptions{
-			ShellImage:    shell_image,
-			InputStream:   os.Stdin,
-			OutputStream:  os.Stdout,
-			ErrorStream:   os.Stderr,
-			Success:       success,
+		errs <- s.Attach(container.AttachOptions{
+			ShellImage:   shell_image,
+			InputStream:  os.Stdin,
+			OutputStream: os.Stdout,
+			ErrorStream:  os.Stderr,
+			Success:      success,
 		})
 	}()
 
@@ -123,7 +122,7 @@ func main() {
 
 		go func() {
 			//wait for success to get ContainerID
-			<- success
+			<-success
 
 			if err := s.MonitorTtySize(s.ContainerID, false); err != nil {
 				s.LogError(fmt.Errorf("Error monitoring TTY size: %s", err))
@@ -131,7 +130,7 @@ func main() {
 		}()
 	}
 
-	err = <- errs
+	err = <-errs
 
 	if err != nil {
 		s.LogError(err)

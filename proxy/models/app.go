@@ -1,6 +1,7 @@
 package models
 
 import (
+	"../shared"
 	"fmt"
 	"time"
 )
@@ -24,4 +25,10 @@ func (c App) TableName() string {
 
 func (c App) ContainerName(accountName string) string {
 	return fmt.Sprintf("app-%s-%s", accountName, c.Name)
+}
+
+func (c App) GetVariables(context *shared.SharedContext) []AppVariable {
+	var variables []AppVariable
+	context.PersistentDB.Where("app_id = ?", c.Id).Find(&variables)
+	return variables
 }

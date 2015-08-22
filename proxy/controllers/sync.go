@@ -55,6 +55,8 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 func (api *SyncAPI) SyncImage(c *gin.Context) {
 	name := c.Params.ByName("name")
 
+	//TODO: check that image name only contains A-z0-9-.
+
 	vars, err := json.Marshal(struct {
 		ImageName string `json:"image_name"`
 	}{

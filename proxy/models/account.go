@@ -3,6 +3,7 @@ package models
 import (
 	"../shared"
 	"github.com/gin-gonic/gin"
+	"os/user"
 	"time"
 )
 
@@ -39,4 +40,22 @@ func (a Account) Apps() []App {
 	var apps []App
 	a.context.PersistentDB.Where("account_id = ?", a.Id).Find(&apps)
 	return apps
+}
+
+func (a Account) Uid() *string {
+	u, err := user.Lookup(a.Name)
+	if err != nil {
+		return nil
+	}
+
+	return &u.Uid
+}
+
+func (a Account) Gid() *string {
+	g, err := user.Lookup(a.Name)
+	if err != nil {
+		return nil
+	}
+
+	return &g.Gid
 }

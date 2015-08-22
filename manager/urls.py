@@ -14,9 +14,6 @@ urlpatterns = patterns('',
     url(r'^frame/a/(?P<name>[a-z0-9-]+)/databases/$', 'manager.views.account_databases'),
     url(r'^frame/a/(?P<name>[a-z0-9-]+)/databases/(?P<database>[0-9]+)$', 'manager.views.account_databases_edit'),
     url(r'^frame/a/(?P<name>[a-z0-9-]+)/databases/add$', 'manager.views.account_databases_edit'),
-
-    #ajax
-    url(r'^api/v1.0/containers/', 'manager.views.containers'),
     
     url(r'^action/(?P<action>.*)$', 'manager.views.action_ajax'),
 

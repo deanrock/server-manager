@@ -101,9 +101,32 @@ controller('containers', ['$scope', 'managerServices', '$location', function($sc
     $scope.apps = [];
 
     managerServices.getContainers().then(function(data){
-        console.log(data)
         $scope.apps = data;
-    })
+    });
+
+    $scope.start = function(app) {
+        managerServices.startApp(app.account_name, app.app_id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
+
+    $scope.stop = function(app) {
+        managerServices.stopApp(app.account_name, app.app_id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
+
+    $scope.redeploy = function(app) {
+        managerServices.redeployApp(app.account_name, app.app_id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
 }]).
 controller('accountOverview', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.action = 'overview';
@@ -146,10 +169,54 @@ controller('accountApps', ['$scope', 'managerServices', '$location', '$routePara
         $scope.account = data;
     });
 
-    managerServices.getApps($routeParams.account).then(function(data){
-        console.log(data)
-        $scope.apps = data;
-    })
+    managerServices.getImages().then(function(data) {
+        $scope.images = data;
+
+        managerServices.getApps($routeParams.account).then(function(data) {
+            $scope.apps = data;
+
+            managerServices.getContainers().then(function(data){
+                angular.forEach($scope.apps, function (vApp, kApp) {
+                    angular.forEach(data, function(v,k) {
+                        if (vApp.id == v.app_id) {
+                            vApp.status = v.status;
+                            vApp.up = v.up;
+                        }
+                    });
+
+                    angular.forEach($scope.images, function(vImg, kImg) {
+                        if (vImg.id == vApp.image_id) {
+                            vApp.image_name = vImg.name;
+                        }
+                    })
+                });
+            });
+        });
+    });
+
+    $scope.start = function(app) {
+        managerServices.startApp($routeParams.account, app.id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
+
+    $scope.stop = function(app) {
+        managerServices.stopApp($routeParams.account, app.id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
+
+    $scope.redeploy = function(app) {
+        managerServices.redeployApp($routeParams.account, app.id).then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
 }]).
 controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.images = [];

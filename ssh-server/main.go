@@ -1,9 +1,9 @@
 package main
 
 import (
-	"../proxy/shell"
-	"../proxy/shared"
+	"../proxy/container"
 	"../proxy/models"
+	"../proxy/shared"
 	"fmt"
 	"os/exec"
 	//"github.com/docker/docker/pkg/term"
@@ -12,18 +12,18 @@ import (
 	"log"
 	"net"
 	//"bytes"
-	"strconv"
 	"os"
+	"strconv"
 	//"os/user"
-	"errors"
-	"encoding/binary"
-	"io/ioutil"
 	"encoding/base64"
+	"encoding/binary"
+	"errors"
+	"io/ioutil"
 	"strings"
 	//"github.com/kr/pty"
-	"golang.org/x/crypto/ssh"
 	"github.com/jinzhu/gorm"
-    _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/ssh"
 )
 
 var sharedContext *shared.SharedContext
@@ -43,7 +43,7 @@ func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error)
 
 	keys := models.GetAllUserSSHKeys(sharedContext)
 
-	for _, k := range(keys) {
+	for _, k := range keys {
 		mykey := k.SSHKey
 		s := strings.Split(mykey, " ")
 
@@ -94,8 +94,8 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 			continue
 		}
 
-		s := shell.Shell{
-			LogPrefix: "[ssh]",
+		s := container.Shell{
+			LogPrefix:     "[ssh]",
 			SharedContext: sharedContext,
 		}
 
@@ -115,7 +115,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 		s.AccountName = sshConn.User()
 
-		out, err := exec.Command("id","-u",s.AccountName).Output()
+		out, err := exec.Command("id", "-u", s.AccountName).Output()
 
 		if err != nil {
 			return
@@ -135,7 +135,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 				switch req.Type {
 				case "exec":
 					ok = true
-					s.Cmd =  strings.Split(string(req.Payload[4 : req.Payload[3]+4]), " ")
+					s.Cmd = strings.Split(string(req.Payload[4:req.Payload[3]+4]), " ")
 					s.Tty = false
 
 					s.Environment = strings.Replace(env, "-base-shell", "", 1)
@@ -151,16 +151,16 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 					errs := make(chan error)
 
 					go func() {
-						errs <- s.Attach(shell.AttachOptions{
-							ShellImage:    shell_image,
-							InputStream:   channel,
-							OutputStream:  channel,
-							ErrorStream:   channel,
+						errs <- s.Attach(container.AttachOptions{
+							ShellImage:   shell_image,
+							InputStream:  channel,
+							OutputStream: channel,
+							ErrorStream:  channel,
 						})
 					}()
 
 					go func() {
-						err = <- errs
+						err = <-errs
 						fmt.Printf("end\n")
 
 						if err != nil {
@@ -179,7 +179,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 					switch subsystem {
 					case "sftp":
 						//start sftp subsystem
-						s.Cmd =  []string{"/usr/lib/openssh/sftp-server"}
+						s.Cmd = []string{"/usr/lib/openssh/sftp-server"}
 						s.Tty = false
 
 						s.Environment = strings.Replace(env, "-base-shell", "", 1)
@@ -195,16 +195,16 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 						errs := make(chan error)
 
 						go func() {
-							errs <- s.Attach(shell.AttachOptions{
-								ShellImage:    shell_image,
-								InputStream:   channel,
-								OutputStream:  channel,
-								ErrorStream:   channel,
+							errs <- s.Attach(container.AttachOptions{
+								ShellImage:   shell_image,
+								InputStream:  channel,
+								OutputStream: channel,
+								ErrorStream:  channel,
 							})
 						}()
 
 						go func() {
-							err = <- errs
+							err = <-errs
 							fmt.Printf("end\n")
 
 							if err != nil {
@@ -221,7 +221,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 				case "shell":
 					ok = true
-					s.Cmd = []string {"/bin/bash"} //  strings.Split(string(req.Payload[4 : req.Payload[3]+4]), " ")
+					s.Cmd = []string{"/bin/bash"} //  strings.Split(string(req.Payload[4 : req.Payload[3]+4]), " ")
 					s.Tty = true
 
 					printChoiceMenu(channel, s)
@@ -229,7 +229,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 					for {
 						var i int
 						channel.Write([]byte("\r\nChoice: "))
-						
+
 						selected := make([]byte, 10)
 						n, err := channel.Read(selected)
 
@@ -248,14 +248,14 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 						i = int(d)
 
-					    if i >= 1 && i <= len(s.ShellImages) {
-					    	env = strings.Replace(
-					    		strings.Replace(s.ShellImages[i-1], "-base-shell", "", 1),
-					    		"-base-shell", "", 1)
+						if i >= 1 && i <= len(s.ShellImages) {
+							env = strings.Replace(
+								strings.Replace(s.ShellImages[i-1], "-base-shell", "", 1),
+								"-base-shell", "", 1)
 
-					    	channel.Write([]byte("\r\n"))
-					    	break
-					    }
+							channel.Write([]byte("\r\n"))
+							break
+						}
 					}
 
 					s.Environment = strings.Replace(env, "-base-shell", "", 1)
@@ -271,23 +271,23 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 					success := make(chan struct{})
 					go func() {
-						errs <- s.Attach(shell.AttachOptions{
-							ShellImage:    shell_image,
-							InputStream:   channel,
-							OutputStream:  channel,
-							ErrorStream:   channel,
-							Success:       success,
-							Detach:        detach,
+						errs <- s.Attach(container.AttachOptions{
+							ShellImage:   shell_image,
+							InputStream:  channel,
+							OutputStream: channel,
+							ErrorStream:  channel,
+							Success:      success,
+							Detach:       detach,
 						})
 					}()
 
 					go func() {
-						<- success
+						<-success
 						resizeTty(s, h, w)
 					}()
 
 					go func() {
-						err = <- errs
+						err = <-errs
 						fmt.Printf("end\n")
 
 						if err != nil {
@@ -324,19 +324,19 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 	}
 }
 
-func printChoiceMenu(channel ssh.Channel, s shell.Shell) {
+func printChoiceMenu(channel ssh.Channel, s container.Shell) {
 	//ask user to select environment
 	//channel.Write([]byte{0x1b,'[','H',0x1b,'[','J'})
 	channel.Write([]byte("Select environment (type the number and press Enter)\r\n\r\n"))
 
-	for i, image := range(s.ShellImages) {
+	for i, image := range s.ShellImages {
 		channel.Write([]byte(fmt.Sprintf("[%d] %s\r\n", i+1, image)))
 	}
 
 	//channel.Write([]byte("Choice: "))
 }
 
-func resizeTty(shell shell.Shell, height uint32, width uint32) {
+func resizeTty(shell container.Shell, height uint32, width uint32) {
 	if shell.ContainerID == "" {
 		log.Printf("cannot resize tty; containerid empty")
 		return
@@ -344,8 +344,6 @@ func resizeTty(shell shell.Shell, height uint32, width uint32) {
 
 	shell.ResizeTtyTo(shell.ContainerID, int(height), int(width))
 }
-
-
 
 // parseDims extracts two uint32s from the provided buffer.
 func parseDims(b []byte) (uint32, uint32) {
@@ -355,9 +353,9 @@ func parseDims(b []byte) (uint32, uint32) {
 }
 
 func main() {
-	f, err := os.OpenFile("/var/log/manager/ssh-server.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	f, err := os.OpenFile("/var/log/manager/ssh-server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-	    log.Fatalf("error opening file: %v", err)
+		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
 
@@ -365,14 +363,14 @@ func main() {
 
 	sharedContext = &shared.SharedContext{}
 
-    //sqlite
-    db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
+	//sqlite
+	db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
 
-    if err != nil {
-        log.Fatal("database error", err)
-    }
+	if err != nil {
+		log.Fatal("database error", err)
+	}
 
-    sharedContext.PersistentDB = db
+	sharedContext.PersistentDB = db
 
 	keyPath := "./id_rsa"
 
@@ -401,7 +399,7 @@ func main() {
 		port = os.Getenv("PORT")
 	}
 
-	socket, err := net.Listen("tcp", ":" + port)
+	socket, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		panic(err)
 	}

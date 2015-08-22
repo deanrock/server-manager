@@ -129,6 +129,7 @@ class App(models.Model):
     def start(self):
         return [docker_api.cli.start(container=self.container_name())]
 
+    #DONT DELETE!!! FALLBACK METHOD IF NEW ONE DOESN'T WORK
     def redeploy(self):
         logs = utils.Logs()
         failed = False

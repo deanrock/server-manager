@@ -20,6 +20,17 @@ type Task struct {
 	Account_id  *int      `json:"account_id"` //if it belongs to an account
 }
 
+func (t Task) Log(message string, messageType string, context *shared.SharedContext) {
+	l := TaskLog{
+		TaskId:   t.Id,
+		Added_at: time.Now(),
+		Value:    message,
+		Type:     messageType,
+	}
+
+	context.PersistentDB.Save(&l)
+}
+
 func (t Task) NotifyUser(c shared.SharedContext, uid int) {
 	j, _ := json.Marshal(struct {
 		Type string `json:"type"`

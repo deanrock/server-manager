@@ -1,42 +1,42 @@
-package shell
+package container
 
 import (
-	"net/http"
-	"github.com/fsouza/go-dockerclient"
-	"io"
-	"os"
-	"github.com/docker/docker/pkg/term"
-	"os/exec"
-	"strings"
-	"log"
-	"fmt"
-	"io/ioutil"
-	"time"
-	"path"
+	"../models"
+	"../shared"
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
+	"github.com/docker/docker/pkg/signal"
+	"github.com/docker/docker/pkg/term"
+	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"os/exec"
 	gosignal "os/signal"
-	"github.com/docker/docker/pkg/signal"
-	"../shared"
-	"../models"
+	"path"
+	"strings"
+	"time"
 )
 
 type Shell struct {
 	SharedContext *shared.SharedContext
 
-	LogPrefix string
-	AccountName string
-	AccountUid  string
-	Images []string
-	ShellImages []string
-	Cmd []string
-	Tty bool
+	LogPrefix    string
+	AccountName  string
+	AccountUid   string
+	Images       []string
+	ShellImages  []string
+	Cmd          []string
+	Tty          bool
 	DockerClient *docker.Client
-	ContainerID string
-	Environment string
+	ContainerID  string
+	Environment  string
 
 	// inFd holds file descriptor of the client's STDIN, if it's a valid file
 	InFd uintptr
@@ -80,36 +80,36 @@ func (s *Shell) BuildShellImage(env string) (string, error) {
 		base_image)
 
 	if _, err := os.Stat(image_folder); os.IsNotExist(err) {
-	    return "", fmt.Errorf("no such file or directory: %s", image_folder)
+		return "", fmt.Errorf("no such file or directory: %s", image_folder)
 	}
 
 	files, _ := ioutil.ReadDir(image_folder)
-    for _, f := range files {
-        //copy file
+	for _, f := range files {
+		//copy file
 		out_file, err := os.Create(path.Join(temp, f.Name()))
 
-	    if err != nil {
-	        return "", fmt.Errorf("cannot create temp file %s", err)
-	    }
-
-	    defer out_file.Close()
-
-        in_file, err := os.Open(path.Join(image_folder, f.Name()))
 		if err != nil {
-		    return "", fmt.Errorf("cannot open file to read %s", err)
+			return "", fmt.Errorf("cannot create temp file %s", err)
+		}
+
+		defer out_file.Close()
+
+		in_file, err := os.Open(path.Join(image_folder, f.Name()))
+		if err != nil {
+			return "", fmt.Errorf("cannot open file to read %s", err)
 		}
 		defer in_file.Close()
 
 		scanner := bufio.NewScanner(in_file)
 		for scanner.Scan() {
-		    _, err := io.WriteString(out_file, scanner.Text()+"\n")
-		    if err != nil {
-		    	return "", fmt.Errorf("error writing temp file %s", err)
-		    }
+			_, err := io.WriteString(out_file, scanner.Text()+"\n")
+			if err != nil {
+				return "", fmt.Errorf("error writing temp file %s", err)
+			}
 		}
 
 		if err := scanner.Err(); err != nil {
-		    return "", fmt.Errorf("error scanning file %s", err)
+			return "", fmt.Errorf("error scanning file %s", err)
 		}
 
 		if f.Name() == "Dockerfile" {
@@ -123,17 +123,17 @@ func (s *Shell) BuildShellImage(env string) (string, error) {
 					s.AccountName,
 					s.AccountName))
 
-		    if err != nil {
-		    	return "", fmt.Errorf("error writing to Dockerfile %s", err)
-		    }
+			if err != nil {
+				return "", fmt.Errorf("error writing to Dockerfile %s", err)
+			}
 		}
-    }
+	}
 
-    var buf bytes.Buffer
+	var buf bytes.Buffer
 	err = s.DockerClient.BuildImage(docker.BuildImageOptions{
-		Name:				fmt.Sprintf("manager/%s", shell_image),
-		ContextDir:			temp,
-		OutputStream:		&buf,
+		Name:         fmt.Sprintf("manager/%s", shell_image),
+		ContextDir:   temp,
+		OutputStream: &buf,
 	})
 
 	if err != nil {
@@ -171,35 +171,15 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 }
 
 func (shell *Shell) StartContainer() error {
-	var links []string
-	
 	if shell.SharedContext != nil {
 		account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
 		shell.GetDockerImages()
 
-	    apps := account.Apps()
-
-	    var images []models.Image
-		shell.SharedContext.PersistentDB.Find(&images)
-
-	    for _, app := range(apps) {
-		    for _, img := range(images) {
-				if img.Id == app.Image_id && img.Type == "database" {
-					name := fmt.Sprintf("app-%s-%s:%s", shell.AccountName, app.Name, app.Name)
-					links = append(links, name)
-				}
-			}
-		}
+		err := StartContainer(account, shell.SharedContext, shell.DockerClient, shell.ContainerID)
+		return err
 	}
 
-	err := shell.DockerClient.StartContainer(shell.ContainerID,
-		&docker.HostConfig{
-			Binds:      []string{"/home/" + shell.AccountName + ":/home/" + shell.AccountName},
-			ExtraHosts: []string{"mysql:172.17.42.1"},
-			Links:      links,
-		})
-
-	return err
+	return errors.New("no shared context provided")
 }
 
 func (shell *Shell) RemoveContainer() error {
@@ -215,7 +195,7 @@ func (shell *Shell) RemoveContainer() error {
 	return nil
 }
 
-func (shell *Shell) Attach(options AttachOptions) (error) {
+func (shell *Shell) Attach(options AttachOptions) error {
 	container, err := shell.CreateContainer(options.ShellImage)
 	if err != nil {
 		return fmt.Errorf("couldn't create container %s (image: %s)", err, options.ShellImage)
@@ -263,12 +243,12 @@ func (shell *Shell) Attach(options AttachOptions) (error) {
 
 	if options.Detach != nil {
 		go func() {
-			err := <- options.Detach
+			err := <-options.Detach
 			errs <- err
 		}()
 	}
 
-	myerr := <- errs
+	myerr := <-errs
 
 	if myerr != nil {
 		return fmt.Errorf("attach error %s", err)
@@ -284,7 +264,7 @@ func (shell *Shell) Log(tag string, message string, args ...string) {
 		tag,
 		fmt.Sprintf(message, args)))
 	f, err := os.OpenFile("/var/log/manager/manager-shell.log",
-		os.O_APPEND|os.O_WRONLY,0600)
+		os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return
 	}
@@ -312,7 +292,7 @@ func (shell *Shell) ResizeTty(id string, isExec bool) {
 	if height == 0 && width == 0 {
 		return
 	}
-	
+
 	shell.DockerClient.ResizeContainerTTY(id, height, width)
 }
 
@@ -345,32 +325,32 @@ func (shell *Shell) GetTtySize() (int, int) {
 
 func (s *Shell) GetDockerImages() {
 	endpoint := "unix:///var/run/docker.sock"
-    client, _ := docker.NewClient(endpoint)
-    imgs, _ := client.ListImages(docker.ListImagesOptions{All: false})
+	client, _ := docker.NewClient(endpoint)
+	imgs, _ := client.ListImages(docker.ListImagesOptions{All: false})
 
-    s.Images = []string{}
-    s.ShellImages = []string{}
+	s.Images = []string{}
+	s.ShellImages = []string{}
 
-    for _, img := range imgs {
-        if len(img.RepoTags) > 0 {
-        	for _, tag := range(img.RepoTags) {
-	        	if strings.Contains(tag, "manager/") {
-	        		tag = strings.Replace(tag, "manager/", "", 1)
-	        		tag = strings.Replace(tag, ":latest", "", 1)
-	            	s.Images = append(s.Images, tag)
+	for _, img := range imgs {
+		if len(img.RepoTags) > 0 {
+			for _, tag := range img.RepoTags {
+				if strings.Contains(tag, "manager/") {
+					tag = strings.Replace(tag, "manager/", "", 1)
+					tag = strings.Replace(tag, ":latest", "", 1)
+					s.Images = append(s.Images, tag)
 
-	            	if strings.Contains(tag, "-shell") {
-	            		s.ShellImages = append(s.ShellImages, tag)
-	            	}
-	            }
-	        }
-        }
-    }
+					if strings.Contains(tag, "-shell") {
+						s.ShellImages = append(s.ShellImages, tag)
+					}
+				}
+			}
+		}
+	}
 }
 
 func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	s := Shell{
-		LogPrefix: "[web shell]",
+		LogPrefix:     "[web shell]",
 		SharedContext: sharedContext,
 	}
 
@@ -378,14 +358,13 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	a := models.AccountFromContext(c)
 	env := strings.Replace(c.Request.URL.Query().Get("env"), "-base-shell", "", 1)
 	fmt.Printf(env)
-	out, err := exec.Command("id","-u",a.Name).Output()
+	out, err := exec.Command("id", "-u", a.Name).Output()
 
 	if err != nil {
 		return
 	}
 
 	uid := strings.Replace(string(out), "\n", "", 1)
-
 
 	s.Log("info", "user: %s (%s)", a.Name, uid)
 
@@ -425,22 +404,22 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 
 	go func() {
 		errs <- s.Attach(AttachOptions{
-			ShellImage:    shell_image,
-			InputStream:   stdinR,
-			OutputStream:  w,
-			ErrorStream:   w,
-			Detach:        detach,
+			ShellImage:   shell_image,
+			InputStream:  stdinR,
+			OutputStream: w,
+			ErrorStream:  w,
+			Detach:       detach,
 		})
 	}()
 
-    conn, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
-    if _, ok := err.(websocket.HandshakeError); ok {
-        http.Error(c.Writer, "Not a websocket handshake", 400)
-        return
-    } else if err != nil {
-        log.Println(err)
-        return
-    }
+	conn, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
+	if _, ok := err.(websocket.HandshakeError); ok {
+		http.Error(c.Writer, "Not a websocket handshake", 400)
+		return
+	} else if err != nil {
+		log.Println(err)
+		return
+	}
 
 	go func(reader io.Reader) {
 		for {
@@ -452,25 +431,25 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 				return
 			}
 
-			 if err := conn.WriteMessage(websocket.TextMessage, data[:n]); err != nil {
-                conn.Close()
-                errs <- errors.New("error while writing to websocket stream")
-                return
-            }
+			if err := conn.WriteMessage(websocket.TextMessage, data[:n]); err != nil {
+				conn.Close()
+				errs <- errors.New("error while writing to websocket stream")
+				return
+			}
 		}
 	}(r)
 
 	go func(writer io.Writer) {
 		for {
-	        _, p, err := conn.ReadMessage()
-	        if err != nil {
-	            errs <- fmt.Errorf("error while reading from websocket ", err)
-	            return
-	        }
+			_, p, err := conn.ReadMessage()
+			if err != nil {
+				errs <- fmt.Errorf("error while reading from websocket ", err)
+				return
+			}
 
-	        writer.Write(p)
-	    }
+			writer.Write(p)
+		}
 	}(stdinW)
 
-    detach <- <- errs
+	detach <- <-errs
 }

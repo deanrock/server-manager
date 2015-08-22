@@ -1,11 +1,11 @@
 package main
 
 import (
+	"./container"
 	"./controllers"
 	"./models"
 	"./realtime"
 	"./shared"
-	"./shell"
 	"bufio"
 	"bytes"
 	"encoding/json"
@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,6 +36,98 @@ func dockerEvents(listener chan *docker.APIEvents) {
 
 		sharedContext.WebsocketHandler.Broadcast(fmt.Sprintf("Received event: %#v\n", *event))
 	}
+}
+
+type MyContainer struct {
+	AppId       int    `json:"app_id"`
+	AppName     string `json:"app_name"`
+	AccountName string `json:"account_name"`
+	Up          bool   `json:"up"`
+	Status      string `json:"status"`
+	ImageName   string `json:"image_name"`
+	Memory      int    `json:"memory"`
+}
+
+func Containers(c *gin.Context) {
+	containers, err := container.GetAllContainers(sharedContext)
+	if err != nil {
+		c.AbortWithStatus(500)
+	}
+
+	var apps []models.App
+	sharedContext.PersistentDB.Find(&apps)
+
+	var accounts []models.Account
+	sharedContext.PersistentDB.Find(&accounts)
+
+	userAccess := c.MustGet("userAccess").([]models.UserAccess)
+
+	var allowedContainers []MyContainer
+
+	var images []models.Image
+	sharedContext.PersistentDB.Find(&images)
+
+	for _, app := range apps {
+		var account models.Account
+		found := false
+		for _, acc := range accounts {
+			if acc.Id == app.Account_id {
+				for _, ua := range userAccess {
+					fmt.Println(ua)
+					if ua.Account_id == acc.Id && ua.AppAccess == true {
+						account = acc
+						found = true
+						break
+					}
+				}
+				break
+			}
+		}
+
+		if found {
+			name := fmt.Sprintf("/app-%s-%s", account.Name, app.Name)
+			var con docker.APIContainers
+			found := false
+
+			for _, c := range containers {
+				for _, n := range c.Names {
+					if n == name {
+						con = c
+						found = true
+						break
+					}
+				}
+			}
+
+			if found {
+				up := false
+
+				if strings.Contains(con.Status, "Up ") {
+					up = true
+				}
+
+				imageName := ""
+				for _, i := range images {
+					if i.Id == app.Image_id {
+						imageName = i.Name
+						break
+					}
+				}
+
+				allowedContainers = append(allowedContainers, MyContainer{
+					AppId:       app.Id,
+					AppName:     app.Name,
+					AccountName: account.Name,
+					Up:          up,
+					Status:      con.Status,
+					ImageName:   imageName,
+					Memory:      app.Memory,
+				})
+			}
+		}
+	}
+
+	c.JSON(200, allowedContainers)
 }
 
 func containerLogsHandler(c *gin.Context) {
@@ -309,7 +402,7 @@ func main() {
 		})
 
 		authorized.GET("/api/v1/shells", func(c *gin.Context) {
-			s := shell.Shell{}
+			s := container.Shell{}
 			s.GetDockerImages()
 			c.JSON(200, s.ShellImages)
 		})
@@ -351,6 +444,7 @@ func main() {
 
 		authorized.GET("/api/v1/accounts", accounts.ListAccounts)
 		authorized.GET("/api/v1/all-accounts", RequireStaff(), accounts.ListAllAccounts)
+		authorized.GET("/api/v1/containers", Containers)
 
 		requiresAccount := authorized.Group("/api/v1/accounts/:name")
 
@@ -367,11 +461,14 @@ func main() {
 			requiresAccount.GET("/apps/:id", RequireUserAccess("app_access"), apps.GetApp)
 			requiresAccount.PUT("/apps/:id", RequireUserAccess("app_access"), apps.EditApp)
 			requiresAccount.POST("/apps", RequireUserAccess("app_access"), apps.EditApp)
+			requiresAccount.POST("/apps/:id/redeploy", RequireUserAccess("app_access"), apps.RedeployApp)
+			requiresAccount.POST("/apps/:id/start", RequireUserAccess("app_access"), apps.StartApp)
+			requiresAccount.POST("/apps/:id/stop", RequireUserAccess("app_access"), apps.StopApp)
 			requiresAccount.GET("/apps/:id/logs", RequireUserAccess("app_access"), containerLogsHandler)
 
 			//shell
 			requiresAccount.GET("/shell", RequireUserAccess("shell_access"), func(c *gin.Context) {
-				shell.WebSocketShell(c, sharedContext)
+				container.WebSocketShell(c, sharedContext)
 			})
 
 			//cronjobs

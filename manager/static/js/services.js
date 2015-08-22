@@ -16,7 +16,7 @@ srv.factory('managerServices', function($http) {
             return resp;
         },
         getContainers: function(id) {
-            var resp = $http.get('/api/v1.0/containers/').
+            var resp = $http.get('/api/v1/containers/').
             then(function(response) {
                 return response.data;
             });
@@ -85,6 +85,27 @@ srv.factory('managerServices', function($http) {
         },
         editApp: function(name, id, params) {
             var resp = $http.put('/api/v1/accounts/'+name+'/apps/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        startApp: function(name, id) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/apps/'+id+'/start', {}).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        stopApp: function(name, id) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/apps/'+id+'/stop', {}).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        redeployApp: function(name, id) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/apps/'+id+'/redeploy', {}).
             then(function(response) {
                 return response.data;
             });
