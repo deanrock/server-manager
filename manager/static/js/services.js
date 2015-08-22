@@ -1,6 +1,27 @@
 var srv = angular.module('managerServices', []);
 srv.factory('managerServices', function($http) {
     var managerServices = {
+        getTasks: function() {
+            var resp = $http.get('/api/v1/tasks').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getTask: function(id) {
+            var resp = $http.get('/api/v1/tasks/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getTaskLog: function(id) {
+            var resp = $http.get('/api/v1/tasks/'+id+'/log').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getShells: function(id) {
             var resp = $http.get('/api/v1/shells').
             then(function(response) {

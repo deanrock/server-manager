@@ -1,0 +1,22 @@
+<div class="jumbotron account-menu">
+    <div class="container">
+        <h1>My tasks</h1>
+    </div>
+</div>
+
+<div class="container">
+   
+   <table class="table">
+
+   <tr ng-repeat="task in tasks">
+       <td><a href="/tasks/{{task.id}}">#{{task.id}}</a></td>
+       <td>{{task.name}}</td>
+       <td>{{task.started_at}}</td>
+       <td>{{task.status}}</td>
+       <td>{{task.percent}}</td>
+       <td>{{task.duration}}</td>
+       <td>{{task.finished}}</td>
+   </tr>
+   </table>
+<!--/row-->
+</div>

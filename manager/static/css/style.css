@@ -88,10 +88,14 @@ body > .container {
   width:300px;
 }
 #tasks  li {
-  
   padding: 5px;
   margin-top:1px;
   position:relative;
+  cursor: pointer;
+}
+
+#tasks  li.task {
+  cursor: pointer;
 }
 
 #tasks .bg {

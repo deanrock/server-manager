@@ -6,6 +6,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/accounts.html',
         controller: 'accounts',
     }).
+    when('/tasks/:id', {
+        templateUrl: 'static/templates/tasks/task.html',
+        controller: 'getTask',
+    }).
+    when('/tasks', {
+        templateUrl: 'static/templates/tasks/tasks.html',
+        controller: 'tasks',
+    }).
     when('/users', {
         templateUrl: 'static/templates/users.html',
         controller: 'users',

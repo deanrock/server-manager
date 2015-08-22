@@ -1,0 +1,19 @@
+<div class="jumbotron account-menu">
+    <div class="container">
+        <h1>My tasks</h1>
+    </div>
+</div>
+
+<div class="container">
+   {{task}}
+   <br /><br />
+   <table class="table">
+
+   <tr ng-repeat="log in logs">
+       <td>#{{log.id}}</td>
+       <td>{{log.type}}</td>
+       <td>{{log.added_at}}</td>
+       <td>{{log.value}}</td>
+   </tr>
+   </table>
+</div>

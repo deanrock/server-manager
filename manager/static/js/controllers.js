@@ -9,13 +9,24 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
 controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', '$location', function($scope, $rootScope, managerServices, $window, $interval, $location) {
     $scope.tasks = [];
 
+    function setTaskInfo(t) {
+        t.info = "asf";
+        var vars = JSON.parse(t.variables);
+
+        if (t.name == "start-app" || t.name == "stop-app" || t.name == "redeploy-app") {
+            t.info = "("+vars.app.name+")";
+        }
+    }
+
     function updateTask(t) {
         var found = false;
         angular.forEach($scope.tasks, function(v,k) {
             if (v.id == t.id) {
                 //update
+                t.added_at_timestamp = Date.parse(t.added_at);
                 $scope.tasks[$scope.tasks.indexOf(v)] = t;
                 showTimeElapsed(t);
+                setTaskInfo(t);
                 found = true;
                 return;
             }
@@ -28,29 +39,34 @@ controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '
         t.added_at_timestamp = Date.parse(t.added_at);
         $scope.tasks.push(t);
         showTimeElapsed(t);
+        setTaskInfo(t);
     }
 
     function showTimeElapsed(v) {
-        var now = new Date().getTime();
-        var e = (now - v.added_at_timestamp) / 1000;
-
-            var m = Math.floor(e/60);
-            var s = e - m*60;
-
-            var format = function(x) {
-                x = Math.floor(x);
-                if ((""+x).length == 1) {
-                    return "0"+x;
-                }
-
-                return x;
+        var format = function(x) {
+            x = Math.floor(x);
+            if (("" + x).length == 1) {
+                return "0" + x;
             }
 
-            v.elapsed_time = format(m)+":"+format(s);
+            return x;
+        }
+
+        var e = 0;
+        if (v.finished) {
+            e = v.duration;
+        } else {
+            var now = new Date().getTime();
+            e = (now - v.added_at_timestamp) / 1000;
+        }
+
+        var m = Math.floor(e / 60);
+        var s = e - m * 60;
+
+        v.elapsed_time = format(m) + ":" + format(s);
     }
 
     $interval(function() {
-        
         angular.forEach($scope.tasks, function(v,k) {
             showTimeElapsed(v);
         });
@@ -58,6 +74,10 @@ controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '
 
     $scope.goTo = function(task) {
         $location.path('/tasks/'+task.id);
+    }
+
+    $scope.showTasks = function() {
+        $location.path('/tasks')
     }
 
     var ws = new ReconnectingWebSocket(getWebsocketHost() + '/ws/', null, {debug: true, reconnectInterval: 3000});
@@ -74,20 +94,40 @@ controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '
         }catch(err){
             return;
         }
+
         if (m.type == 'my-running-tasks') {
             $scope.$apply(function() {
-
-            angular.forEach(m.tasks, function(v, k) {
-                updateTask(v);
-            })
-        });
+                angular.forEach(m.tasks, function(v, k) {
+                    updateTask(v);
+                });
+            });
         }else if (m.type == 'update-task') {
             $scope.$apply(function() {
-
-            updateTask(m.task);
-        });
+                updateTask(m.task);
+            });
         }
     }
+}]).
+controller('tasks', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
+    $scope.tasks = [];
+
+    managerServices.getTasks().then(function(data){
+        data.reverse();
+        $scope.tasks = data;
+    })
+}]).
+controller('getTask', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.task = [];
+    $scope.logs = [];
+
+    managerServices.getTask($routeParams.id).then(function(data){
+        $scope.task = data;
+    });
+
+    managerServices.getTaskLog($routeParams.id).then(function(data){
+        data.reverse();
+        $scope.logs = data;
+    });
 }]).
 controller('accounts', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
     $scope.accounts = [];

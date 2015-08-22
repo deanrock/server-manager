@@ -550,6 +550,10 @@ func main() {
 		authorized.GET("/profile/*params", func(c *gin.Context) {
 			c.HTML(200, "index.tmpl", nil)
 		})
+
+		authorized.GET("/tasks/*params", func(c *gin.Context) {
+			c.HTML(200, "index.tmpl", nil)
+		})
 	}
 
 	s := &http.Server{
