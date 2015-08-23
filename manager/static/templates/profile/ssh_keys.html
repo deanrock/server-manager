@@ -1,0 +1,43 @@
+<script type="text/ng-template" id="ssh_keys_delete.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Do you really want to delete SSH key {{key.name}}?</h3>
+    </div>
+    <div class="modal-body">
+        
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="confirm" name="confirmation" value="yes"> Yes, I would like to delete this SSH key
+                    </label>
+                </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="delete()">Delete</button>
+    </div>
+</script>
+
+<div data-extend-template="/static/templates/profile/layout.html">
+    <div data-block="content">
+        <div style="text-align:right">
+            <a href="/profile/ssh-keys/add" class="btn btn-default btn" role="button">Add key</a>
+        </div>
+        <br />
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Added at</th>
+                <th style="text-align:center">Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="key in keys">
+                    <td><a href="/profile/ssh-keys/{{key.id}}">{{key.name}}</a></td>
+                    <td>{{key.added_at}}</td>
+                    <td style="text-align:center"><a href="" ng-click="deleteDialog(key)"><span class="glyphicon glyphicon-remove"></span></a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

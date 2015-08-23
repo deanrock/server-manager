@@ -76,6 +76,41 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getSSHKeys: function() {
+            var resp = $http.get('/api/v1/profile/ssh-keys').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getSSHKey: function(id) {
+            var resp = $http.get('/api/v1/profile/ssh-keys/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        deleteSSHKey: function(id) {
+            var resp = $http.delete('/api/v1/profile/ssh-keys/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editSSHKey: function(id, params) {
+            var resp = $http.put('/api/v1/profile/ssh-keys/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addSSHKey: function(params) {
+            var resp = $http.post('/api/v1/profile/ssh-keys', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getCronjobs: function(name) {
             var resp = $http.get('/api/v1/accounts/'+name+'/cronjobs').
             then(function(response) {

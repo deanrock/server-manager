@@ -95,8 +95,16 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         controller: 'account',
     }).
     when('/profile/ssh-keys', {
-        templateUrl: 'static/templates/ssh-keys.html',
+        templateUrl: 'static/templates/profile/ssh_keys.html',
         controller: 'userSshKeys',
+    }).
+    when('/profile/ssh-keys/add', {
+        templateUrl: 'static/templates/profile/ssh_keys_edit.html',
+        controller: 'userSshKeysEdit',
+    }).
+    when('/profile/ssh-keys/:id', {
+        templateUrl: 'static/templates/profile/ssh_keys_edit.html',
+        controller: 'userSshKeysEdit',
     });
     $locationProvider.html5Mode(true);
 }]).

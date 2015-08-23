@@ -28,16 +28,6 @@ import (
 var sharedContext *shared.SharedContext
 var mydocker *dockerclient.DockerClient
 
-// Docker
-func dockerEvents(listener chan *docker.APIEvents) {
-	for {
-		event := <-listener
-		log.Printf("Received event: %#v\n", *event)
-
-		sharedContext.WebsocketHandler.Broadcast(fmt.Sprintf("Received event: %#v\n", *event))
-	}
-}
-
 type MyContainer struct {
 	AppId       int    `json:"app_id"`
 	AppName     string `json:"app_name"`
@@ -354,11 +344,6 @@ func main() {
 	endpoint := "unix:///var/run/docker.sock"
 	sharedContext.DockerClient, _ = docker.NewClient(endpoint)
 
-	//Listen to events
-	listener := make(chan *docker.APIEvents)
-	go dockerEvents(listener)
-	sharedContext.DockerClient.AddEventListener(listener)
-
 	//cancell all tasks after restart
 	models.CancelAllTasks(sharedContext)
 
@@ -390,6 +375,7 @@ func main() {
 			})
 		})
 
+		//profile
 		authorized.GET("/api/v1/profile", func(c *gin.Context) {
 			uid := c.MustGet("uid").(*int)
 			user, _ := models.FindUserById(sharedContext, *uid)
@@ -400,6 +386,16 @@ func main() {
 
 			c.JSON(200, p)
 		})
+
+		userSSHKeys := &controllers.UserSSHKeysAPI{
+			Context: sharedContext,
+		}
+
+		authorized.GET("/api/v1/profile/ssh-keys", userSSHKeys.ListKeys)
+		authorized.GET("/api/v1/profile/ssh-keys/:id", userSSHKeys.GetKey)
+		authorized.PUT("/api/v1/profile/ssh-keys/:id", userSSHKeys.EditKey)
+		authorized.DELETE("/api/v1/profile/ssh-keys/:id", userSSHKeys.DeleteKey)
+		authorized.POST("/api/v1/profile/ssh-keys", userSSHKeys.EditKey)
 
 		authorized.GET("/api/v1/shells", func(c *gin.Context) {
 			s := container.Shell{}

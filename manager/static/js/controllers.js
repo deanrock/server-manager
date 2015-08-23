@@ -676,8 +676,81 @@ controller('userAccess', ['$scope', 'managerServices', '$location', '$routeParam
         })
     }
 }]).
-controller('userSshKeys', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
-    $scope.suburl = '/frame/profile/ssh-keys';
+controller('userSshKeys', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', '$route', function($scope, managerServices, $location, $routeParams, $modal, $route) {
+    $scope.tab = 'ssh-keys';
+    $scope.keys = [];
+
+    managerServices.getSSHKeys().then(function(data) {
+        $scope.keys = data;
+    });
+
+    $scope.deleteDialog = function(key) {
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'ssh_keys_delete.html',
+            controller: 'userSshKeysDeleteDialog',
+            size: '',
+            resolve: {
+                key: function () {
+                    return key;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (f) {
+            managerServices.deleteSSHKey(f.id).then(function(data) {
+                $route.reload();
+            }, function(err) {
+                console.log(err);
+            });
+        }, function () {
+
+        });
+    };
+}]).
+controller('userSshKeysEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.tab = 'ssh-keys';
+    $scope.key = {};
+
+    if ($routeParams.id !== undefined) {
+        managerServices.getSSHKey($routeParams.id).then(function(data) {
+            $scope.key = data;
+        });
+    }
+
+    $scope.submit = function() {
+        if ($scope.key.id === undefined) {
+            managerServices.addSSHKey($scope.key).then(function(data) {
+                $location.path('/profile/ssh-keys');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }else{
+            managerServices.editSSHKey($scope.key.id, $scope.key).then(function(data) {
+                $location.path('/profile/ssh-keys');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }
+    };
+}]).
+controller('userSshKeysDeleteDialog', ['$scope', '$modalInstance', 'key', function ($scope, $modalInstance, key) {
+    $scope.key = key;
+    $scope.confirm = false;
+
+    $scope.delete = function () {
+        if ($scope.confirm) {
+            $modalInstance.close($scope.key);
+        }
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 }]).
 controller('accountDomains', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.action = 'domains';

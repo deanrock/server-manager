@@ -1,0 +1,25 @@
+<div data-extend-template="/static/templates/profile/layout.html">
+   <div data-block="content">
+        <form ng-submit="submit()">
+            <div class="form-group" ng-class="{'has-error': errors.name}">
+                <label class="control-label" for="name">Name</label>
+                <div class=" ">
+                    <input class="form-control" id="name" ng-model="key.name" maxlength="255" name="name" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.name">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.ssh_key}">
+                <label class="control-label" for="ssh_key">SSH Key</label>
+                <div>
+                    <textarea class="form-control" cols="40" id="ssh_key" name="ssh_key" ng-model="key.ssh_key" rows="10"></textarea>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.ssh_key">{{error.error}}</span>
+            </div>
+
+            <div style="text-align:right">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

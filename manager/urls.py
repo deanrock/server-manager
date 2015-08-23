@@ -2,11 +2,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 urlpatterns = patterns('',
-    url(r'^frame/profile/ssh-keys/$', 'manager.views.profile_sshkeys'),
-    url(r'^frame/profile/ssh-keys/new$', 'manager.views.profile_sshkeys_edit'),
-    url(r'^frame/profile/ssh-keys/(?P<key>[0-9]+)$', 'manager.views.profile_sshkeys_edit'),
-    url(r'^frame/profile/ssh-keys/(?P<key>[0-9]+)/delete$', 'manager.views.profile_sshkeys_delete'),
-
     url(r'^accounts/login/$', 'django.contrib.auth.views.login',name="auth_login"),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',{'next_page': '/'}, name="auth_logout"),
 

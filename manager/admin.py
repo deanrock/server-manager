@@ -9,7 +9,6 @@ class MyModelAdmin(admin.ModelAdmin):
 
 
 class AccountAdmin(MyModelAdmin):
-    change_list_template = 'admin/accounts.html'
     readonly_fields = ('added_by',)
 
     def save_model(self, request, obj, form, change):

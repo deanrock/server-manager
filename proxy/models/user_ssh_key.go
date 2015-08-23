@@ -1,22 +1,21 @@
 package models
 
 import (
-	"time"
 	"../shared"
+	"time"
 )
 
 type UserSSHKey struct {
-	Id int `json:"id"`
-	User_id int `json:"user_id"`
-	Name string `json:"name"`
-	SSHKey string `json:"ssh_key"`
-	Added_at time.Time `json:"added_at"`
-	Added_by_id int `json:"added_by"`
-	Description string `json:"description"`
+	Id          int       `json:"id"`
+	User_id     int       `json:"user_id"`
+	Name        string    `json:"name"`
+	SSHKey      string    `json:"ssh_key"`
+	Added_at    time.Time `json:"added_at"`
+	Added_by_id int       `json:"added_by"`
 }
 
 func (u UserSSHKey) TableName() string {
-    return "manager_usersshkey"
+	return "manager_usersshkey"
 }
 
 func GetAllUserSSHKeys(c *shared.SharedContext) []UserSSHKey {
