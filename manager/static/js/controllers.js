@@ -177,7 +177,7 @@ controller('accountOverview', ['$scope', 'managerServices', '$location', '$route
     managerServices.getShells().then(function(data){
 		$scope.shells = data;
 
-        $scope.shell = data[0];
+        $scope.shell = {'name': data[0]};
 	})
 
     managerServices.getAccountByName($routeParams.account).then(function(data){
@@ -188,7 +188,7 @@ controller('accountOverview', ['$scope', 'managerServices', '$location', '$route
 
     $scope.submit = function() {
         if (shell == null) {
-            var selected = $scope.shell;
+            var selected = $scope.shell.name;
             shell = new AccountShell($scope.account.name, selected, document.getElementById('shell'));
             $scope.started = true;
         }

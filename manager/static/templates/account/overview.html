@@ -5,7 +5,7 @@
         <div ng-if="account.access.shell_access">
             <form class="form-inline" ng-submit="submit()">
                 <div class="form-group">
-                    <select ng-disabled="started" class="form-control" ng-model="shell" ng-options="s as s for s in shells">
+                    <select ng-disabled="started" class="form-control" ng-model="shell.name" ng-options="s as s for s in shells">
                     </select>
                 </div>
 
