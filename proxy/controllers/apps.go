@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"io/ioutil"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -62,6 +63,11 @@ func (api *AppsAPI) validate(c *gin.Context) (*models.App, *shared.FormErrors) {
 
 	if form.Name == "" {
 		fe.Add("name", "This field is required.")
+	}
+
+	match, _ := regexp.MatchString("^([a-zA-Z][0-9a-zA-Z_-]*)$", form.Name)
+	if !match {
+		fe.Add("name", "Only alphanumeric characters, underscore and '-' are allowed.")
 	}
 
 	if form.Memory < 0 || form.Memory > 16000 {
