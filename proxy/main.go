@@ -560,12 +560,12 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	r.Static("/static/ace", "../manager/static/ace")
-	r.Static("/static/bootstrap", "../manager/static/bootstrap")
-	r.Static("/static/css", "../manager/static/css")
-	r.Static("/static/js", "../manager/static/js")
-	r.Static("/static/vendor", "../manager/static/vendor")
-	r.Static("/static/templates", "../manager/static/templates")
+	r.Static("/static/ace", "../static/ace")
+	r.Static("/static/bootstrap", "../static/bootstrap")
+	r.Static("/static/css", "../static/css")
+	r.Static("/static/js", "../static/js")
+	r.Static("/static/vendor", "../static/vendor")
+	r.Static("/static/templates", "../static/templates")
 	r.Static("/static/admin", "../env/lib/python2.7/site-packages/django/contrib/admin/static/admin")
 
 	r.NoRoute(proxyRequest)
