@@ -1,16 +1,15 @@
 package controllers
 
 import (
+	"../container"
 	"../models"
 	"../shared"
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -112,54 +111,8 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 			return
 		}
 
-		//read output from building the image
-		var line = ""
-		scanner := bufio.NewScanner(buf)
-		for scanner.Scan() {
-			line = scanner.Text()
-
-			l := models.TaskLog{
-				TaskId:   task.Id,
-				Added_at: time.Now(),
-				Value:    line,
-				Type:     "log",
-			}
-
-			api.Context.PersistentDB.Save(&l)
-
-			fmt.Println("line!")
-			fmt.Println(line)
-
-			if err != nil {
-				return
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Println(err)
-
-			l := models.TaskLog{
-				TaskId:   task.Id,
-				Added_at: time.Now(),
-				Value:    fmt.Sprintf("error encountered while reading output: %s", err),
-				Type:     "error",
-			}
-
-			api.Context.PersistentDB.Save(&l)
-			return
-		}
-
-		if !strings.Contains(line, "Successfully built") {
-			log.Println("Last line doesnt contain Successfully build")
-
-			l := models.TaskLog{
-				TaskId:   task.Id,
-				Added_at: time.Now(),
-				Value:    fmt.Sprintf("last line doesn't contain 'Successfully built'"),
-				Type:     "error",
-			}
-
-			api.Context.PersistentDB.Save(&l)
+		err = container.ReadOutputFromBuildImage(api.Context, task, buf)
+		if err != nil {
 			return
 		}
 

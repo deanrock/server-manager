@@ -3,8 +3,13 @@ package container
 import (
 	"../models"
 	"../shared"
+	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
 	"github.com/fsouza/go-dockerclient"
+	"strings"
+	"time"
 )
 
 type Container struct {
@@ -19,16 +24,25 @@ func StartContainer(account *models.Account, context *shared.SharedContext, dock
 		var images []models.Image
 		context.PersistentDB.Find(&images)
 
-		id := -1
+		linkOtherApps := false
 		if app != nil {
-			id = app.Image_id
+			var image models.Image
+			if err := context.PersistentDB.Where("id = ?", app.Image_id).First(&image).Error; err != nil {
+				return errors.New("image doesnt exist")
+			}
+
+			if image.Type != "database" {
+				linkOtherApps = true
+			}
 		}
 
-		for _, app := range apps {
-			for _, img := range images {
-				if img.Id == app.Image_id && img.Id != id && img.Type == "database" {
-					name := fmt.Sprintf("app-%s-%s:%s", account.Name, app.Name, app.Name)
-					links = append(links, name)
+		if linkOtherApps {
+			for _, app := range apps {
+				for _, img := range images {
+					if img.Id == app.Image_id && img.Type == "database" {
+						name := fmt.Sprintf("app-%s-%s:%s", account.Name, app.Name, app.Name)
+						links = append(links, name)
+					}
 				}
 			}
 		}
@@ -50,4 +64,53 @@ func GetAllContainers(context *shared.SharedContext) ([]docker.APIContainers, er
 	})
 
 	return containers, err
+}
+
+func ReadOutputFromBuildImage(context *shared.SharedContext, task models.Task, buf *bytes.Buffer) error {
+	//read output from building the image
+
+	tx := context.PersistentDB.Begin()
+
+	var line = ""
+	scanner := bufio.NewScanner(buf)
+	for scanner.Scan() {
+		line = scanner.Text()
+
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    line,
+			Type:     "log",
+		}
+
+		tx.Save(&l)
+	}
+
+	tx.Commit()
+
+	if err := scanner.Err(); err != nil {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("error encountered while reading output: %s", err),
+			Type:     "error",
+		}
+
+		context.PersistentDB.Save(&l)
+		return errors.New(fmt.Sprintf("error encountered while reading output: %s", err))
+	}
+
+	if !strings.Contains(line, "Successfully built") {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("last line doesn't contain 'Successfully built'"),
+			Type:     "error",
+		}
+
+		context.PersistentDB.Save(&l)
+		return errors.New(fmt.Sprintf("last line doesn't contain 'Successfully built'"))
+	}
+
+	return nil
 }

@@ -5,7 +5,6 @@ import (
 	"../models"
 	"../shared"
 	"archive/tar"
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -475,47 +474,8 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 		return
 	}
 
-	//read output from building the image
-	var line = ""
-	scanner := bufio.NewScanner(buf)
-	for scanner.Scan() {
-		line = scanner.Text()
-
-		l := models.TaskLog{
-			TaskId:   task.Id,
-			Added_at: time.Now(),
-			Value:    line,
-			Type:     "log",
-		}
-
-		api.Context.PersistentDB.Save(&l)
-
-		if err != nil {
-			return
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		l := models.TaskLog{
-			TaskId:   task.Id,
-			Added_at: time.Now(),
-			Value:    fmt.Sprintf("error encountered while reading output: %s", err),
-			Type:     "error",
-		}
-
-		api.Context.PersistentDB.Save(&l)
-		return
-	}
-
-	if !strings.Contains(line, "Successfully built") {
-		l := models.TaskLog{
-			TaskId:   task.Id,
-			Added_at: time.Now(),
-			Value:    fmt.Sprintf("last line doesn't contain 'Successfully built'"),
-			Type:     "error",
-		}
-
-		api.Context.PersistentDB.Save(&l)
+	err = container.ReadOutputFromBuildImage(api.Context, task, buf)
+	if err != nil {
 		return
 	}
 
