@@ -171,13 +171,15 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 }
 
 func (shell *Shell) StartContainer() error {
+	var account *models.Account
 	if shell.SharedContext != nil {
-		account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
-		shell.GetDockerImages()
-
-		err := StartContainer(account, shell.SharedContext, shell.DockerClient, nil, shell.ContainerID)
-		return err
+		account = models.GetAccountByName(shell.AccountName, shell.SharedContext)
 	}
+
+	shell.GetDockerImages()
+
+	err := StartContainer(account, shell.SharedContext, shell.DockerClient, nil, shell.ContainerID)
+	return err
 
 	return errors.New("no shared context provided")
 }
