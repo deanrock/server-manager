@@ -2,6 +2,7 @@ package main
 
 import (
 	"../proxy/container"
+	"../proxy/shared"
 	"errors"
 	"fmt"
 	"github.com/docker/docker/pkg/term"
@@ -33,6 +34,9 @@ func main() {
 		s.LogError(errors.New("cannot connect to docker client"))
 		return
 	}
+
+	s.SharedContext = &shared.SharedContext{}
+	s.SharedContext.OpenDB("/home/manager/server-manager/manager/db.sqlite3")
 
 	s.GetDockerImages()
 

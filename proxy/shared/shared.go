@@ -15,20 +15,12 @@ type SharedContext struct {
 	WebsocketHandler realtime.WebsocketHandler
 }
 
-func (s *SharedContext) OpenDB() {
+func (s *SharedContext) OpenDB(path string) {
 	//sqlite
-	db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
+	db, err := gorm.Open("sqlite3", path)
 	if err != nil {
 		log.Fatal("database error", err)
 	}
 
 	s.PersistentDB = db
-
-	//log DB
-	log_db, err := gorm.Open("sqlite3", "../manager/db_log.sqlite3")
-	if err != nil {
-		log.Fatal("database error", err)
-	}
-
-	s.LogDB = log_db
 }

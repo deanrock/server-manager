@@ -330,14 +330,13 @@ func main() {
 	mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
 	sharedContext = &shared.SharedContext{}
-	sharedContext.OpenDB()
+	sharedContext.OpenDB("../manager/db.sqlite3")
 	sharedContext.PersistentDB.LogMode(true)
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
 	sharedContext.PersistentDB.AutoMigrate(&models.UserAccess{})
 	sharedContext.PersistentDB.Model(&models.UserAccess{}).AddUniqueIndex("idx_user_account", "user_id", "account_id")
 	sharedContext.PersistentDB.AutoMigrate(&models.Task{})
 	sharedContext.PersistentDB.AutoMigrate(&models.TaskLog{})
-	sharedContext.LogDB.AutoMigrate(&models.CronJobLog{})
 	sharedContext.WebsocketHandler = realtime.NewWebsocketHandler()
 
 	//go-dockerclient
