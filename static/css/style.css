@@ -143,6 +143,10 @@ a.btn {
   border: solid #d3d3d3 1px;
   text-align: center; }
 
+.list-v2 {
+  margin: 0px -10px;
+  padding: 0px 0px; }
+
 .list-v2 li {
   list-style: none;
   float: left; }
@@ -152,7 +156,7 @@ a.btn {
   display: block;
   text-decoration: none;
   margin: 10px;
-  min-width: 200px;
+  width: 250px;
   border: solid #bfbfbf 1px; }
 
 .list-v2 li > a:hover {
