@@ -12,7 +12,7 @@
             <div class="form-group" ng-class="{'has-error': errors.image}">
                 <label class="control-label" for="image">Image</label>
                 <div class=" ">
-                    <select class="form-control" id="image" name="image" ng-model="app.image_id" ng-options="i.id as i.name for i in images">
+                    <select class="form-control" id="image" ng-change="showVariables()" name="image" ng-model="app.image_id" ng-options="i.id as i.name for i in images">
                     </select>
                 </div>
                 <span class="help-block" ng-repeat="error in errors.image_id">{{error.error}}</span>

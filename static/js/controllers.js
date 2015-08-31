@@ -272,6 +272,26 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
         $scope.account = data;
     });
 
+    $scope.showVariables = function() {
+        if ($scope.images.length > 0) {
+            angular.forEach($scope.images, function(v,k) {
+                if (v.id == $scope.app.image_id) {
+                    $scope.image = v;
+                    $scope.variables = $scope.image.variables;
+
+                    angular.forEach($scope.variables, function(v,k) {
+                        angular.forEach($scope.app.variables, function (myvar, mykey) {
+                            if (myvar.name == v.name) {
+                                v.value = myvar.value;
+                            }
+                        })
+                    })
+                    return;
+                }
+            });
+        }
+    }
+
     managerServices.getImages().then(function(data) {
         $scope.images = data;
 
@@ -279,23 +299,7 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
             managerServices.getApp($routeParams.account, $routeParams.id).then(function(data){
                 $scope.app = data;
 
-                if ($scope.images.length > 0) {
-                    angular.forEach($scope.images, function(v,k) {
-                        if (v.id == $scope.app.image_id) {
-                            $scope.image = v;
-                            $scope.variables = $scope.image.variables;
-
-                            angular.forEach($scope.variables, function(v,k) {
-                                angular.forEach($scope.app.variables, function (myvar, mykey) {
-                                    if (myvar.name == v.name) {
-                                        v.value = myvar.value;
-                                    }
-                                })
-                            })
-                            return;
-                        }
-                    });
-                }
+                $scope.showVariables();
             });
         }else{
             $scope.app.memory=256;
@@ -307,42 +311,42 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
     });
 
     $scope.submit = function() {
-    angular.forEach($scope.variables, function(v,k) {
-        var found = false;
-        angular.forEach($scope.app.variables, function (myvar, mykey) {
-            if (myvar.name == v.name) {
-                found = true;
-                myvar.value = v.value;
+        angular.forEach($scope.variables, function(v,k) {
+            var found = false;
+            angular.forEach($scope.app.variables, function (myvar, mykey) {
+                if (myvar.name == v.name) {
+                    found = true;
+                    myvar.value = v.value;
+                }
+            });
+
+            if (!found) {
+                $scope.app.variables.push({
+                    'app_id': $scope.app.id,
+                    'name': v.name,
+                    'value': v.value
+                });
             }
         });
 
-        if (!found) {
-            $scope.app.variables.push({
-                'app_id': $scope.app.id,
-                'name': v.name,
-                'value': v.value
+        if ($scope.app.id === undefined) {
+            managerServices.addApp($routeParams.account, $scope.app).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/apps');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }else{
+            managerServices.editApp($routeParams.account, $scope.app.id, $scope.app).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/apps');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
             });
         }
-    });
-
-    if ($scope.app.id === undefined) {
-        managerServices.addApp($routeParams.account, $scope.app).then(function(data) {
-            $location.path('/a/'+$scope.account.name+'/apps');
-        },
-        function(err) {
-            $scope.errors = err.data.errors;
-            console.log(err);
-        });
-    }else{
-        managerServices.editApp($routeParams.account, $scope.app.id, $scope.app).then(function(data) {
-            $location.path('/a/'+$scope.account.name+'/apps');
-        },
-        function(err) {
-            $scope.errors = err.data.errors;
-            console.log(err);
-        });
     }
-}
 }]).
 controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.apps = [];

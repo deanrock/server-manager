@@ -114,6 +114,12 @@ run(function($rootScope, $location, $route, managerServices) {
     };
 
     $rootScope.$on("$locationChangeStart", function(event, next, current) {
+        var path = $location.path().split('/');
+        if (path[1] == 'a') {
+            managerServices.getAccountByName(path[2]).then(function(data){
+                $rootScope.account = data;
+            })
+        }
         console.log($location.path())
         $rootScope.path = $location.path();
     });

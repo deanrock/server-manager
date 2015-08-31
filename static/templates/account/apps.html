@@ -9,6 +9,7 @@
 		    <thead>
 		    <tr>
 		        <th>Name</th>
+		        <th></th>
 		        <th>Status</th>
 		        <th>Image</th>
 		        <th>Memory</th>
@@ -20,18 +21,18 @@
 		    </thead>
 		    <tbody>
 		        <tr ng-repeat="app in apps">
-		            <td><a href="/a/{{ account.name }}/apps/{{ app.id }}">{{app.name}}</a></td>
-		            <td>
+		            <td style="text-align:center"><a href="/a/{{ account.name }}/apps/{{ app.id }}">{{app.name}}</a></td>
+		            <td style="text-align:center">
 		                <span ng-if="app.up" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
 		                <span ng-if="!app.up" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
 		            </td>
-		            <td>{{app.status}}</td>
-		            <td>{{app.image_name}}</td>
-		            <td>{{app.memory}} M</td>
-		            <td><a href="/a/{{ account.name }}/apps/{{ app.id }}/logs" title="Show logs"><span class="glyphicon glyphicon glyphicon-list"></span></a></td>
-		            <td><a href="" ng-click="start(app)" title="Start"><span class="glyphicon glyphicon-play"></span></a></td>
-		            <td><a href="" ng-click="stop(app)" title="Stop"><span class="glyphicon glyphicon-stop"></span></a></a></td>
-		            <td><a href="" ng-click="redeploy(app)" title="Redeploy"><span class="glyphicon glyphicon-repeat"></span></a></a></td>
+		            <td style="text-align:center">{{app.status}}</td>
+		            <td style="text-align:center">{{app.image_name}}</td>
+		            <td style="text-align:center">{{app.memory}} M</td>
+		            <td style="text-align:center"><a href="/a/{{ account.name }}/apps/{{ app.id }}/logs" title="Show logs"><span class="glyphicon glyphicon glyphicon-list"></span></a></td>
+		            <td style="text-align:center"><a href="" ng-click="start(app)" title="Start"><span class="glyphicon glyphicon-play"></span></a></td>
+		            <td style="text-align:center"><a href="" ng-click="stop(app)" title="Stop"><span class="glyphicon glyphicon-stop"></span></a></a></td>
+		            <td style="text-align:center"><a href="" ng-click="redeploy(app)" title="Redeploy"><span class="glyphicon glyphicon-repeat"></span></a></a></td>
 		        </tr>
 		    </tbody>
 		</table>

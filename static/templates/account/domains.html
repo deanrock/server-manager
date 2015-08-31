@@ -15,9 +15,9 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="domain in domains">
-					<td><a href="/a/{{ account.name }}/domains/{{ domain.id }}">{{domain.name}}</a></td>
-					<td>{{domain.redirect_url}}</td>
-					<td><span ng-if="domain.apache_enabled" class="glyphicon glyphicon-ok"></span></td>
+					<td style="text-align:center"><a href="/a/{{ account.name }}/domains/{{ domain.id }}">{{domain.name}}</a></td>
+					<td style="text-align:center">{{domain.redirect_url}}</td>
+					<td style="text-align:center"><span ng-if="domain.apache_enabled" class="glyphicon glyphicon-ok"></span></td>
 				</tr>
 			</tbody>
 		</table>

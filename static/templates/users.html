@@ -1,16 +1,10 @@
 <div class="container">
     <h2>Users</h2>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="user in users">
-                <td><a href="/users/{{user.id}}">{{user.username}}</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <ul class="list-v2">
+        <li ng-repeat="user in users">
+            <a href="/users/{{user.id}}">
+                <div class="title">{{user.username}}</div>
+            </a>
+        </li>
+    </ul>
 </div>
