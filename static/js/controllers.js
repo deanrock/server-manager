@@ -343,6 +343,7 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
     });
 
     $scope.submit = function() {
+        console.log($scope.variables);
         angular.forEach($scope.variables, function(v,k) {
             var found = false;
             angular.forEach($scope.app.variables, function (myvar, mykey) {
@@ -353,6 +354,10 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
             });
 
             if (!found) {
+                if ($scope.app.variables === undefined) {
+                    $scope.app.variables = [];
+                }
+                
                 $scope.app.variables.push({
                     'app_id': $scope.app.id,
                     'name': v.name,
