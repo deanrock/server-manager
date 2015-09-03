@@ -23,11 +23,15 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"debian7basehosting",
 		"debian7baseshell",
 
+		"debian8base",
+
 		"php53-base-hosting",
 
 		"php56-base",
 		"php56-base-hosting",
 		"php56-base-shell",
+
+		"php7-base",
 
 		"python27-base",
 		"python27-base-shell",
@@ -46,6 +50,8 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 
 		"ruby22-base",
 		"ruby22-base-shell",
+
+		"manager-file-proxy",
 	}
 
 	c.JSON(200, images)

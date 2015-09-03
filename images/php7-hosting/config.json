@@ -1,0 +1,24 @@
+{
+    "id": 18,
+	"name": "php7-hosting",
+	"description": "latest php7 beta (beta 1)",
+	"type": "application",
+	"ports": [
+		{
+			"port": 9000,
+			"type": "fastcgi"
+		}
+	],
+	"variables": [
+		{
+			"name": "php_fpm_config",
+			"description": "custom php-fpm pool config (will be appended after default php-fpm pool config)",
+			"filename": "www.conf"
+		},
+		{
+			"name": "php_fpm_base_config",
+			"description": "custom php-fpm.conf (will be appended after default php-fpm pool config)",
+			"filename": "php-fpm.conf"
+		}
+	]
+}
