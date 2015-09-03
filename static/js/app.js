@@ -1,4 +1,4 @@
-var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'managerDirectives', 'angular-blocks', 'ui.ace', 'ui.bootstrap']);
+var app = angular.module('managerApp', ['ngRoute', 'managerControllers', 'managerServices', 'managerDirectives', 'angular-blocks', 'ui.ace', 'ui.bootstrap', 'angularMoment', 'ngSanitize']);
 
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider.

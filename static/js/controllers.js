@@ -116,6 +116,11 @@ controller('tasks', ['$scope', 'managerServices', '$location', function($scope, 
     managerServices.getTasks().then(function(data){
         data.reverse();
         $scope.tasks = data;
+
+        angular.forEach($scope.tasks, function(v, k) {
+            v.expandedVariables = JSON.parse(v.variables);
+            v.roundedDuration = Math.floor(v.duration);
+        });
     })
 }]).
 controller('getTask', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
@@ -124,10 +129,37 @@ controller('getTask', ['$scope', 'managerServices', '$location', '$routeParams',
 
     managerServices.getTask($routeParams.id).then(function(data){
         $scope.task = data;
+
+        var toShow = JSON.parse(JSON.stringify(data));
+        delete toShow.variables;
+        toShow.variables = JSON.parse($scope.task.variables);
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                 json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        $scope.vars = syntaxHighlight(toShow);
     });
 
     managerServices.getTaskLog($routeParams.id).then(function(data){
-        data.reverse();
         $scope.logs = data;
     });
 }]).

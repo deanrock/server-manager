@@ -1,22 +1,34 @@
 <div class="jumbotron account-menu">
-    <div class="container">
-        <h1>My tasks</h1>
-    </div>
+<div class="container">
+<h1>My tasks</h1>
+</div>
 </div>
 
 <div class="container">
-   
-   <table class="table">
 
-   <tr ng-repeat="task in tasks">
-       <td><a href="/tasks/{{task.id}}">#{{task.id}}</a></td>
-       <td>{{task.name}}</td>
-       <td>{{task.started_at}}</td>
-       <td>{{task.status}}</td>
-       <td>{{task.percent}}</td>
-       <td>{{task.duration}}</td>
-       <td>{{task.finished}}</td>
-   </tr>
-   </table>
+<ul class="tasks-list">
+    <li ng-repeat="task in tasks">
+        <a href="/tasks/{{task.id}}">
+            <div class="line"></div>
+            <div class="status" ng-class="{'success': task.success, 'failure': !task.success, 'waiting': !task.finished}" ><div class="circle"><div class="small"></div></div></div>
+            <div class="details">
+                <div class="left">
+                    <h3>{{task.name}} <span ng-if="task.name == 'redeploy-app'">({{task.expandedVariables.app.name}})</span></h3>
+                    <div class="completed" am-time-ago="task.added_at"></div>
+                    <div class="account">{{task.account_id}}</div>
+                    <div class="user">User: #{{task.added_by}}</div>
+                    <div class="id">Task: #{{task.id}}</div>
+                </div>
+                <div class="duration" ng-if="task.finished">
+                    <div>{{ task.roundedDuration }} seconds</div>
+                </div>
+            </div>
+        </a>
+    </li>
+    <li><a class="start">
+        <div class="line"></div>
+        <div><div class="circle"><div class="small"></div></div></div>
+    </a></li>
+</ul>
 <!--/row-->
 </div>

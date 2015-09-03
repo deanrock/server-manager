@@ -1,11 +1,11 @@
 <div class="jumbotron account-menu">
     <div class="container">
-        <h1>My tasks</h1>
+        <h1>Task #{{task.id}}</h1>
     </div>
 </div>
 
 <div class="container">
-   {{task}}
+   <div class="raw-json"><pre ng-bind-html="vars"></pre></div>
    <br /><br />
    <table class="table">
 
