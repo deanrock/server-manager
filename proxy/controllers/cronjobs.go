@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"gopkg.in/robfig/cron.v2"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"../models"
-	"time"
 	"../shared"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"gopkg.in/robfig/cron.v2"
+	"time"
 )
 
 type CronJobsAPI struct {
@@ -26,7 +26,7 @@ func (api *CronJobsAPI) GetCronjob(c *gin.Context) {
 	var cronjob models.CronJob
 	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, c.Params.ByName("id")).First(&cronjob).Error; err != nil {
 		c.String(404, "")
-	}else{
+	} else {
 		c.JSON(200, cronjob)
 	}
 }
@@ -51,13 +51,13 @@ func (api *CronJobsAPI) validate(c *gin.Context) (*models.CronJobForm, *shared.F
 
 	if form.Timeout <= 0 {
 		fe.Add("timeout", "Timeout must be more than 0 seconds.")
-	}else if form.Timeout > 3600 {
+	} else if form.Timeout > 3600 {
 		fe.Add("timeout", "Timeout must be less than or equal 3600 seconds.")
 	}
 
 	if form.Cron_expression == "" {
 		fe.Add("cron_expression", "This field is required.")
-	}else{
+	} else {
 		if _, err := cron.Parse(form.Cron_expression); err != nil {
 			fe.Add("cron_expression", fmt.Sprintf("Invalid cron expression: %s.", err))
 		}
@@ -87,16 +87,16 @@ func (api *CronJobsAPI) AddCronjob(c *gin.Context) {
 	}
 
 	cx := models.CronJob{
-		Name: form.Name,
-		Directory: form.Directory,
-		Command: form.Command,
-		Timeout: form.Timeout,
+		Name:            form.Name,
+		Directory:       form.Directory,
+		Command:         form.Command,
+		Timeout:         form.Timeout,
 		Cron_expression: form.Cron_expression,
-		Image: form.Image,
-		Account_id: a.Id,
-		Enabled: form.Enabled,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Image:           form.Image,
+		Account_id:      a.Id,
+		Enabled:         form.Enabled,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	api.Context.PersistentDB.Save(&cx)
@@ -129,8 +129,24 @@ func (api *CronJobsAPI) EditCronjob(c *gin.Context) {
 	cronjob.Account_id = a.Id
 	cronjob.Enabled = form.Enabled
 	cronjob.UpdatedAt = time.Now()
+	cronjob.Success = false //default to false
 
 	api.Context.PersistentDB.Save(&cronjob)
 
 	c.JSON(200, cronjob)
+}
+
+func (api *CronJobsAPI) GetCronjobLog(c *gin.Context) {
+	a := models.AccountFromContext(c)
+
+	var cronjob models.CronJob
+	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, c.Params.ByName("id")).First(&cronjob).Error; err != nil {
+		c.String(404, "")
+		return
+	}
+
+	var cronjobs []models.CronJobLog
+	api.Context.PersistentDB.Where("cron_job_id = ?", cronjob.Id).Find(&cronjobs)
+
+	c.JSON(200, cronjobs)
 }

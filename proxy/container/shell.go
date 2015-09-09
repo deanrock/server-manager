@@ -37,6 +37,7 @@ type Shell struct {
 	DockerClient *docker.Client
 	ContainerID  string
 	Environment  string
+	WorkingDir   string
 
 	// inFd holds file descriptor of the client's STDIN, if it's a valid file
 	InFd uintptr
@@ -153,13 +154,17 @@ type AttachOptions struct {
 }
 
 func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error) {
+	if shell.WorkingDir == "" {
+		shell.WorkingDir = fmt.Sprintf("/home/%s/", shell.AccountName)
+	}
 	container, err := shell.DockerClient.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
-			OpenStdin: true,
-			Tty:       shell.Tty,
-			Cmd:       shell.Cmd,
-			Image:     "manager/" + shellImage,
-			Hostname:  shell.Environment,
+			OpenStdin:  true,
+			Tty:        shell.Tty,
+			Cmd:        shell.Cmd,
+			Image:      "manager/" + shellImage,
+			Hostname:   shell.Environment,
+			WorkingDir: shell.WorkingDir,
 		},
 	})
 

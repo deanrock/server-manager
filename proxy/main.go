@@ -333,6 +333,7 @@ func main() {
 	sharedContext.OpenDB("../manager/db.sqlite3")
 	sharedContext.PersistentDB.LogMode(true)
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
+	sharedContext.PersistentDB.AutoMigrate(&models.CronJobLog{})
 	sharedContext.PersistentDB.AutoMigrate(&models.UserAccess{})
 	sharedContext.PersistentDB.Model(&models.UserAccess{}).AddUniqueIndex("idx_user_account", "user_id", "account_id")
 	sharedContext.PersistentDB.AutoMigrate(&models.Task{})
@@ -473,6 +474,7 @@ func main() {
 
 			requiresAccount.GET("/cronjobs", RequireUserAccess("cronjob_access"), cronJobs.ListCronjobs)
 			requiresAccount.GET("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.GetCronjob)
+			requiresAccount.GET("/cronjobs/:id/log", RequireUserAccess("cronjob_access"), cronJobs.GetCronjobLog)
 			requiresAccount.PUT("/cronjobs/:id", RequireUserAccess("cronjob_access"), cronJobs.EditCronjob)
 			requiresAccount.POST("/cronjobs", RequireUserAccess("cronjob_access"), cronJobs.AddCronjob)
 
