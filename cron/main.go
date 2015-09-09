@@ -11,11 +11,11 @@ import (
 	"github.com/fsouza/go-dockerclient"
 	"gopkg.in/robfig/cron.v2"
 	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
-	//"github.com/jinzhu/gorm"
 )
 
 var sharedContext *shared.SharedContext
@@ -173,6 +173,14 @@ func (f FuncJob) Run() {
 }
 
 func main() {
+	f, err := os.OpenFile("/var/log/manager/cron.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+
 	sharedContext = &shared.SharedContext{}
 	sharedContext.OpenDB("../manager/db.sqlite3")
 
