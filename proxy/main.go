@@ -338,6 +338,7 @@ func main() {
 	sharedContext.PersistentDB.Model(&models.UserAccess{}).AddUniqueIndex("idx_user_account", "user_id", "account_id")
 	sharedContext.PersistentDB.AutoMigrate(&models.Task{})
 	sharedContext.PersistentDB.AutoMigrate(&models.TaskLog{})
+	sharedContext.PersistentDB.AutoMigrate(&models.SSHPassword{})
 	sharedContext.WebsocketHandler = realtime.NewWebsocketHandler()
 
 	//go-dockerclient
@@ -488,6 +489,15 @@ func main() {
 			requiresAccount.PUT("/domains/:id", RequireUserAccess("domain_access"), domains.EditDomain)
 			requiresAccount.DELETE("/domains/:id", RequireUserAccess("domain_access"), domains.DeleteDomain)
 			requiresAccount.POST("/domains", RequireUserAccess("domain_access"), domains.EditDomain)
+
+			//ssh passwords
+			sshPasswords := &controllers.SSHPasswordsAPI{
+				Context: sharedContext,
+			}
+
+			requiresAccount.GET("/ssh-passwords", RequireStaff(), sshPasswords.ListPasswords)
+			requiresAccount.DELETE("/ssh-passwords/:id", RequireStaff(), sshPasswords.DeletePassword)
+			requiresAccount.POST("/ssh-passwords", RequireStaff(), sshPasswords.AddPassword)
 		}
 
 		//users

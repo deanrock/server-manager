@@ -14,14 +14,15 @@
 					<th>Image</th>
 					<th>Timeout</th>
 					<th>Enabled</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="cronjob in cronjobs">
 					<td><a href="/a/{{ account.name }}/cronjobs/{{ cronjob.id }}">{{cronjob.name}}</a></td>
 					<td>
-						<span ng-if="cronjob.last_execution_status" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
-						<span ng-if="!cronjob.last_execution_status" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
+						<span ng-if="cronjob.success" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
+						<span ng-if="!cronjob.success" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
 					</td>
 					<td>{{cronjob.cron_expression}}</td>
 					<td>{{cronjob.image}}</td>
@@ -30,6 +31,7 @@
 						<span ng-if="cronjob.enabled" class="glyphicon glyphicon-ok-sign" style="color:green"></span>
 						<span ng-if="!cronjob.enabled" class="glyphicon glyphicon-minus-sign" style="color:red"></span>
 					</td>
+					<td style="text-align:center"><a href="/a/{{ account.name }}/cronjobs/{{ cronjob.id }}/logs" title="Show logs"><span class="glyphicon glyphicon glyphicon-list"></span></a></td>
 				</tr>
 			</tbody>
 		</table>

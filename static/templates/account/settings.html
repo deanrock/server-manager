@@ -1,0 +1,49 @@
+<script type="text/ng-template" id="settings_passwords_delete.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Do you really want to delete SSH password {{password.description}}?</h3>
+    </div>
+    <div class="modal-body">
+        
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="confirm" name="confirmation" value="yes"> Yes, I would like to delete this SSH password
+                    </label>
+                </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="delete()">Delete</button>
+    </div>
+</script>
+
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
+   		<div ng-if="profile.user.is_staff">
+	   		<h3 style="margin-top:0px">SSH Passwords</h3>
+			<div style="text-align:right">
+				<a href="/a/{{account.name}}/settings/passwords/add" class="btn btn-default btn" role="button">Add password</a>
+			</div>
+			<br />
+
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Description</th>
+						<th>Added by</th>
+						<th>Added at</th>
+						<th>Delete</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="password in passwords">
+						<td style="text-align:center">{{password.description}}</td>
+						<td style="text-align:center">{{password.added_by}}</td>
+						<td style="text-align:center">{{password.created_at}}</td>
+						<td style="text-align:center"><a href="" ng-click="deletePasswordDialog(password)"><span class="glyphicon glyphicon-remove"></span></a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+    </div>
+</div>

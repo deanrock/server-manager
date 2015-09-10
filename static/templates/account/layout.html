@@ -9,6 +9,7 @@
             <a href="/a/{{ account.name }}/domains" class="list-group-item" ng-show="account.access.domain_access == true" ng-class="{active: action=='domains'}" force-reload>Domains</a>
             <a href="/a/{{ account.name }}/databases" class="list-group-item" ng-show="account.access.database_access == true" ng-class="{active: action=='databases'}" force-reload>Databases</a>
             <a href="/a/{{ account.name }}/cronjobs" class="list-group-item" ng-show="account.access.cronjob_access == true" ng-class="{active: action=='cronjobs'}" force-reload>Cronjobs</a>
+            <a href="/a/{{ account.name }}/settings" class="list-group-item" ng-show="profile.user.is_staff" ng-class="{active: action=='settings'}" force-reload>Settings</a>
         </div>
     </div>
 

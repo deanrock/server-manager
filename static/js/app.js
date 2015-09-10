@@ -90,6 +90,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/account/domains_edit.html',
         controller: 'accountDomainEdit',
     }).
+    when('/a/:account/settings', {
+        templateUrl: 'static/templates/account/settings.html',
+        controller: 'accountSettings',
+    }).
+    when('/a/:account/settings/passwords/add', {
+        templateUrl: 'static/templates/account/settings_passwords_edit.html',
+        controller: 'accountSettingsPasswordAdd',
+    }).
     when('/a/:account/:action', {
         templateUrl: 'static/templates/account/frame.html',
         controller: 'account',

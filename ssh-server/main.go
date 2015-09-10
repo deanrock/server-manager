@@ -28,6 +28,29 @@ import (
 
 var sharedContext *shared.SharedContext
 
+func passwordAuth(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
+	account := models.GetAccountByName(conn.User(), sharedContext)
+
+	log.Println(conn.RemoteAddr(), "authenticate user", conn.User(), "with password")
+
+	if account == nil {
+		err := errors.New(fmt.Sprintf("unknown account %s", conn.User()))
+		log.Println(err)
+		return nil, err
+	}
+
+	var passwords []models.SSHPassword
+	sharedContext.PersistentDB.Where("account_id = ?", account.Id).Find(&passwords)
+
+	for _, p := range passwords {
+		if p.Password == string(password) && len(string(password)) >= 10 {
+			return nil, nil
+		}
+	}
+
+	return nil, errors.New("cannot authenticate user")
+}
+
 func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
 	account := models.GetAccountByName(conn.User(), sharedContext)
 
@@ -390,6 +413,7 @@ func main() {
 
 	config := ssh.ServerConfig{
 		PublicKeyCallback: keyAuth,
+		PasswordCallback:  passwordAuth,
 	}
 	config.AddHostKey(keySigner)
 

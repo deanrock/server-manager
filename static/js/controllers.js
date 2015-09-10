@@ -924,4 +924,72 @@ controller('accountDomainEditDeleteDialog', ['$scope', '$modalInstance', 'form',
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+}]).
+controller('accountSettings', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', '$route', function($scope, managerServices, $location, $routeParams, $modal, $route) {
+    $scope.action = 'settings';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getSSHPasswords($routeParams.account).then(function(data) {
+        $scope.passwords = data;
+    });
+
+    $scope.deletePasswordDialog = function(password) {
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'settings_passwords_delete.html',
+            controller: 'accountSettingsPasswordDeleteDialog',
+            size: '',
+            resolve: {
+                password: function () {
+                    return password;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (f) {
+            managerServices.deleteSSHPassword($routeParams.account, f.id).then(function(data) {
+                $route.reload();
+            }, function(err) {
+                console.log(err);
+            });
+        }, function () {
+
+        });
+    };
+}]).
+controller('accountSettingsPasswordAdd', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'settings';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    $scope.form = {};
+
+    $scope.submit = function() {
+        managerServices.addSSHPassword($routeParams.account, $scope.form).then(function(data) {
+            $location.path('/a/'+$scope.account.name+'/settings');
+        },
+        function(err) {
+            $scope.errors = err.data.errors;
+            console.log(err);
+        });
+    }
+}]).
+controller('accountSettingsPasswordDeleteDialog', ['$scope', '$modalInstance', 'password', function ($scope, $modalInstance, password) {
+    $scope.password = password;
+    $scope.confirm = false;
+
+    $scope.delete = function () {
+        if ($scope.confirm) {
+            $modalInstance.close($scope.password);
+        }
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 }]);

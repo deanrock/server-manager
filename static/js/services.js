@@ -265,6 +265,27 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getSSHPasswords: function(name) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/ssh-passwords').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addSSHPassword: function(name, params) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/ssh-passwords', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        deleteSSHPassword: function(name, id) {
+            var resp = $http.delete('/api/v1/accounts/'+name+'/ssh-passwords/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getSyncImages: function() {
             var resp = $http.get('/api/v1/sync/images').
             then(function(response) {
