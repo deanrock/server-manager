@@ -496,6 +496,26 @@ controller('accountCronjobs', ['$scope', 'managerServices', '$location', '$route
         $scope.cronjobs = data;
     });
 }]).
+controller('accountCronjobLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'cronjobs';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getCronjob($routeParams.account, $routeParams.id).then(function(data) {
+        $scope.cronjob = data;
+
+        managerServices.getCronjobLog($routeParams.account, $routeParams.id).then(function(data) {
+            data = data.reverse();
+
+            angular.forEach(data, function(v, k) {
+                v.roundedDuration = Math.floor(v.elapsed_time);
+            })
+            $scope.logs = data;
+        });
+    });
+}]).
 controller('accountCronjobAdd', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.action = 'cronjobs';
     $scope.form = {

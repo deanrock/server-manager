@@ -1,0 +1,32 @@
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
+<h3 style="margin-top: 0px">Cronjob {{cronjob.name}}</h3>
+
+
+  <div class="container">
+
+  <ul class="tasks-list">
+      <li ng-repeat="log in logs">
+         
+              <div class="line"></div>
+              <div class="status" ng-class="{'success': log.success, 'failure': !log.success, 'waiting': log.elapsed_time <= 0}" ><div class="circle"><div class="small"></div></div></div>
+              <div class="details">
+                  <div class="left">
+                      <div class="completed" am-time-ago="log.added_at"></div>
+                      <div class="user" ng-if="log.elapsed_time > 0">Success: {{log.success}}</div>
+                      <div class="log" ng-if="log.elapsed_time > 0">Response:<br />{{log.log}}</div>
+                  </div>
+                  <div class="duration" ng-if="log.elapsed_time > 0">
+                      <div>{{ log.roundedDuration }} seconds</div>
+                  </div>
+              </div>
+         
+      </li>
+      <li><a class="start">
+          <div class="line"></div>
+          <div><div class="circle"><div class="small"></div></div></div>
+      </a></li>
+  </ul>
+  <!--/row-->
+  </div>
+</div>

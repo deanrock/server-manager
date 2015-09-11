@@ -195,6 +195,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getCronjobLog: function(name, id) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/cronjobs/'+id+'/log').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getUsers: function() {
             var resp = $http.get('/api/v1/users').
             then(function(response) {

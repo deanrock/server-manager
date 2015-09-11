@@ -575,6 +575,7 @@ func main() {
 	r.Static("/static/bootstrap", "../static/bootstrap")
 	r.Static("/static/css", "../static/css")
 	r.Static("/static/js", "../static/js")
+	r.Static("/static/images", "../static/images")
 	r.Static("/static/vendor", "../static/vendor")
 	r.Static("/static/templates", "../static/templates")
 	r.Static("/static/admin", "../env/lib/python2.7/site-packages/django/contrib/admin/static/admin")
