@@ -1,0 +1,18 @@
+{
+    "id": 19,
+	"name": "rabbitmq",
+	"description": "rabbitmq instance",
+	"type": "database",
+	"ports": [
+		{
+			"port": 5672,
+			"type": "tcp"
+		},
+		{
+			"port": 15672,
+			"type": "tcp"
+		}
+	],
+	"variables": [
+	]
+}
