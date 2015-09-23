@@ -34,6 +34,8 @@ func StartContainer(account *models.Account, context *shared.SharedContext, dock
 			if image.Type != "database" {
 				linkOtherApps = true
 			}
+		} else {
+			linkOtherApps = true
 		}
 
 		if linkOtherApps {
