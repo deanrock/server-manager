@@ -300,6 +300,7 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 		task.Success = success
 		api.Context.PersistentDB.Save(&task)
 		task.NotifyUser(*api.Context, user)
+		c.JSON(200, task)
 	}()
 
 	//get image
@@ -495,7 +496,7 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 		HostConfig: &docker.HostConfig{
 			RestartPolicy: docker.RestartPolicy{
 				Name:              "always",
-				MaximumRetryCount: 0,
+				MaximumRetryCount: 100,
 			},
 		},
 		Name: name,
@@ -516,6 +517,4 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 	//TODO: create task that will reload nginx/apache config
 
 	success = true
-
-	c.JSON(200, task)
 }
