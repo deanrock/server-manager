@@ -65,8 +65,8 @@ Development env setup
 	$ source ~/virtualenv/ansible/bin/activate #or wherever you have ansible env
 	$ ansible-playbook -i dev.hosts deploy.yml
 
-5. ansible probably won't detect when VM reboots after kernel install and will stall at "docker | kernel - wait for reboot"; after waiting a minute or so it's safe retry the playbook
-6. after ansible finishes restart the VM (you NEED to do this via vagrant halt/vagrant up, otherwise VBox extension won't be reinstalled)
+5. ansible probably won't detect when VM reboots after kernel install and will stall at "docker | kernel - wait for reboot"; after waiting a minute or so it's safe to retry the playbook
+6. after ansible finishes restarting the VM (you NEED to do this via vagrant halt/vagrant up, otherwise VBox extension won't be reinstalled)
 
 	$ vagrant halt
 	$ vagrant up
@@ -86,7 +86,7 @@ Development env setup
 	(vagrant)$ cd files/
 	(vagrant)$ ./pull.sh dev
 
-9. workaround because we are not "manager" user:
+9. workaround because we are not using "manager" user:
 
 	(vagrant)$ sudo chmod 775 /var/log/manager/
 
