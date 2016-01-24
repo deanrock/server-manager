@@ -125,14 +125,18 @@ func (api *AppsAPI) EditApp(c *gin.Context) {
 	api.Context.PersistentDB.Save(&app)
 
 	for _, variable := range form.Variables {
-		v := models.AppVariable{}
-		if err := api.Context.PersistentDB.Where("app_id=? AND name=?", app.Id, variable.Name).First(&v).Error; err != nil {
-			v.Name = variable.Name
-			v.App_id = app.Id
-		}
+		if variable.Value == "" {
+			api.Context.PersistentDB.Where("app_id=? AND name=?", app.Id, variable.Name).Delete(models.AppVariable{})
+		} else {
+			v := models.AppVariable{}
+			if err := api.Context.PersistentDB.Where("app_id=? AND name=?", app.Id, variable.Name).First(&v).Error; err != nil {
+				v.Name = variable.Name
+				v.App_id = app.Id
+			}
 
-		v.Value = variable.Value
-		api.Context.PersistentDB.Save(&v)
+			v.Value = variable.Value
+			api.Context.PersistentDB.Save(&v)
+		}
 	}
 }
 

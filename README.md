@@ -88,7 +88,7 @@ Development env setup
 
 9. workaround because we are not using "manager" user:
 
-	(vagrant)$ sudo chmod 775 /var/log/manager/
+	(vagrant)$ sudo chmod -R 777 /var/log/manager/
 
 10. change mysql password (set to 'password' for dev) and remove test data:
 	
