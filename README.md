@@ -94,6 +94,11 @@ Development env setup
 	
 	(vagrant)$ mysql_secure_installation
 
+11. create symbolic link to images/ folder
+	
+	(vagrant)$ sudo mkdir /home/manager/server-manager/
+	(vagrant)$ sudo ln -s /home/vagrant/files/images /home/manager/server-manager/images
+
 
 Your dev env should be kinda ready.
 

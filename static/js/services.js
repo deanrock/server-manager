@@ -306,6 +306,13 @@ srv.factory('managerServices', function($http) {
                 return response.data;
             });
             return resp;
+        },
+        forceSyncImage: function(name) {
+            var resp = $http.post('/api/v1/sync/images/'+name+'?no-cache=true').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
         }
     }
     return managerServices;

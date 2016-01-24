@@ -85,3 +85,6 @@ ssl.key
 id_rsa
 id_rsa.pub
 static/css/.sass-cache
+
+go-libs/pkg/
+

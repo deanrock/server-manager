@@ -57,3 +57,13 @@ RUN apt-get install -y fontconfig libxrender1 xfonts-base xfonts-75dpi && \
 	cd /tmp && \
 	wget -O wkhtmltox.deb  http://download.gna.org/wkhtmltopdf/0.12/0.12.2.1/wkhtmltox-0.12.2.1_linux-wheezy-amd64.deb && \
 	dpkg -i wkhtmltox.deb
+
+RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src/python344.tgz https://www.python.org/ftp/python/3.4.4/Python-3.4.4.tgz \
+    && cd /usr/local/src && tar xvfz python344.tgz && cd /usr/local/src/Python-3.4.4 && ./configure --prefix=/usr/local/opt/python-3.4 \
+    && make && make install
+
+RUN apt-get install -y libffi-dev libmysqlclient-dev libmemcached-dev
+
+RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src/python351.tgz https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz \
+    && cd /usr/local/src && tar xvfz python351.tgz && cd /usr/local/src/Python-3.5.1 && ./configure --prefix=/usr/local/opt/python-3.5 \
+    && make && make install

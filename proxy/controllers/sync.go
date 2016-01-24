@@ -21,7 +21,6 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 	images := [...]string{
 		"debian7base",
 		"debian7basehosting",
-		"debian7baseshell",
 
 		"debian8base",
 
@@ -36,8 +35,8 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"python27-base",
 		"python27-base-shell",
 
-		"python34-base",
 		"python34-base-shell",
+		"python35-base-shell",
 
 		"java8-base",
 		"java8-base-shell",
@@ -59,6 +58,11 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 
 func (api *SyncAPI) SyncImage(c *gin.Context) {
 	name := c.Params.ByName("name")
+
+	no_cache := false
+	if c.Query("no-cache") == "true" {
+		no_cache = true
+	}
 
 	//TODO: check that image name only contains A-z0-9-.
 
@@ -91,7 +95,7 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 		buf := bytes.NewBuffer(nil)
 		opts := docker.BuildImageOptions{
 			Name:                fmt.Sprintf("manager/%s", name),
-			NoCache:             true,
+			NoCache:             no_cache,
 			RmTmpContainer:      true,
 			ForceRmTmpContainer: true,
 			OutputStream:        buf,
@@ -99,6 +103,8 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 			SuppressOutput:      false,
 			ContextDir:          fmt.Sprintf("../images/%s/", name),
 		}
+
+		task.Log(fmt.Sprintf("using no-cache: %t", no_cache), "info", api.Context)
 
 		//call build image API
 		err := api.Context.DockerClient.BuildImage(opts)

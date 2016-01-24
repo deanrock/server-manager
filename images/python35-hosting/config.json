@@ -1,0 +1,30 @@
+{
+    "id": 20,
+	"name": "python35-hosting",
+	"description": "python3.5 hosting (e.g. Tornado, Twisted,...)",
+	"type": "application",
+	"ports": [
+		{
+			"port": 8080,
+			"type": "http"
+		}
+	],
+	"variables": [
+		{
+			"name": "chdir_path",
+			"description": "path to chdir to before running gunicorn (e.g. /home/<user>/domains/example.com/)"
+		},
+		{
+			"name": "command",
+			"description": "Command to run (e.g. python application.py)"
+		},
+		{
+			"name": "virtualenv_path",
+			"description": "path to virtual environemnt, relative to chdir_path (e.g. ./env/)"
+		},
+		{
+			"name": "requirements_file",
+			"description": "path to requirements.txt file to use with pip (e.g. app/requirements.txt)"
+		}
+	]
+}

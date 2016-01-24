@@ -622,6 +622,14 @@ controller('syncImages', ['$scope', 'managerServices', '$location', '$routeParam
             console.log('an error occured')
         })
     }
+
+    $scope.force_sync = function(image) {
+        managerServices.forceSyncImage(image).then(function(data) {
+            console.log('starting to force sync ... i guess')
+        }, function(err) {
+            console.log('an error occured')
+        })
+    }
 }]).
 controller('account', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.suburl = '/frame' + $location.path();
