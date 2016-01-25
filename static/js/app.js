@@ -78,10 +78,6 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/account/apps_logs.html',
         controller: 'accountAppLogs',
     }).
-    when('/a/:account/apps/:id/:action', {
-        templateUrl: 'static/templates/account/apps_action.html',
-        controller: 'accountAppAction',
-    }).
     when('/a/:account/domains', {
         templateUrl: 'static/templates/account/domains.html',
         controller: 'accountDomains',

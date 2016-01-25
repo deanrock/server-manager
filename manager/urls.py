@@ -12,9 +12,6 @@ urlpatterns = patterns('',
     
     url(r'^action/(?P<action>.*)$', 'manager.views.action_ajax'),
 
-    #django apis
-    url(r'^djapi/v1/accounts/(?P<name>[a-z0-9-]+)/apps/(?P<app>[0-9]+)/(?P<action>[a-z]+)/ajax', 'manager.views.account_apps_action_ajax'),
-
     #admin
     url(r'^admin/', include(admin.site.urls)),
 )

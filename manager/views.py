@@ -29,27 +29,6 @@ def action_ajax(request, action):
 
 
 @login_required
-@csrf_exempt
-def account_apps_action_ajax(request, name, app, action):
-    account = Account.objects.filter(name=name).first()
-    app = account.apps.filter(id=app).first()
-
-    logs = actions.Logs()
-
-    logs.add("app %s, account %s, container name %s" % (app.name, app.account.name, app.container_name()))
-
-    if action == 'redeploy':
-        logs.append(app.redeploy())
-    elif action == 'stop':
-        logs.add(app.stop())
-    elif action == 'start':
-        logs.add(app.start())
-
-    data = json.dumps(logs.logs)
-    return HttpResponse(data, content_type='application/json')
-
-
-@login_required
 def account_databases(request, name):
     return render_to_response('account/databases.html',
                               {
