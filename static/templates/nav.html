@@ -18,13 +18,13 @@
                 <ul class="dropdown-menu" role="menu">
                 <li><a href="/sync/users/">Sync users</a></li>
                 <li><a href="/sync/databases/">Sync databases</a></li>
-                <li><a href="/sync/nginx-apache/">Update nginx/apache config</a></li>
-                <li class="divider"></li>
-               <li><a href="/sync/images">Rebuild base Docker images</a></li>
+                <li><a href="" ng-if="profile.user.is_staff" ng-click="syncWebServers()">Sync web servers</a></li>
+                <li ng-if="profile.user.is_staff" class="divider"></li>
+               <li><a ng-if="profile.user.is_staff" href="/sync/images">Rebuild base Docker images</a></li>
                 </ul>
             </li>
-            <li><a href="/users/">Users</a></li>
-            <li><a href="" ng-click="djangoAdmin()">Django Admin</a></li>
+            <li><a ng-if="profile.user.is_staff" href="/users/">Users</a></li>
+            <li><a href="" ng-if="profile.user.is_staff" ng-click="djangoAdmin()">Django Admin</a></li>
 
           </ul>
 

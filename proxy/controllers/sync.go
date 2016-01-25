@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"../container"
+	"../helpers"
 	"../models"
 	"../shared"
 	"bytes"
@@ -132,4 +133,28 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 	}(c.MustGet("user").(models.User).Id)
 
 	c.String(200, "")
+}
+
+func (api *SyncAPI) SyncWebServers(c *gin.Context) {
+	user := c.MustGet("user").(models.User).Id
+
+	//create task
+	task := models.NewTask("sync-web-servers", string("{}"), user)
+	api.Context.PersistentDB.Save(&task)
+	task.NotifyUser(*api.Context, user)
+
+	var success = false
+	defer func() {
+		task.Duration = time.Now().Sub(task.Added_at).Seconds()
+		task.Finished = true
+		task.Success = success
+		api.Context.PersistentDB.Save(&task)
+		task.NotifyUser(*api.Context, user)
+	}()
+
+	success = helpers.SyncWebServers(api.Context, task, nil)
+
+	if success {
+		c.String(200, "")
+	}
 }

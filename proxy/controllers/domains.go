@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"../helpers"
+	"../models"
+	"../shared"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"../models"
 	"time"
-	"../shared"
 )
 
 type DomainsAPI struct {
@@ -24,7 +25,7 @@ func (api *DomainsAPI) GetDomain(c *gin.Context) {
 	var domain models.Domain
 	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, c.Params.ByName("id")).Find(&domain).Error; err != nil {
 		c.String(404, "")
-	}else{
+	} else {
 		c.JSON(200, domain)
 	}
 }
@@ -57,7 +58,7 @@ func (api *DomainsAPI) EditDomain(c *gin.Context) {
 			c.String(404, "")
 			return
 		}
-	}else{
+	} else {
 		domain.Added_at = time.Now()
 		domain.Added_by_id = c.MustGet("user").(models.User).Id
 	}
@@ -83,7 +84,7 @@ func (api *DomainsAPI) EditDomain(c *gin.Context) {
 func (api *DomainsAPI) DeleteDomain(c *gin.Context) {
 	a := models.AccountFromContext(c)
 	id := c.Params.ByName("id")
-	
+
 	var domain models.Domain
 
 	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, id).First(&domain).Error; err != nil {
@@ -92,4 +93,16 @@ func (api *DomainsAPI) DeleteDomain(c *gin.Context) {
 	}
 
 	api.Context.PersistentDB.Delete(&domain)
+}
+
+func (api *DomainsAPI) SyncDomains(c *gin.Context) {
+	account := models.GetAccountByName(c.Params.ByName("name"), api.Context)
+
+	user := c.MustGet("user").(models.User).Id
+
+	success := helpers.SyncWebServersForAccount(account, user, api.Context)
+
+	if success {
+		c.String(200, "")
+	}
 }

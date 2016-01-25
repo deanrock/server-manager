@@ -272,6 +272,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        syncDomains: function(name, id) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/domains/sync').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getSSHPasswords: function(name) {
             var resp = $http.get('/api/v1/accounts/'+name+'/ssh-passwords').
             then(function(response) {
@@ -313,7 +320,14 @@ srv.factory('managerServices', function($http) {
                 return response.data;
             });
             return resp;
-        }
+        },
+        syncWebServers: function(name) {
+            var resp = $http.post('/api/v1/sync/web-servers').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
     }
     return managerServices;
 });

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"../container"
+	"../helpers"
 	"../models"
 	"../shared"
 	"archive/tar"
@@ -518,7 +519,8 @@ func (api *AppsAPI) RedeployApp(c *gin.Context) {
 		return
 	}
 
-	//TODO: create task that will reload nginx/apache config
+	// reload web servers' config
+	go helpers.SyncWebServersForAccount(a, user, api.Context)
 
 	success = true
 }

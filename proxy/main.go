@@ -406,30 +406,7 @@ func main() {
 
 		//images
 		authorized.GET("/api/v1/images", func(c *gin.Context) {
-			var images []models.Image
-			sharedContext.PersistentDB.Find(&images)
-
-			var ports []models.ImagePort
-			sharedContext.PersistentDB.Find(&ports)
-
-			for k, i := range images {
-				for _, v := range ports {
-					if v.Image_id == i.Id {
-						images[k].Ports = append(images[k].Ports, v)
-					}
-				}
-			}
-
-			var variables []models.ImageVariable
-			sharedContext.PersistentDB.Find(&variables)
-
-			for k, i := range images {
-				for _, v := range variables {
-					if v.Image_id == i.Id {
-						images[k].Variables = append(images[k].Variables, v)
-					}
-				}
-			}
+			images := models.GetImages(sharedContext)
 
 			c.JSON(200, images)
 		})
@@ -489,6 +466,7 @@ func main() {
 			requiresAccount.PUT("/domains/:id", RequireUserAccess("domain_access"), domains.EditDomain)
 			requiresAccount.DELETE("/domains/:id", RequireUserAccess("domain_access"), domains.DeleteDomain)
 			requiresAccount.POST("/domains", RequireUserAccess("domain_access"), domains.EditDomain)
+			requiresAccount.POST("/domains/sync", RequireUserAccess("domain_access"), domains.SyncDomains)
 
 			//ssh passwords
 			sshPasswords := &controllers.SSHPasswordsAPI{
@@ -523,6 +501,7 @@ func main() {
 
 		authorized.GET("/api/v1/sync/images", RequireStaff(), sync.GetImages)
 		authorized.POST("/api/v1/sync/images/:name", RequireStaff(), sync.SyncImage)
+		authorized.POST("/api/v1/sync/web-servers", RequireStaff(), sync.SyncWebServers)
 
 		//tasks
 		tasks := &controllers.TasksAPI{

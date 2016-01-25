@@ -5,6 +5,14 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
     $scope.djangoAdmin = function() {
         $window.location = '/admin'
     }
+
+    $scope.syncWebServers = function() {
+        managerServices.syncWebServers().then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
 }]).
 controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', '$location', function($scope, $rootScope, managerServices, $window, $interval, $location) {
     $scope.tasks = [];
@@ -831,6 +839,12 @@ controller('accountDomains', ['$scope', 'managerServices', '$location', '$routeP
     managerServices.getDomains($routeParams.account).then(function(data) {
         $scope.domains = data;
     });
+
+    $scope.syncDomains = function() {
+        managerServices.syncDomains($routeParams.account).then(function(data) {
+
+        });
+    }
 }]).
 controller('accountDomainEdit', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', function($scope, managerServices, $location, $routeParams, $modal) {
     $scope.action = 'domains';
