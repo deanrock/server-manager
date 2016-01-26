@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"../container"
-	"../helpers"
 	"../models"
 	"../shared"
 	"archive/tar"
@@ -380,7 +379,7 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 	}
 
 	// reload web servers' config
-	go helpers.SyncWebServersForAccount(a, user, context)
+	go SyncWebServersForAccount(a, user, context)
 
 	success = true
 

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"../helpers"
 	"../models"
 	"../shared"
+	"../tasks"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"time"
@@ -100,9 +100,7 @@ func (api *DomainsAPI) SyncDomains(c *gin.Context) {
 
 	user := c.MustGet("user").(models.User).Id
 
-	success := helpers.SyncWebServersForAccount(account, user, api.Context)
+	task := tasks.SyncWebServersForAccount(account, user, api.Context)
 
-	if success {
-		c.String(200, "")
-	}
+	c.JSON(200, task)
 }

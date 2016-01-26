@@ -15,7 +15,6 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
-	"time"
 )
 
 func removeConfigFiles(path string, prefix string) error {
@@ -33,32 +32,6 @@ func removeConfigFiles(path string, prefix string) error {
 	}
 
 	return nil
-}
-
-func SyncWebServersForAccount(account *models.Account, user int, sharedContext *shared.SharedContext) bool {
-	data, _ := json.Marshal(struct {
-		Account models.Account `json:"account"`
-	}{
-		Account: *account,
-	})
-
-	//create task
-	task := models.NewTask("sync-web-servers-for-domain", string(data), user)
-	sharedContext.PersistentDB.Save(&task)
-	task.NotifyUser(*sharedContext, user)
-
-	var success = false
-	defer func() {
-		task.Duration = time.Now().Sub(task.Added_at).Seconds()
-		task.Finished = true
-		task.Success = success
-		sharedContext.PersistentDB.Save(&task)
-		task.NotifyUser(*sharedContext, user)
-	}()
-
-	success = SyncWebServers(sharedContext, task, account)
-
-	return success
 }
 
 func SyncWebServers(sharedContext *shared.SharedContext, task models.Task, account *models.Account) bool {
