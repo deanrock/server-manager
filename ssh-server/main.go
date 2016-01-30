@@ -414,6 +414,15 @@ func main() {
 	config := ssh.ServerConfig{
 		PublicKeyCallback: keyAuth,
 		PasswordCallback:  passwordAuth,
+		Config: ssh.Config{
+			Ciphers: []string{
+				"aes128-ctr", "aes192-ctr", "aes256-ctr",
+				"aes128-gcm@openssh.com",
+				"arcfour256", "arcfour128",
+				"aes128-cbc", // this insecure crypto is enabled because Aptana Studio doesn't
+				// support anything more secure :/
+			},
+		},
 	}
 	config.AddHostKey(keySigner)
 
