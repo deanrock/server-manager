@@ -43,36 +43,9 @@ def sync_accounts():
             o, e = exec_command(logs, "sudo chmod 750 /home/%s/%s" % (account.name, dir))
             o, e = exec_command(logs, "sudo chown %s:%s /home/%s/%s" % (account.name, account.name, account.name, dir))
 
-
-        #ssh keys file
-        ssh_keys = []
-
-        for user in User.objects.all():
-            cursor = connection.cursor()
-            cursor.execute("SELECT ssh_access FROM user_accesses WHERE user_id=%s AND account_id=%s", (user.id, account.id))
-            
-            x = cursor.fetchone()
-            if x and x[0] == True:
-                for key in user.ssh_keys.all():
-                    ssh_keys.append(key.ssh_key)
-
-        authorized_keys = render_to_string('system/authorized_keys', {
-            'keys': ssh_keys
-        })
-
-        logs.add(authorized_keys)
-
-        #.ssh/authorized_keys
-        temp_folder = utils.get_temp_folder()
-
-        with open('%s/authorized_keys' % (temp_folder), 'w') as f:
-            f.write(authorized_keys)
-
-        o, e = exec_command(logs, "sudo cp %s/authorized_keys /home/%s/.ssh/authorized_keys" % (temp_folder, account.name))
-        o, e = exec_command(logs, "sudo chmod 700 /home/%s/.ssh/authorized_keys" % (account.name))
-        o, e = exec_command(logs, "sudo chown %s:%s /home/%s/.ssh/authorized_keys" % (account.name, account.name, account.name))
-
-        o, e = exec_command(logs, "sudo chsh -s /usr/bin/manager-shell %s" % (account.name))
+        # remove authorized_keys file & force nologin as shell
+        o, e = exec_command(logs, "sudo rm /home/%s/.ssh/authorized_keys" % (account.name))
+        o, e = exec_command(logs, "sudo chsh -s /sbin/nologin %s" % (account.name))
 
 
     return logs

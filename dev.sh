@@ -38,15 +38,6 @@ elif [ $1 = "ondemand" ]; then
 
 	cd ./ondemand
 	/usr/local/go1.4/go/bin/go run main.go
-elif [ $1 = "shell" ]; then
-	echo "shell"
-
-	cd ./realshell
-	#/usr/local/go1.4/go/bin/gofmt -w ./
-	/usr/local/go1.4/go/bin/go build -o shell main.go
-	sudo mv shell /usr/bin/manager-shell
-	sudo chown root:root /usr/bin/manager-shell
-	sudo chmod u+s /usr/bin/manager-shell
 elif [ $1 = "manager" ]; then
 	echo "manager"
 

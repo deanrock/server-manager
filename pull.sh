@@ -27,7 +27,7 @@ python manage.py migrate --settings=manager.settings.$1
 python manage.py syncimageconfig --settings=manager.settings.$1
 
 sudo rm /usr/bin/shell #remove old python shell if still exists
-
+sudo rm /usr/bin/manager-shell # remove old golang shell if still exists
 
 
 #golang build stuff
@@ -55,17 +55,6 @@ echo -e "${green}[go] getting libraries ...${NC}"
 /usr/local/go1.4/go/bin/go get
 /usr/local/go1.4/go/bin/go install
 /usr/local/go1.4/go/bin/go build -o ../bin/cron main.go
-
-echo -e "${green}[go] compiling manager shell ...${NC}"
-cd $DIR/realshell
-
-echo -e "${green}[go] getting libraries ...${NC}"
-/usr/local/go1.4/go/bin/go get
-/usr/local/go1.4/go/bin/go install
-/usr/local/go1.4/go/bin/go build -o ../bin/realshell main.go
-sudo mv ../bin/realshell /usr/bin/manager-shell
-sudo chown root:root /usr/bin/manager-shell
-sudo chmod u+s /usr/bin/manager-shell
 
 echo -e "${green}[go] compiling ssh server ...${NC}"
 cd $DIR/ssh-server
