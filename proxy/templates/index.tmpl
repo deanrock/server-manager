@@ -151,7 +151,7 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
 }
 </script>
 <script id="nginx3" type="text/x-handlebars-template">location / {
-    proxy_pass  http://IP;
+    proxy_pass  http:\/\/IP;
     proxy_http_version 1.1;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -160,7 +160,7 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
     proxy_set_header X-Request-Start $msec;
 }</script>
 <script id="nginx4" type="text/x-handlebars-template">location / {
-    proxy_pass  http://#apache#;
+    proxy_pass  http:\/\/#apache#;
     proxy_http_version 1.1;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -169,7 +169,7 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
     proxy_set_header X-Request-Start $msec;
 }</script>
 <script id="nginx5" type="text/x-handlebars-template">location / {
-    proxy_pass  http://IP;
+    proxy_pass  http:\/\/IP;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";

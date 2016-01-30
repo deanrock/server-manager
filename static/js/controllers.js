@@ -786,7 +786,7 @@ controller('accountDomainEdit', ['$scope', 'managerServices', '$location', '$rou
     });
 
     $scope.example = function(id, value) {
-       var source   = $("#" + value).html();
+       var source   = $("#" + value).html().replace('\\/\\/', '//');
        var template = Handlebars.compile(source);
 
        if (id == 'nginx') {
