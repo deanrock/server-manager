@@ -344,18 +344,6 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 	}
 }
 
-func printChoiceMenu(channel ssh.Channel, s container.Shell) {
-	//ask user to select environment
-	//channel.Write([]byte{0x1b,'[','H',0x1b,'[','J'})
-	channel.Write([]byte("Select environment (type the number and press Enter)\r\n\r\n"))
-
-	for i, image := range s.ShellImages {
-		channel.Write([]byte(fmt.Sprintf("[%d] %s\r\n", i+1, image)))
-	}
-
-	//channel.Write([]byte("Choice: "))
-}
-
 func resizeTty(shell container.Shell, height uint32, width uint32) {
 	if shell.ContainerID == "" {
 		log.Printf("cannot resize tty; containerid empty")
