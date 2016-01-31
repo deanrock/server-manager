@@ -185,7 +185,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 		go func(in <-chan *ssh.Request) {
 			for req := range in {
 				ok := false
-				fmt.Printf("%s\n", req.Type)
+				log.Printf("%s\n", req.Type)
 				switch req.Type {
 				case "exec":
 					ok = true
@@ -215,7 +215,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 					go func() {
 						err = <-errs
-						fmt.Printf("end\n")
+						log.Printf("end\n")
 
 						if err != nil {
 							s.LogError(err)
@@ -228,7 +228,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 				case "subsystem":
 					ok = true
 					subsystem := string(req.Payload[4 : req.Payload[3]+4])
-					fmt.Printf("subsystem command %s", subsystem)
+					log.Printf("subsystem command %s", subsystem)
 
 					switch subsystem {
 					case "sftp":
@@ -259,7 +259,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 						go func() {
 							err = <-errs
-							fmt.Printf("end\n")
+							log.Printf("end\n")
 
 							if err != nil {
 								s.LogError(err)
@@ -308,7 +308,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 					go func() {
 						err = <-errs
-						fmt.Printf("end\n")
+						log.Printf("end\n")
 
 						if err != nil {
 							s.LogError(err)
@@ -317,7 +317,6 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 						channel.Close()
 						log.Printf("session (shell, %s (%s)) closed", s.AccountName, s.AccountUid)
 					}()
-					fmt.Printf("yo\n")
 				case "pty-req":
 					// Responding 'ok' here will let the client
 					// know we have a pty ready for input

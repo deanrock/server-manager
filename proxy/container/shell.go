@@ -258,7 +258,7 @@ func (shell *Shell) Attach(options AttachOptions) error {
 	myerr := <-errs
 
 	if myerr != nil {
-		return fmt.Errorf("attach error %s", err)
+		return fmt.Errorf("attach error %s", myerr)
 	}
 
 	return nil
