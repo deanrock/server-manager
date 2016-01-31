@@ -5,36 +5,42 @@ import (
 	"../proxy/models"
 	"../proxy/shared"
 	"fmt"
-	"os/exec"
-	//"github.com/docker/docker/pkg/term"
 	"github.com/fsouza/go-dockerclient"
+	"os/exec"
 	//"errors"
-	"log"
-	"net"
-	//"bytes"
-	"os"
-	"strconv"
-	//"os/user"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
-	"io/ioutil"
-	"strings"
-	//"github.com/kr/pty"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
+	"log"
+	"net"
+	"os"
+	"strings"
 )
 
 var sharedContext *shared.SharedContext
 
-func passwordAuth(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
-	account := models.GetAccountByName(conn.User(), sharedContext)
+func getUserAndEnvironment(username string) (string, string) {
+	s := strings.Split(username, "+")
 
-	log.Println(conn.RemoteAddr(), "authenticate user", conn.User(), "with password")
+	if len(s) > 1 {
+		return s[0], s[1]
+	}
+
+	return s[0], ""
+}
+
+func passwordAuth(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
+	u, _ := getUserAndEnvironment(conn.User())
+	account := models.GetAccountByName(u, sharedContext)
+
+	log.Println(conn.RemoteAddr(), "authenticate user", u, "with password")
 
 	if account == nil {
-		err := errors.New(fmt.Sprintf("unknown account %s", conn.User()))
+		err := errors.New(fmt.Sprintf("unknown account %s", u))
 		log.Println(err)
 		return nil, err
 	}
@@ -52,12 +58,14 @@ func passwordAuth(conn ssh.ConnMetadata, password []byte) (*ssh.Permissions, err
 }
 
 func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
-	account := models.GetAccountByName(conn.User(), sharedContext)
+	user, _ := getUserAndEnvironment(conn.User())
 
-	log.Println(conn.RemoteAddr(), "authenticate user", conn.User(), "with", key.Type())
+	account := models.GetAccountByName(user, sharedContext)
+
+	log.Println(conn.RemoteAddr(), "authenticate user", user, "with", key.Type())
 
 	if account == nil {
-		err := errors.New(fmt.Sprintf("unknown account %s", conn.User()))
+		err := errors.New(fmt.Sprintf("unknown account %s", user))
 		log.Println(err)
 		return nil, err
 	}
@@ -82,7 +90,7 @@ func keyAuth(conn ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error)
 			}
 
 			log.Printf("authenticated %s by ssh key from %s (user id: %d)",
-				conn.User(), u.Username, u.Id)
+				user, u.Username, u.Id)
 
 			var userAccess models.UserAccess
 			if err := sharedContext.PersistentDB.Where("user_id = ? AND account_id = ?", u.Id, account.Id).First(&userAccess).Error; err != nil {
@@ -136,7 +144,8 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 		s.Cmd = []string{"/bin/bash"}
 		s.Tty = true
 
-		s.AccountName = sshConn.User()
+		u, e := getUserAndEnvironment(sshConn.User())
+		s.AccountName = u
 
 		out, err := exec.Command("id", "-u", s.AccountName).Output()
 
@@ -146,7 +155,29 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 		uid := strings.Replace(string(out), "\n", "", 1)
 		s.AccountUid = uid
+
+		// determine environment
 		env := "php56"
+
+		if e != "" {
+			env = e
+		}
+
+		log.Println("wanted environment:", env)
+
+		image := fmt.Sprintf("%s-base-shell", env)
+		found := false
+		for _, i := range s.ShellImages {
+			if image == i {
+				found = true
+			}
+		}
+
+		if !found {
+			channel.Close()
+			log.Println("wrong environemnt")
+			continue
+		}
 
 		w := uint32(0)
 		h := uint32(0)
@@ -246,40 +277,6 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 					ok = true
 					s.Cmd = []string{"/bin/bash"} //  strings.Split(string(req.Payload[4 : req.Payload[3]+4]), " ")
 					s.Tty = true
-
-					printChoiceMenu(channel, s)
-
-					for {
-						var i int
-						channel.Write([]byte("\r\nChoice: "))
-
-						selected := make([]byte, 10)
-						n, err := channel.Read(selected)
-
-						if err != nil {
-							log.Printf("error reading from channel: %s", err)
-							return
-						}
-
-						fmt.Printf("%s\n", selected)
-						//parse number
-						d, err := strconv.ParseInt(string(selected[0:n]), 0, 64)
-
-						if err != nil {
-							continue
-						}
-
-						i = int(d)
-
-						if i >= 1 && i <= len(s.ShellImages) {
-							env = strings.Replace(
-								strings.Replace(s.ShellImages[i-1], "-base-shell", "", 1),
-								"-base-shell", "", 1)
-
-							channel.Write([]byte("\r\n"))
-							break
-						}
-					}
 
 					s.Environment = strings.Replace(env, "-base-shell", "", 1)
 					shell_image, err := s.BuildShellImage(env)
