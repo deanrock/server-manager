@@ -145,8 +145,13 @@ func (api *CronJobsAPI) GetCronjobLog(c *gin.Context) {
 		return
 	}
 
+	offset := 0
+
+	count := 0
+	api.Context.PersistentDB.Model(models.CronJobLog{}).Where("cron_job_id = ?", cronjob.Id).Count(&count)
+
 	var cronjobs []models.CronJobLog
-	api.Context.PersistentDB.Where("cron_job_id = ?", cronjob.Id).Find(&cronjobs)
+	api.Context.PersistentDB.Where("cron_job_id = ?", cronjob.Id).Order("id desc").Offset(offset).Limit(50).Find(&cronjobs)
 
 	c.JSON(200, cronjobs)
 }

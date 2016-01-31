@@ -447,8 +447,6 @@ controller('accountCronjobLogs', ['$scope', 'managerServices', '$location', '$ro
         $scope.cronjob = data;
 
         managerServices.getCronjobLog($routeParams.account, $routeParams.id).then(function(data) {
-            data = data.reverse();
-
             angular.forEach(data, function(v, k) {
                 v.roundedDuration = Math.floor(v.elapsed_time);
             })
