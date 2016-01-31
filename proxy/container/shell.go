@@ -265,7 +265,7 @@ func (shell *Shell) Attach(options AttachOptions) error {
 }
 
 func (shell *Shell) Log(tag string, message string, args ...string) {
-	fmt.Printf(fmt.Sprintf("%s %s [%s] %s\n",
+	log.Printf(fmt.Sprintf("%s %s [%s] %s\n",
 		time.Now(),
 		shell.LogPrefix,
 		tag,
@@ -364,7 +364,7 @@ func WebSocketShell(c *gin.Context, sharedContext *shared.SharedContext) {
 	//environment
 	a := models.AccountFromContext(c)
 	env := strings.Replace(c.Request.URL.Query().Get("env"), "-base-shell", "", 1)
-	fmt.Printf(env)
+
 	out, err := exec.Command("id", "-u", a.Name).Output()
 
 	if err != nil {
