@@ -16,7 +16,7 @@ RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/lo
 
 RUN cd /tmp && wget http://files.drush.org/drush.phar && chmod +x drush.phar && \
 	mv drush.phar /usr/local/bin/drush && \
-	/usr/local/bin/drush init
+	/usr/local/bin/drush
 
 RUN mkdir /tmp/php5-memcached && \
 	cd /tmp/php5-memcached && \
