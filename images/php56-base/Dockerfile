@@ -14,9 +14,9 @@ RUN pecl install xhprof-beta
 
 RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
 
-RUN pear channel-discover pear.drush.org && pear install drush/drush
-
-RUN drush
+RUN cd /tmp && wget http://files.drush.org/drush.phar && chmod +x drush.phar && \
+	mv drush.phar /usr/local/bin/drush && \
+	/usr/local/bin/drush init
 
 RUN mkdir /tmp/php5-memcached && \
 	cd /tmp/php5-memcached && \
