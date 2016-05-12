@@ -1,0 +1,22 @@
+{
+    "id": 22,
+	"name": "ruby22-hosting",
+	"description": "ruby 2.2 hosting",
+	"type": "application",
+	"ports": [
+		{
+			"port": 8080,
+			"type": "http"
+		}
+	],
+	"variables": [
+		{
+			"name": "chdir_path",
+			"description": "path to chdir to before running the command"
+		},
+		{
+			"name": "command",
+			"description": "Command to run (e.g. ruby server.rb)"
+		}
+	]
+}
