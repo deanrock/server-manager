@@ -15,7 +15,7 @@ from manager.models import App, Account, Domain, Database, UserSSHKey, Image, Ap
 
 @login_required
 def action_ajax(request, action):
-    elif action == 'sync-users':
+    if action == 'sync-users':
         logs = actions.sync_accounts()
     elif action == 'sync-databases':
         logs = actions.sync_databases()
