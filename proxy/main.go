@@ -468,6 +468,16 @@ func main() {
 			requiresAccount.POST("/domains", RequireUserAccess("domain_access"), domains.EditDomain)
 			requiresAccount.POST("/domains/sync", RequireUserAccess("domain_access"), domains.SyncDomains)
 
+			//databases
+			databases := &controllers.DatabasesAPI{
+				Context: sharedContext,
+			}
+
+			requiresAccount.GET("/databases", RequireUserAccess("database_access"), databases.ListDatabases)
+			requiresAccount.GET("/databases/:id", RequireUserAccess("database_access"), databases.GetDatabase)
+			requiresAccount.PUT("/databases/:id", RequireUserAccess("database_access"), databases.EditDatabase)
+			requiresAccount.POST("/databases", RequireUserAccess("database_access"), databases.EditDatabase)
+
 			//ssh passwords
 			sshPasswords := &controllers.SSHPasswordsAPI{
 				Context: sharedContext,

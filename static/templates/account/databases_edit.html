@@ -1,0 +1,48 @@
+<div data-extend-template="/static/templates/account/layout.html">
+   <div data-block="content">
+        <form ng-submit="submit()">
+            <div class="form-group" ng-class="{'has-error': errors.type}">
+                <label class="control-label" for="type">Type</label>
+                <div class=" ">
+                    <input class="form-control" id="type" maxlength="50" ng-model="form.type" name="type" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.type">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.name}">
+                <label class="control-label" for="name">Name</label>
+                <div class=" ">
+                    <input class="form-control" id="name" maxlength="50" ng-model="form.name" name="name" type="text" />
+                    <p class="help-block" style="color: #737373;">
+                    Max 50 characters!
+                </p>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.name">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.user}">
+                <label class="control-label" for="user">User</label>
+                <div class=" ">
+                    <input class="form-control" id="user" maxlength="16" ng-model="form.user" name="user" type="text" />
+                    <p class="help-block" style="color: #737373;">
+                    Max 16 characters!
+                </p>
+                </div>
+                <span class="help-block" ng-repeat="error in errors.user">{{error.error}}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.password}">
+                <label class="control-label" for="password">Password</label>
+                <div class=" ">
+                    <input class="form-control" id="password" maxlength="50" ng-model="form.password" name="password" type="text" />
+                </div>
+                <span class="help-block" ng-repeat="error in errors.password">{{error.error}}</span>
+            </div>
+
+            <div style="text-align:right">
+                <a href="" ng-if="form.id" class="btn btn-default" ng-click="deleteDialog()">Delete</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

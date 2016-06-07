@@ -279,6 +279,34 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        getDatabases: function(name) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/databases').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        getDatabase: function(name, id) {
+            var resp = $http.get('/api/v1/accounts/'+name+'/databases/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        addDatabase: function(name, params) {
+            var resp = $http.post('/api/v1/accounts/'+name+'/databases', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editDatabase: function(name, id, params) {
+            var resp = $http.put('/api/v1/accounts/'+name+'/databases/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getSSHPasswords: function(name) {
             var resp = $http.get('/api/v1/accounts/'+name+'/ssh-passwords').
             then(function(response) {

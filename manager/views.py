@@ -26,39 +26,3 @@ def action_ajax(request, action):
 
     data = json.dumps(logs.logs)
     return HttpResponse(data, content_type='application/json')
-
-
-@login_required
-def account_databases(request, name):
-    return render_to_response('account/databases.html',
-                              {
-            'account': Account.objects.filter(name=name).first()
-        },
-                              context_instance=RequestContext(request))
-
-
-@login_required
-def account_databases_edit(request, name, database=None):
-    account = Account.objects.filter(name=name).first()
-    df = modelform_factory(Database, form=DatabaseForm)
-
-    if request.method == 'POST':
-        formset = df(request.POST, request.FILES,
-                          instance=account.databases.filter(id=database).first())
-
-        if formset.is_valid():
-            obj = formset.save(commit=False)
-            obj.account = account
-            obj.added_by = request.user
-            obj.save()
-
-            return HttpResponseRedirect(reverse('manager.views.account_databases', kwargs={'name': account.name}))
-    else:
-        formset = df(instance=account.databases.filter(id=database).first())
-
-    return render_to_response('account/databases_edit.html',
-                              {
-            'account': account,
-            'formset': formset
-        },
-                              context_instance=RequestContext(request))

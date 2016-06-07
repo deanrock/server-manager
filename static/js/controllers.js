@@ -897,6 +897,54 @@ controller('accountDomainEditDeleteDialog', ['$scope', '$modalInstance', 'form',
         $modalInstance.dismiss('cancel');
     };
 }]).
+controller('accountDatabases', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.action = 'databases';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    managerServices.getDatabases($routeParams.account).then(function(data) {
+        $scope.databases = data;
+    });
+
+}]).
+controller('accountDatabaseEdit', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', function($scope, managerServices, $location, $routeParams, $modal) {
+    $scope.action = 'databases';
+
+    managerServices.getAccountByName($routeParams.account).then(function(data){
+        $scope.account = data;
+    });
+
+    $scope.form = {
+        type: 'mysql'
+    };
+    if ($routeParams.id !== undefined) {
+        managerServices.getDatabase($routeParams.account, $routeParams.id).then(function(data) {
+            $scope.form = data;
+        });
+    }
+
+    $scope.submit = function() {
+        if ($scope.form.id === undefined) {
+            managerServices.addDatabase($routeParams.account, $scope.form).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/databases');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }else{
+            managerServices.editDatabase($routeParams.account, $scope.form.id, $scope.form).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/databases');
+            },
+            function(err) {
+                $scope.errors = err.data.errors;
+                console.log(err);
+            });
+        }
+    };
+}]).
 controller('accountSettings', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', '$route', function($scope, managerServices, $location, $routeParams, $modal, $route) {
     $scope.action = 'settings';
 

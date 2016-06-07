@@ -90,6 +90,18 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         templateUrl: 'static/templates/account/domains_edit.html',
         controller: 'accountDomainEdit',
     }).
+    when('/a/:account/databases', {
+        templateUrl: 'static/templates/account/databases.html',
+        controller: 'accountDatabases',
+    }).
+    when('/a/:account/databases/add', {
+        templateUrl: 'static/templates/account/databases_edit.html',
+        controller: 'accountDatabaseEdit',
+    }).
+    when('/a/:account/databases/:id', {
+        templateUrl: 'static/templates/account/databases_edit.html',
+        controller: 'accountDatabaseEdit',
+    }).
     when('/a/:account/settings', {
         templateUrl: 'static/templates/account/settings.html',
         controller: 'accountSettings',
