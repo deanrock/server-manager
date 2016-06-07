@@ -51,6 +51,8 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"ruby22-base",
 		"ruby22-base-shell",
 
+		"mongo3.2-base",
+
 		"manager-file-proxy",
 	}
 
