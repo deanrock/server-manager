@@ -15,14 +15,10 @@ from manager.models import App, Account, Domain, Database, UserSSHKey, Image, Ap
 
 @login_required
 def action_ajax(request, action):
-    if action == 'rebuild-base-image':
-        logs = actions.rebuild_base_image()
     elif action == 'sync-users':
         logs = actions.sync_accounts()
     elif action == 'sync-databases':
         logs = actions.sync_databases()
-    elif action == 'update-nginx-config':
-        logs = actions.update_nginx_config()
 
     data = json.dumps(logs.logs)
     return HttpResponse(data, content_type='application/json')
