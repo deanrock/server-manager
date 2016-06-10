@@ -174,6 +174,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 		}
 
 		if !found {
+			returnExitCode(255, channel)
 			channel.Close()
 			log.Println("wrong environemnt")
 			continue
@@ -221,6 +222,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 							s.LogError(err)
 						}
 
+						returnExitCode(s.ExitCode, channel)
 						channel.Close()
 						log.Printf("session (exec, %s (%s)) closed", s.AccountName, s.AccountUid)
 					}()
@@ -265,11 +267,13 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 								s.LogError(err)
 							}
 
+							returnExitCode(s.ExitCode, channel)
 							channel.Close()
 							log.Printf("session (subsystem %s, %s (%s)) closed", subsystem, s.AccountName, s.AccountUid)
 						}()
 					default:
 						log.Printf("session (subsystem, %s (%s)) - wrong command %s", s.AccountName, s.AccountUid, subsystem)
+						returnExitCode(127, channel)
 						channel.Close()
 					}
 
@@ -314,6 +318,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 							s.LogError(err)
 						}
 
+						returnExitCode(s.ExitCode, channel)
 						channel.Close()
 						log.Printf("session (shell, %s (%s)) closed", s.AccountName, s.AccountUid)
 					}()
@@ -357,6 +362,16 @@ func parseDims(b []byte) (uint32, uint32) {
 	w := binary.BigEndian.Uint32(b)
 	h := binary.BigEndian.Uint32(b[4:])
 	return w, h
+}
+
+func returnExitCode(code int, channel ssh.Channel) {
+	log.Println("exit code", code)
+
+	// return exit-status for ssh client
+	// code can be forced to uint32, because bash specifies 8-bit uint as exit-code type
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs, uint32(code))
+	channel.SendRequest("exit-status", false, bs)
 }
 
 func main() {

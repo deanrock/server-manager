@@ -38,6 +38,7 @@ type Shell struct {
 	ContainerID  string
 	Environment  string
 	WorkingDir   string
+	ExitCode     int
 
 	// inFd holds file descriptor of the client's STDIN, if it's a valid file
 	InFd uintptr
@@ -176,6 +177,9 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 }
 
 func (shell *Shell) StartContainer() error {
+	// return 1 as in error by default
+	shell.ExitCode = 1
+
 	var account *models.Account
 	if shell.SharedContext != nil {
 		account = models.GetAccountByName(shell.AccountName, shell.SharedContext)
@@ -238,6 +242,12 @@ func (shell *Shell) Attach(options AttachOptions) error {
 			Stream:       true,
 			RawTerminal:  shell.Tty,
 		})
+	}()
+
+	go func() {
+		code, err := shell.DockerClient.WaitContainer(container.ID)
+		shell.ExitCode = code
+		errs <- err
 	}()
 
 	if options.Success != nil {
