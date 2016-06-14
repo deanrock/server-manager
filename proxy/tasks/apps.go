@@ -192,7 +192,7 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 		task.Log(fmt.Sprintf("stopping container with the name %s", name), "info", context)
 
 		//stop container
-		if err := context.DockerClient.StopContainer(id, 10); err != nil {
+		if err := context.DockerClient.StopContainer(id, 0); err != nil {
 			task.Log(fmt.Sprintf("cannot stop container: %s", err), "info", context)
 		}
 
