@@ -24,6 +24,11 @@ Installation
 
 * Install libssl-dev (for now, until we fix pull.sh script)
 * set mysql root password via mysql_secure_installation command
+* log-in as `manager` and clone repo to /home/manager/server-manager/
+* clone git submodules
+
+	git submodule update --init --recursive
+
 * create /home/manager/server-manager/manager/settings/production.py with the contents:
 	
 	from manager.settings.base import *
@@ -38,7 +43,6 @@ Installation
 
 	MYSQL_ROOT_PASSWORD = 'root_password'
 
-* log-in as `manager` and clone repo to /home/manager/server-manager/
 * cd to server-manager/ folder and run `./pull.sh production`
 
 Create first user
