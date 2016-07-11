@@ -4,4 +4,4 @@ RUN apt-get install curl && \
 	curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
 	apt-get install -y nodejs
 
-RUN npm install -g bower grunt-cli webpack
+RUN npm install -g bower grunt-cli webpack gulp
