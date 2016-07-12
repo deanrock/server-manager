@@ -1,5 +1,5 @@
 #!/bin/bash
-#!/bin/bash
+set -e
 
 green='\033[0;32m'
 NC='\033[0m' # No Color
@@ -13,21 +13,28 @@ echo "DIR $DIR"
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-if [ -d "./env" ]; then
-    echo "env already exists"
+if [ -d "$HOME/env" ]; then
+	echo "env exists in $HOME"
+
+	source $HOME/env/bin/activate
 else
-   virtualenv ./env
+	if [ -d "./env" ]; then
+	    echo "env already exists"
+	else
+	   virtualenv ./env
+	fi
+
+	source env/bin/activate
 fi
 
-source env/bin/activate
 pip install -r requirements.txt
 
 cp manager/db.sqlite3 ./backup_db_`date +"%Y-%m-%d_%H-%M-%S"`.db
 python manage.py migrate --settings=manager.settings.$1
 python manage.py syncimageconfig --settings=manager.settings.$1
 
-sudo rm /usr/bin/shell #remove old python shell if still exists
-sudo rm /usr/bin/manager-shell # remove old golang shell if still exists
+sudo rm -f /usr/bin/shell #remove old python shell if still exists
+sudo rm -f /usr/bin/manager-shell # remove old golang shell if still exists
 
 
 #golang build stuff

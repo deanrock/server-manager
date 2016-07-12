@@ -32,6 +32,10 @@ elif [ $1 = "ssh" ]; then
 	echo "ssh"
 
 	cd ./ssh-server
+	if [ ! -f ./id_rsa ]; then
+		ssh-keygen -b 2048 -t rsa -f ./id_rsa -q -N ""
+	fi
+
 	/usr/local/go1.4/go/bin/go run main.go
 elif [ $1 = "ondemand" ]; then
 	echo "ondemand"
@@ -41,7 +45,14 @@ elif [ $1 = "ondemand" ]; then
 elif [ $1 = "manager" ]; then
 	echo "manager"
 
-	source env/bin/activate
+	if [ -d "$HOME/env" ]; then
+		echo "env exists in $HOME"
+
+		source $HOME/env/bin/activate
+	else
+		source env/bin/activate
+	fi
+
 	python manage.py runserver 0.0.0.0:5555 --settings=manager.settings.dev --noreload
 else
 	echo "wrong argument"
