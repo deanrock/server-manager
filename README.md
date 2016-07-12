@@ -103,8 +103,37 @@ Development env setup
 	(vagrant)$ sudo mkdir /home/manager/server-manager/
 	(vagrant)$ sudo ln -s /home/vagrant/files/images /home/manager/server-manager/images
 
+12. create first user
+
+	(vagrant)$ source env/bin/activate
+	(vagrant)$ python manage.py createsuperuser --settings=manager.settings.dev --noreload
+
+13. install `screen` via `sudo apt-get install screen`, and run each app in different screen; you need to start the following apps:
+	
+	* ./dev.sh manager
+	* ./dev.sh ssh
+	* ./dev.sh cron
+	* ./dev.sh proxy
+
 
 Your dev env should be kinda ready.
+
+
+Development env setup for Windows host
+======================================
+
+Use the same steps as for *nix setup, but:
+
+* run ansible from inside the VM:
+
+	(vagrant)$ sudo apt-get install python python-virtualenv python-dev build-essential libffi-dev
+	(vagrant)$ virtualenv ~/env
+	(vagrant)$ source ~/env/bin/activate
+	(vagrant)$ pip install ansible
+
+* pull.sh and dev.sh scripts should automatically use ~/env virtual environment, instead of creating /home/vagrant/files/env/ (which wouldn't work because it's a mounted folder from Windows),
+
+* use $HOME/env/bin/activate on step 12.
 
 
 Services
@@ -127,14 +156,3 @@ c) *ssh* (SSH server)
 
 d) *cron* (cronjob daemon)
 - used for executing scheduled cron jobs
-
-
-
-
-
-How to generate SSL key?
-========================
-
-	$ cd . #to server-manager root (e.g. /home/manager/server-manager/)
-	$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl.key -out ssl.crt
-
