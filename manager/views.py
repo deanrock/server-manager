@@ -9,7 +9,6 @@ from django.template import RequestContext
 import docker
 from django.views.decorators.csrf import csrf_exempt
 from manager import actions, docker_api
-from manager.forms import AppForm, DomainForm, DatabaseForm, UserSSHKeyForm
 from manager.models import App, Account, Domain, Database, UserSSHKey, Image, AppImageVariable
 
 
