@@ -1,7 +1,9 @@
 var ctrls = angular.module('managerControllers', []);
 
 
-ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$window', function($scope, $rootScope, managerServices, $window) {
+ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$route', function($scope, $rootScope, managerServices, $window, $route) {
+    $scope.$route = $route;
+
     $scope.djangoAdmin = function() {
         $window.location = '/admin'
     }

@@ -1,11 +1,8 @@
 #!/bin/bash
 
-#!/bin/bash
-
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd $DIR
-
 export GOROOT=/usr/local/go1.4/go
 export GOPATH=$DIR/go-libs/
 export GOBIN=$DIR/go-libs/bin/

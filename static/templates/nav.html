@@ -11,8 +11,8 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Accounts</a></li>
-            <li class=""><a href="/containers/">Containers</a></li>
+            <li ng-class="{active: $route.current.activetab == 'accounts'}"><a href="/">Accounts</a></li>
+            <li ng-class="{active: $route.current.activetab == 'containers'}"><a href="/containers/">Containers</a></li>
             <li class="dropdown">
                 <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sync <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
@@ -23,13 +23,13 @@
                <li><a ng-if="profile.user.is_staff" href="/sync/images">Rebuild base Docker images</a></li>
                 </ul>
             </li>
-            <li><a ng-if="profile.user.is_staff" href="/users/">Users</a></li>
+            <li ng-class="{active: $route.current.activetab == 'users'}"><a ng-if="profile.user.is_staff" href="/users/">Users</a></li>
             <li><a href="" ng-if="profile.user.is_staff" ng-click="djangoAdmin()">Django Admin</a></li>
 
           </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
+                <li ng-class="{active: $route.current.activetab == 'profile'}" class="dropdown">
                 <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{profile.user.username}} <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                 <li><a href="/profile/ssh-keys">SSH keys</a></li>
