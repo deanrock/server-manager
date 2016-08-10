@@ -1,0 +1,19 @@
+{
+    "id": 23,
+	"name": "mongo3.2",
+	"description": "mongodb instance",
+	"type": "database",
+	"ports": [
+		{
+			"port": 27017,
+			"type": "tcp"
+		}
+	],
+	"variables": [
+		{
+			"name": "mongod_config",
+			"description": "mongod settings",
+			"filename": "mongod.conf"
+		}
+	]
+}
