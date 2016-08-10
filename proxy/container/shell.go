@@ -224,11 +224,6 @@ func (shell *Shell) Attach(options AttachOptions) error {
 		}
 	}()
 
-	err = shell.StartContainer()
-	if err != nil {
-		return fmt.Errorf("cannot start container ", err)
-	}
-
 	errs := make(chan error)
 	go func() {
 		errs <- shell.DockerClient.AttachToContainer(docker.AttachToContainerOptions{
@@ -243,6 +238,11 @@ func (shell *Shell) Attach(options AttachOptions) error {
 			RawTerminal:  shell.Tty,
 		})
 	}()
+
+	err = shell.StartContainer()
+	if err != nil {
+		return fmt.Errorf("cannot start container ", err)
+	}
 
 	go func() {
 		code, err := shell.DockerClient.WaitContainer(container.ID)
