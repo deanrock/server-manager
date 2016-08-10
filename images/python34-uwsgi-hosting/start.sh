@@ -12,8 +12,8 @@ pip install uwsgi
 
 mkdir -p /home/#user#/apps/#appname#/logs && chown -R #user#:#user# /home/#user#/apps/#appname#/logs
 
-export LANG="en_US.utf8"
-export LC_ALL="en_US.UTF-8"
-export LC_LANG="en_US.UTF-8"
+export LANG="C.utf8"
+export LC_ALL="C.UTF-8"
+export LC_LANG="C.UTF-8"
 
 uwsgi --socket 0.0.0.0:9000 --wsgi-file #variable_wsgi_file# --master --processes #variable_processes# --threads #variable_threads# --logto /home/#user#/apps/#appname#/logs/uwsgi.log

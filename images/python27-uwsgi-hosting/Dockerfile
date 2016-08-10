@@ -6,6 +6,8 @@ RUN mkdir /mystuff
 
 ADD start.sh /mystuff/start.sh
 
+RUN apt-get install locales && locale-gen "en_US.UTF-8" && dpkg-reconfigure locales
+
 RUN chown -R #user#:#user# /mystuff && chmod +x /mystuff/start.sh
 
 USER #user#

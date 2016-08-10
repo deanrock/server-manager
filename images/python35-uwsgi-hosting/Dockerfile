@@ -4,6 +4,8 @@ RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home
 
 RUN mkdir /mystuff
 
+RUN apt-get install locales && locale-gen "en_US.UTF-8" && dpkg-reconfigure locales
+
 ADD start.sh /mystuff/start.sh
 
 RUN chown -R #user#:#user# /mystuff && chmod +x /mystuff/start.sh
