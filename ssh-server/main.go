@@ -14,6 +14,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/ssh"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -205,14 +206,18 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 					errs := make(chan error)
 
+					r, w := io.Pipe()
+
 					go func() {
 						errs <- s.Attach(container.AttachOptions{
 							ShellImage:   shell_image,
-							InputStream:  channel,
+							InputStream:  r,
 							OutputStream: channel,
 							ErrorStream:  channel,
 						})
 					}()
+
+					go io.Copy(w, channel)
 
 					go func() {
 						err = <-errs
