@@ -4,7 +4,7 @@ RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home
 
 RUN mkdir /mystuff
 
-RUN locale-gen "en_US.UTF-8" && dpkg-reconfigure locales
+RUN apt-get install locales && locale-gen "en_US.UTF-8" && dpkg-reconfigure locales
 
 ADD start.sh /mystuff/start.sh
 
