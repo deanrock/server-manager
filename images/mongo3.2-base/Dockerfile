@@ -16,6 +16,7 @@ RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/$MONGO_MAJOR
 RUN set -x \
 	&& apt-get update \
 	&& apt-get install -y \
+		pwgen \
 		mongodb-org=$MONGO_VERSION \
 		mongodb-org-server=$MONGO_VERSION \
 		mongodb-org-shell=$MONGO_VERSION \
