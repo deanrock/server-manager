@@ -509,12 +509,26 @@ a.btn {
   }
 }
 
+#shell {
+    width: 750px;
+    height: 520px;
+    padding: 2px;
+}
 
+#shell.active {
+    background-color: #111;
+}
 
+#shell .terminal {
+    background-color: #111;
+    color: #fafafa;
+    padding: 2px;
+    font-size: 15px;
+}
 
-
-
-
+#shell .terminal:focus .terminal-cursor {
+    background-color: #fafafa;
+}
 
 .pace {
   width: 140px;

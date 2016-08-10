@@ -9,11 +9,12 @@ function getWebsocketHost() {
 function AccountShell(account, shell, element) {
 	this.term = new Terminal({
       cols: 80,
-      rows: 24,
-      screenKeys: true
+      rows: 24
     });
 
     this.term.open(element);
+
+    this.element = element;
 
     var url = getWebsocketHost() + '/api/v1/accounts/'+account+'/shell?env='+shell;
 	this.websocket = new WebSocket(url);
@@ -21,17 +22,19 @@ function AccountShell(account, shell, element) {
 	this.websocket.onopen = function() {
 	  console.log('shell opened');
 
-	  that.term.on('data', function(data) {
-	    that.websocket.send(data);
-	  });
-	}
+	  element.className = 'active';
 
-	this.websocket.onmessage = function(data) {
-	  that.term.write(data.data);
+	  that.term.attach(that.websocket);
 	}
 }
 
 AccountShell.prototype.stop = function() {
 	this.websocket.close();
 	this.term.destroy();
+
+	this.element.className = '';
+
+	while (this.term.element.children.length) {
+    	this.term.element.removeChild(this.term.element.children[0]);
+  	}
 }
