@@ -85,7 +85,7 @@ func StartApp(app *models.App, a *models.Account, user int, context *shared.Shar
 		return task
 	}
 
-	err = container.StartContainer(a, context, context.DockerClient, app, id)
+	err = container.StartContainer(context.DockerClient, id)
 	if err != nil {
 		task.Log(fmt.Sprintf("error starting the container: %s", err), "error", context)
 		return task
@@ -350,6 +350,18 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 		return task
 	}
 
+	// get host config
+	hostConfig, err := container.GetHostConfig(a, context, context.DockerClient, app)
+
+	if err != nil {
+		task.Log(fmt.Sprintf("error getting host config: %s", err), "error", context)
+		return task
+	}
+
+	hostConfig.RestartPolicy = docker.AlwaysRestart()
+
+	fmt.Println(hostConfig)
+
 	//create container
 	cont, err := context.DockerClient.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
@@ -357,13 +369,8 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 			Image:  fmt.Sprintf("manager/%s", name),
 			Memory: int64(app.Memory * 1024 * 1024),
 		},
-		HostConfig: &docker.HostConfig{
-			RestartPolicy: docker.RestartPolicy{
-				Name:              "always",
-				MaximumRetryCount: 100,
-			},
-		},
-		Name: name,
+		HostConfig: hostConfig,
+		Name:       name,
 	})
 
 	if err != nil {
@@ -372,7 +379,7 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 	}
 
 	//start container
-	err = container.StartContainer(a, context, context.DockerClient, app, cont.ID)
+	err = container.StartContainer(context.DockerClient, cont.ID)
 	if err != nil {
 		task.Log(fmt.Sprintf("error starting the container: %s", err), "error", context)
 		return task

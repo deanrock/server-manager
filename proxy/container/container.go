@@ -15,7 +15,7 @@ import (
 type Container struct {
 }
 
-func StartContainer(account *models.Account, context *shared.SharedContext, dockerClient *docker.Client, app *models.App, containerId string) error {
+func GetHostConfig(account *models.Account, context *shared.SharedContext, dockerClient *docker.Client, app *models.App) (*docker.HostConfig, error) {
 	var links []string
 
 	if context != nil {
@@ -28,7 +28,7 @@ func StartContainer(account *models.Account, context *shared.SharedContext, dock
 		if app != nil {
 			var image models.Image
 			if err := context.PersistentDB.Where("id = ?", app.Image_id).First(&image).Error; err != nil {
-				return errors.New("image doesnt exist")
+				return nil, errors.New("image doesnt exist")
 			}
 
 			if image.Type != "database" {
@@ -50,12 +50,15 @@ func StartContainer(account *models.Account, context *shared.SharedContext, dock
 		}
 	}
 
-	err := dockerClient.StartContainer(containerId,
-		&docker.HostConfig{
-			Binds:      []string{"/home/" + account.Name + ":/home/" + account.Name},
-			ExtraHosts: []string{"mysql:172.17.42.1"},
-			Links:      links,
-		})
+	return &docker.HostConfig{
+		Binds:      []string{"/home/" + account.Name + ":/home/" + account.Name},
+		ExtraHosts: []string{"mysql:172.17.42.1"},
+		Links:      links,
+	}, nil
+}
+
+func StartContainer(dockerClient *docker.Client, containerId string) error {
+	err := dockerClient.StartContainer(containerId, nil)
 
 	return err
 }

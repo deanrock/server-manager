@@ -158,6 +158,15 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 	if shell.WorkingDir == "" {
 		shell.WorkingDir = fmt.Sprintf("/home/%s/", shell.AccountName)
 	}
+
+	account := models.GetAccountByName(shell.AccountName, shell.SharedContext)
+
+	hostConfig, err := GetHostConfig(account, shell.SharedContext, shell.DockerClient, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
 	container, err := shell.DockerClient.CreateContainer(docker.CreateContainerOptions{
 		Config: &docker.Config{
 			OpenStdin:  true,
@@ -167,6 +176,7 @@ func (shell *Shell) CreateContainer(shellImage string) (*docker.Container, error
 			Hostname:   shell.Environment,
 			WorkingDir: shell.WorkingDir,
 		},
+		HostConfig: hostConfig,
 	})
 
 	if err == nil {
@@ -180,14 +190,9 @@ func (shell *Shell) StartContainer() error {
 	// return 1 as in error by default
 	shell.ExitCode = 1
 
-	var account *models.Account
-	if shell.SharedContext != nil {
-		account = models.GetAccountByName(shell.AccountName, shell.SharedContext)
-	}
-
 	shell.GetDockerImages()
 
-	err := StartContainer(account, shell.SharedContext, shell.DockerClient, nil, shell.ContainerID)
+	err := StartContainer(shell.DockerClient, shell.ContainerID)
 	return err
 
 	return errors.New("no shared context provided")
