@@ -239,7 +239,7 @@ controller('accountOverview', ['$scope', 'managerServices', '$location', '$route
     $scope.stop = function() {
         if (shell != null) {
             shell.stop();
-            
+
             $scope.started = false;
             shell = null;
         }
@@ -302,7 +302,7 @@ controller('accountApps', ['$scope', 'managerServices', '$location', '$routePara
         });
     }
 }]).
-controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeParams', '$modal', function($scope, managerServices, $location, $routeParams, $modal) {
     $scope.images = [];
     $scope.action = 'apps';
     $scope.app = {};
@@ -352,6 +352,30 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
         }
     });
 
+    $scope.deleteDialog = function() {
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'apps_delete.html',
+            controller: 'accountAppEditDeleteDialog',
+            size: '',
+            resolve: {
+                form: function () {
+                    return $scope.app;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (f) {
+            managerServices.deleteApp($routeParams.account, f.id).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/apps');
+            }, function(err) {
+                console.log(err);
+            });
+        }, function () {
+
+        });
+    };
+
     $scope.submit = function() {
         console.log($scope.variables);
         angular.forEach($scope.variables, function(v,k) {
@@ -367,7 +391,7 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
                 if ($scope.app.variables === undefined) {
                     $scope.app.variables = [];
                 }
-                
+
                 $scope.app.variables.push({
                     'app_id': $scope.app.id,
                     'name': v.name,
@@ -395,6 +419,20 @@ controller('accountAppEdit', ['$scope', 'managerServices', '$location', '$routeP
         }
     }
 }]).
+controller('accountAppEditDeleteDialog', ['$scope', '$modalInstance', 'form', function ($scope, $modalInstance, form) {
+    $scope.form = form;
+    $scope.confirm = false;
+
+    $scope.delete = function () {
+        if ($scope.confirm) {
+            $modalInstance.close($scope.form);
+        }
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}]).
 controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.apps = [];
     $scope.action = 'apps';
@@ -420,7 +458,7 @@ controller('accountAppLogs', ['$scope', 'managerServices', '$location', '$routeP
                     $scope.$apply(function() {
                         $scope.logs.push(msg.data);
                     })
-                    
+
                     console.log(msg)
                 }
             });
@@ -573,7 +611,7 @@ controller('syncImages', ['$scope', 'managerServices', '$location', '$routeParam
 }]).
 controller('account', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.suburl = '/frame' + $location.path();
-    
+
     managerServices.getAccountByName($routeParams.account).then(function(data){
         $scope.account = data;
     })
@@ -590,7 +628,7 @@ controller('users', ['$scope', 'managerServices', '$location', function($scope, 
 }]).
 controller('userOverview', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     $scope.tab = 'overview';
-    
+
     managerServices.getUser($routeParams.id).then(function(data){
         $scope.user = data;
     })

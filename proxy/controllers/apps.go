@@ -120,6 +120,21 @@ func (api *AppsAPI) EditApp(c *gin.Context) {
 	}
 }
 
+func (api *AppsAPI) DeleteApp(c *gin.Context) {
+    a := models.AccountFromContext(c)
+    id := c.Params.ByName("id")
+
+    var app models.App
+
+    if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, id).First(&app).Error; err != nil {
+        c.String(404, "")
+        return
+    }
+
+    api.Context.PersistentDB.Delete(&app)
+}
+
+
 func (api *AppsAPI) StartApp(c *gin.Context) {
 	a := models.AccountFromContext(c)
 	var app models.App

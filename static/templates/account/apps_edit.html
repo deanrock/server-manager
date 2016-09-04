@@ -1,3 +1,22 @@
+<script type="text/ng-template" id="apps_delete.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Do you really want to delete app {{form.name}}?</h3>
+    </div>
+    <div class="modal-body">
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="confirm" name="confirmation" value="yes"> Yes, I would like to delete this app
+                    </label>
+                </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-click="delete()">Delete</button>
+    </div>
+</script>
+
 <div data-extend-template="/static/templates/account/layout.html">
    <div data-block="content">
         <form ng-submit="submit()">
@@ -33,10 +52,11 @@
                 <div class="form-group" ng-repeat="variable in variables">
                     <label class="control-label" for="id_variable_{{variable.name}}">{{variable.name}} ({{variable.description}})</label>
                     <textarea ng-show="variable.filename" class=" form-control" cols="40" id="id_variable_{{variable.name}}" name="id_variable_{{variable.name}}" placeholder="{{variable.default}}" ng-model="variable.value" rows="10"></textarea>
-                    <input ng-hide="variable.filename" class=" form-control" id="id_variable_{{variable.name}}" name="id_variable_{{variable.name}}" placeholder="{{variable.default}}" type="text" ng-model="variable.value" /> 
+                    <input ng-hide="variable.filename" class=" form-control" id="id_variable_{{variable.name}}" name="id_variable_{{variable.name}}" placeholder="{{variable.default}}" type="text" ng-model="variable.value" />
                 </div>
             </div>
             <div style="text-align:right">
+                <a href="" class="btn btn-default" ng-click="deleteDialog()">Delete</a>
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
