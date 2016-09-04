@@ -87,4 +87,4 @@ id_rsa.pub
 static/css/.sass-cache
 
 go-libs/pkg/
-
+deployment/*.retry

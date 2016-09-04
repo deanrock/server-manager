@@ -1,0 +1,24 @@
+---
+- name: copy init.d config
+  action: template src=init_d_manager.conf dest=/etc/init.d/manager mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager defaults
+
+- name: copy init.d config
+  action: template src=init_d_proxy.conf dest=/etc/init.d/manager-proxy mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager-proxy defaults
+
+- name: copy init.d config
+  action: template src=init_d_ssh.conf dest=/etc/init.d/manager-ssh-server mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager-ssh-server defaults
+
+- name: copy init.d config
+  action: template src=init_d_cron.conf dest=/etc/init.d/manager-cron mode=700
+
+- name: set manager to run on boot
+  shell: update-rc.d manager-cron defaults

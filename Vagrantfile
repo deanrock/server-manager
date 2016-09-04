@@ -2,8 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure('2') do |config|
-  config.vm.box = "debian-7.8.0-amd64-kraksoft"
-  config.vm.box_url = "https://github.com/kraksoft/vagrant-box-debian/releases/download/7.8.0/debian-7.8.0-amd64.box"
+  config.vm.box = "debian8.1-opscode"
+  config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_debian-8.1_chef-provisionerless.box"
   config.vm.hostname = 'manager'
   
   config.vm.network "private_network", ip: "192.168.50.144"

@@ -1,0 +1,14 @@
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: restart cron
+  command: systemctl restart manager-cron.service
+
+- name: restart ssh
+  command: systemctl restart manager-ssh.service
+
+- name: restart proxy
+  command: systemctl restart manager-proxy.service
+
+- name: restart manager
+  command: systemctl restart manager-manager.service

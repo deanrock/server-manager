@@ -1,0 +1,11 @@
+[Unit]
+Description=server manager Python API
+After=network.target
+
+[Service]
+User=manager
+WorkingDirectory=/home/manager/server-manager/
+ExecStart=/home/manager/server-manager/env/bin/uwsgi --ini manager/uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target

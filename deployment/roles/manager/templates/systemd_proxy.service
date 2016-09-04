@@ -1,0 +1,11 @@
+[Unit]
+Description=server manager API / WEB UI
+After=network.target
+
+[Service]
+User=manager
+WorkingDirectory=/home/manager/server-manager/proxy/
+ExecStart=/home/manager/server-manager/bin/proxy
+
+[Install]
+WantedBy=multi-user.target

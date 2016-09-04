@@ -12,21 +12,19 @@ Server requirements
 Installation
 ============
 
-* Install Debian Wheezy or Jessie
+* Install Debian Jessie
 * Install python2.7
 * Set-up SSH access with user (e.g. john) with sudo privileges
 * Run ansible deploy.yml playbook
-* Add user `manager` as sudo without password
-	
-	#add:
-	manager ALL=(ALL) NOPASSWD:ALL
-	#to /etc/sudoers
-
 * Install libssl-dev (for now, until we fix pull.sh script)
+
+	sudo apt-get install libssl-dev -t jessie-backports
+
 * set mysql root password via mysql_secure_installation command
 * log-in as `manager` and clone repo to /home/manager/server-manager/
 * clone git submodules
 
+	cd server-manager/
 	git submodule update --init --recursive
 
 * create /home/manager/server-manager/manager/settings/production.py with the contents:

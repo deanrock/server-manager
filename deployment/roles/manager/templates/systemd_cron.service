@@ -1,0 +1,11 @@
+[Unit]
+Description=server manager cron daemon
+After=network.target
+
+[Service]
+User=manager
+WorkingDirectory=/home/manager/server-manager/cron/
+ExecStart=/home/manager/server-manager/bin/cron
+
+[Install]
+WantedBy=multi-user.target

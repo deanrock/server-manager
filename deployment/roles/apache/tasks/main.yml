@@ -12,6 +12,10 @@
   action: apt pkg=apache2-mpm-event default_release=wheezy-backports state=latest
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '7'
 
+- name: apache - add non-free jessie repo
+  apt_repository: repo='deb http://ftp.debian.org/debian/ jessie non-free' update_cache=yes state=present
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '8'
+
 - name: install apache2-mpm-event
   action: apt pkg=apache2-mpm-event default_release=jessie-backports state=latest
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '8'
