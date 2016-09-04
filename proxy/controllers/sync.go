@@ -51,6 +51,9 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"nodejs6-base",
 		"nodejs6-base-shell",
 
+        "nodejs4-base",
+        "nodejs4-base-shell",
+
 		"ruby22-base",
 		"ruby22-base-shell",
 
