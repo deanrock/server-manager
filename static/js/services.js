@@ -146,6 +146,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        deleteApp: function(name, id) {
+            var resp = $http.delete('/api/v1/accounts/'+name+'/apps/'+id).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         startApp: function(name, id) {
             var resp = $http.post('/api/v1/accounts/'+name+'/apps/'+id+'/start', {}).
             then(function(response) {

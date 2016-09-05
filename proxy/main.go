@@ -434,6 +434,7 @@ func main() {
 			requiresAccount.GET("/apps", RequireUserAccess("app_access"), apps.ListApps)
 			requiresAccount.GET("/apps/:id", RequireUserAccess("app_access"), apps.GetApp)
 			requiresAccount.PUT("/apps/:id", RequireUserAccess("app_access"), apps.EditApp)
+			requiresAccount.DELETE("/apps/:id", RequireUserAccess("app_access"), apps.DeleteApp)
 			requiresAccount.POST("/apps", RequireUserAccess("app_access"), apps.EditApp)
 			requiresAccount.POST("/apps/:id/redeploy", RequireUserAccess("app_access"), apps.RedeployApp)
 			requiresAccount.POST("/apps/:id/start", RequireUserAccess("app_access"), apps.StartApp)
