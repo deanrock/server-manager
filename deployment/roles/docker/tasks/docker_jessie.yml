@@ -2,8 +2,23 @@
 - name: docker (jessie) - add backports repo
   apt_repository: repo='deb http://http.debian.net/debian jessie-backports main non-free contrib' update_cache=yes state=present
 
+- name: docker (jessie) - remove old docker
+  apt: pkg=docker.io purge=yes state=absent
+
+- name: docker (jessie) - https apt transport
+  apt: name={{item}} state=installed
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+
+- name: docker (jessie) - add docker repo key
+  apt_key: keyserver=p80.pool.sks-keyservers.net id=58118E89F3A912897C070ADBF76221572C52609D
+
+- name: docker (jessie) - add docker repo
+  apt_repository: repo='deb https://apt.dockerproject.org/repo debian-jessie main' update_cache=yes state=present
+
 - name: docker (jessie) - install docker
-  apt: pkg=docker.io
+  apt: pkg=docker-engine update_cache=yes
   notify: docker - start and enable
 
 - name: docker - add cgroup options to kernel boot arguments
