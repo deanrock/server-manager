@@ -1,17 +1,17 @@
 package controllers
 
 import (
+	"../container"
 	"../models"
 	"../shared"
 	"../tasks"
-    "../container"
+	"fmt"
+	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"regexp"
+	"strings"
 	"time"
-    "fmt"
-    "strings"
-    "github.com/fsouza/go-dockerclient"
 )
 
 type AppsAPI struct {
@@ -125,26 +125,25 @@ func (api *AppsAPI) EditApp(c *gin.Context) {
 }
 
 func (api *AppsAPI) DeleteApp(c *gin.Context) {
-    a := models.AccountFromContext(c)
-    id := c.Params.ByName("id")
+	a := models.AccountFromContext(c)
+	id := c.Params.ByName("id")
 
-    var app models.App
+	var app models.App
 
-    // check if app exists
-    if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, id).First(&app).Error; err != nil {
-        c.String(404, "")
-        return
-    }
+	// check if app exists
+	if err := api.Context.PersistentDB.Where("account_id = ? AND id = ?", a.Id, id).First(&app).Error; err != nil {
+		c.String(404, "")
+		return
+	}
 
-    fmt.Println(fmt.Sprintf("test : %s", app.Container_id))
-
-    container_id := ""
-    name := app.ContainerName(a.Name)
+	container_id := ""
+	name := app.ContainerName(a.Name)
 
 	containers, err := container.GetAllContainers(api.Context)
-    if err != nil {
-        c.String(400, "Error getting containers")
-    }
+	if err != nil {
+		c.String(400, "Error getting containers")
+		return
+	}
 
 	for _, c := range containers {
 		for _, n := range c.Names {
@@ -154,33 +153,34 @@ func (api *AppsAPI) DeleteApp(c *gin.Context) {
 		}
 	}
 
-    // container exists, stop / remove it
-    if container_id != "" {
+	// container exists, stop / remove it
+	if container_id != "" {
 
-        //stop container
-    	api.Context.DockerClient.StopContainer(container_id, 0)
+		//stop container
+		api.Context.DockerClient.StopContainer(container_id, 0)
 
-    	//remove container
-    	if err := api.Context.DockerClient.RemoveContainer(docker.RemoveContainerOptions{
-            ID: container_id,
-        }); err != nil {
-    		c.String(400, fmt.Sprintf("cannot remove container: %s", err))
-    	}
-    }
+		//remove container
+		if err := api.Context.DockerClient.RemoveContainer(docker.RemoveContainerOptions{
+			ID: container_id,
+		}); err != nil {
+			c.String(400, fmt.Sprintf("cannot remove container: %s", err))
+			return
+		}
+	}
 
-    //get image
+	//get image
 	var image models.Image
 
 	if err := api.Context.PersistentDB.Where("id = ?", app.Image_id).First(&image).Error; err == nil {
-        //remove image
-    	if err := api.Context.DockerClient.RemoveImage(fmt.Sprintf("manager/%s", name)); err != nil {
-    		c.String(400, fmt.Sprintf("cannot remove image: %s", err))
-    	}
+		//remove image
+		if err := api.Context.DockerClient.RemoveImage(fmt.Sprintf("manager/%s", name)); err != nil {
+			c.String(400, fmt.Sprintf("cannot remove image: %s", err))
+			return
+		}
 	}
 
-    api.Context.PersistentDB.Delete(&app)
+	api.Context.PersistentDB.Delete(&app)
 }
-
 
 func (api *AppsAPI) StartApp(c *gin.Context) {
 	a := models.AccountFromContext(c)
