@@ -60,7 +60,7 @@ Development env setup
 
 	$ vagrant ssh
 
-3. copy your public key to ~/files/.ssh/authorized_keys on vagrant
+3. copy your public key to ~/.ssh/authorized_keys on vagrant
 4. go to deployment/ subdirectory and run ansible playbook
 	
 	$ cd deployment/
