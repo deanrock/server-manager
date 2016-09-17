@@ -4,7 +4,8 @@
             <div class="form-group" ng-class="{'has-error': errors.type}">
                 <label class="control-label" for="type">Type</label>
                 <div class=" ">
-                    <input class="form-control" id="type" maxlength="50" ng-model="form.type" name="type" type="text" />
+                    <select class="form-control" id="type" ng-model="form.type" ng-options="i for i in database_options">
+                    </select>
                 </div>
                 <span class="help-block" ng-repeat="error in errors.type">{{error.error}}</span>
             </div>

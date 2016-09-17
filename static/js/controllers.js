@@ -956,6 +956,11 @@ controller('accountDatabaseEdit', ['$scope', 'managerServices', '$location', '$r
         $scope.account = data;
     });
 
+    $scope.database_options = [
+      "mysql",
+      "postgres"
+    ];
+
     $scope.form = {
         type: 'mysql'
     };
