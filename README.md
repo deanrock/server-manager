@@ -55,7 +55,7 @@ Execute as `manager` user:
 Development env setup
 =====================
 
-1. install ansible, vagrant, clone git
+1. install ansible, vagrant, clone git and its submodules
 2. ssh to VM
 
 	`$ vagrant ssh`
