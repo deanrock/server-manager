@@ -46,4 +46,8 @@ go get
 go install
 go build -o ../bin/ssh-server main.go
 
+cd $DIR
+echo -e "${green}[go] archiving files ...${NC}"
+tar cvfz package.tar.gz bin/ config-example.json static/ proxy/templates/ images/
+
 echo -e "${green}[all] finished${NC}"
