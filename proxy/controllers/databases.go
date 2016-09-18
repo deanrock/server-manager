@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"../helpers"
 	"../models"
 	"../shared"
-	"../helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"regexp"
@@ -112,13 +112,23 @@ func (api *DatabasesAPI) EditDatabase(c *gin.Context) {
 	api.Context.PersistentDB.Save(&database)
 
 	if id == "" {
-			success, err := helpers.CreateMysqlDatabase(&database)
 
+		switch database.Type {
+		case "mysql":
+			success, err := helpers.CreateMysqlDatabase(&database)
 			if !success {
 				c.JSON(400, err)
 				return
 			}
+		case "postgres":
+			success, err := helpers.CreatePostgresDatabase(&database)
+			if !success {
+				c.JSON(400, err)
+				return
+			}
+		}
+
 	} else {
-			// change mysql database password
+		// change mysql database password
 	}
 }

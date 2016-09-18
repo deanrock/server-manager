@@ -41,6 +41,9 @@
            state=started
            enabled=yes
 
-- name: Ensure postgres user is created and has a password
-  user:
-    name=postgres password={{ postgres_user_password | password_hash('sha512') }} state=present
+# Note: postgres unix user has no password, but postgres db user has the password specified in {{ postgres_user_password }}
+# since we are using TCP authentication in proxy project
+
+- name: ensure manager has a role that can create databases
+  postgresql_user: name=postgres password={{ postgres_user_password }} role_attr_flags=SUPERUSER,CREATEDB state=present
+  become_user: postgres
