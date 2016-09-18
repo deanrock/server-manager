@@ -11,3 +11,4 @@ deploy:
   on:
     repo: deanrock/server-manager
     branch: travis
+    tags: true
