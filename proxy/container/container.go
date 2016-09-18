@@ -52,7 +52,7 @@ func GetHostConfig(account *models.Account, context *shared.SharedContext, docke
 
 	return &docker.HostConfig{
 		Binds:      []string{"/home/" + account.Name + ":/home/" + account.Name},
-		ExtraHosts: []string{"mysql:172.17.42.1"},
+		ExtraHosts: []string{"mysql:172.17.42.1", "postgres:172.17.42.1"},
 		Links:      links,
 	}, nil
 }

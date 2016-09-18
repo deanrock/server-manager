@@ -62,7 +62,7 @@ RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src
     && cd /usr/local/src && tar xvfz python344.tgz && cd /usr/local/src/Python-3.4.4 && ./configure --prefix=/usr/local/opt/python-3.4 \
     && make && make install
 
-RUN apt-get install -y libffi-dev libmysqlclient-dev libmemcached-dev libpq-dev
+RUN apt-get install -y libffi-dev libmysqlclient-dev libmemcached-dev libpq-dev python-psycopg2 postgresql-client
 
 RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src/python351.tgz https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz \
     && cd /usr/local/src && tar xvfz python351.tgz && cd /usr/local/src/Python-3.5.1 && ./configure --prefix=/usr/local/opt/python-3.5 \
