@@ -970,6 +970,31 @@ controller('accountDatabaseEdit', ['$scope', 'managerServices', '$location', '$r
         });
     }
 
+    $scope.deleteDialog = function() {
+        var modalInstance = $modal.open({
+            animation: true,
+            templateUrl: 'apps_delete.html',
+            controller: 'accountAppEditDeleteDialog',
+            size: '',
+            resolve: {
+                form: function () {
+                    return $scope.app;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (f) {
+            managerServices.deleteApp($routeParams.account, f.id).then(function(data) {
+                $location.path('/a/'+$scope.account.name+'/apps');
+            }, function(err) {
+                console.log(err);
+            });
+        }, function () {
+
+        });
+    };
+
+
     $scope.submit = function() {
         if ($scope.form.id === undefined) {
             managerServices.addDatabase($routeParams.account, $scope.form).then(function(data) {

@@ -3,6 +3,7 @@ package controllers
 import (
 	"../models"
 	"../shared"
+	"../helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"regexp"
@@ -38,7 +39,7 @@ func (api *DatabasesAPI) validate(c *gin.Context) (*models.Database, *shared.For
 
 	fe := shared.NewFormErrors()
 
-	if form.Type != "mysql" {
+	if form.Type != "mysql" && form.Type != "postgres" {
 		fe.Add("type", "This type is not supported.")
 	}
 
@@ -109,4 +110,15 @@ func (api *DatabasesAPI) EditDatabase(c *gin.Context) {
 	database.Type = form.Type
 
 	api.Context.PersistentDB.Save(&database)
+
+	if id == "" {
+			success, err := helpers.CreateMysqlDatabase(&database)
+
+			if !success {
+				c.JSON(400, err)
+				return
+			}
+	} else {
+			// change mysql database password
+	}
 }
