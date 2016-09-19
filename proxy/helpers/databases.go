@@ -2,13 +2,14 @@ package helpers
 
 import (
 	"../models"
+	"../shared"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 )
 
-func CreateMysqlDatabase(database *models.Database) (bool, error) {
+func CreateMysqlDatabase(sharedContext *shared.SharedContext, database *models.Database) (bool, error) {
 
 	success := true
 	db, err := sql.Open("mysql", "root:"+"password"+"@tcp(127.0.0.1:3306)/")
@@ -36,7 +37,7 @@ func CreateMysqlDatabase(database *models.Database) (bool, error) {
 	return success, err
 }
 
-func CreatePostgresDatabase(database *models.Database) (bool, error) {
+func CreatePostgresDatabase(sharedContext *shared.SharedContext, database *models.Database) (bool, error) {
 
 	success := true
 	db, err := sql.Open("postgres", "user=postgres password=password sslmode=disable host=localhost")

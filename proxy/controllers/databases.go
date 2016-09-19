@@ -115,13 +115,13 @@ func (api *DatabasesAPI) EditDatabase(c *gin.Context) {
 
 		switch database.Type {
 		case "mysql":
-			success, err := helpers.CreateMysqlDatabase(&database)
+			success, err := helpers.CreateMysqlDatabase(api.Context, &database)
 			if !success {
 				c.JSON(400, err)
 				return
 			}
 		case "postgres":
-			success, err := helpers.CreatePostgresDatabase(&database)
+			success, err := helpers.CreatePostgresDatabase(api.Context, &database)
 			if !success {
 				c.JSON(400, err)
 				return
