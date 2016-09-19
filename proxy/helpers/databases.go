@@ -12,7 +12,7 @@ import (
 func CreateMysqlDatabase(sharedContext *shared.SharedContext, database *models.Database) (bool, error) {
 
 	success := true
-	db, err := sql.Open("mysql", "root:"+"password"+"@tcp(127.0.0.1:3306)/")
+	db, err := sql.Open("mysql", "root:"+sharedContext.Config.Mysql_root_password+"@tcp(127.0.0.1:3306)/")
 	defer db.Close()
 
 	if err != nil {
@@ -40,7 +40,7 @@ func CreateMysqlDatabase(sharedContext *shared.SharedContext, database *models.D
 func CreatePostgresDatabase(sharedContext *shared.SharedContext, database *models.Database) (bool, error) {
 
 	success := true
-	db, err := sql.Open("postgres", "user=postgres password=password sslmode=disable host=localhost")
+	db, err := sql.Open("postgres", "user=postgres password="+ sharedContext.Config.Postgres_root_password +" sslmode=disable host=localhost")
 	defer db.Close()
 
 	if err != nil {

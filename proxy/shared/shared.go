@@ -3,11 +3,11 @@ package shared
 import (
 	"../realtime"
 	"bytes"
+	"encoding/json"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
-	"encoding/json"
 	"log"
 )
 
