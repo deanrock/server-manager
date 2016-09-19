@@ -55,7 +55,7 @@
     - restart postgresql
 
 - name: change pg_hba.conf to allow docker hosts to connect
-  lineinfile: dest=/etc/postgresql/9.5/main/pg_hba.conf line="host    all             all             172.0.0.1/8            md5" state=present create=True backup=yes
+  lineinfile: dest=/etc/postgresql/9.5/main/pg_hba.conf line="host all all 172.0.0.1/8 md5" state=present create=True backup=yes
   sudo: True
   notify:
     - restart postgresql
