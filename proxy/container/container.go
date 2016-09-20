@@ -1,18 +1,45 @@
 package container
 
 import (
-	"../models"
-	"../shared"
 	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/fsouza/go-dockerclient"
+	"net"
 	"strings"
 	"time"
+
+	"github.com/fsouza/go-dockerclient"
+
+	"../models"
+	"../shared"
 )
 
 type Container struct {
+}
+
+func getDockerHostAddress() (string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	for _, i := range ifaces {
+		if strings.HasPrefix(i.Name, "docker") {
+			addrs, err := i.Addrs()
+			if err != nil {
+				return "", err
+			}
+
+			for _, a := range addrs {
+				switch v := a.(type) {
+				case *net.IPNet:
+					return v.IP.String(), nil
+				}
+			}
+		}
+	}
+
+	return "", errors.New("cannot find network interface")
 }
 
 func GetHostConfig(account *models.Account, context *shared.SharedContext, dockerClient *docker.Client, app *models.App) (*docker.HostConfig, error) {
@@ -50,9 +77,14 @@ func GetHostConfig(account *models.Account, context *shared.SharedContext, docke
 		}
 	}
 
+	hostAddress, err := getDockerHostAddress()
+	if err != nil {
+		return nil, err
+	}
+
 	return &docker.HostConfig{
 		Binds:      []string{"/home/" + account.Name + ":/home/" + account.Name},
-		ExtraHosts: []string{"mysql:172.17.42.1", "postgres:172.17.42.1"},
+		ExtraHosts: []string{"mysql:" + hostAddress, "postgres:" + hostAddress},
 		Links:      links,
 	}, nil
 }
