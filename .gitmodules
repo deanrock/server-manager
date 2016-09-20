@@ -46,3 +46,6 @@
 [submodule "go-libs/src/github.com/gin-gonic/gin"]
 	path = go-libs/src/github.com/gin-gonic/gin
 	url = https://github.com/gin-gonic/gin
+[submodule "go-libs/src/github.com/go-sql-driver/mysql"]
+	path = go-libs/src/github.com/go-sql-driver/mysql
+	url = https://github.com/go-sql-driver/mysql
