@@ -1,0 +1,14 @@
+language: go
+go:
+- 1.7
+script: make build
+deploy:
+  provider: releases
+  api_key:
+    secure: WlU2hVovQ5w+WRJP7FnUWuOd+qq0K7rf9J2JHzKBg3oYKezsyJcEtbVltD1j8wni0Ojrpoc2LC/7vtv59VkFA5TpOYEFVfvYzg+WFlI7MMK+IlY4SUvDLkdub01Kw6K+Y/+j0/SYnn3Zfj90XViyRn09iytmL/m2U5jHrE1Hj+VzcvWLyE0LavxUhpTaG0uHWDWDsl67ek/SZ8G9F2M41K+HRN/G8FPD4eJLX6QDZFD1e5uPCiK0e01tJVdeP4VAuYd82PVOb14+DVd5D9otzhDIKhUA3DG+Zuxy03Pcnn48iINXGB5rk2cLU74NEVdypa/NKJCF/lhRJxYFKvZUQB1xQmb3TaspkThJP1aCOqC5woQC/o1kcth16GQkl09Ldqo7Ju55MpXLFeBik44KWQFSm04IX5gt+uvfGNMu2uBHWMRnpeiW1sr2Z1zmibwbqfZYmmJgIqYSbLnQDJEia95vl85mEGYSPhBAmN71GalfDPiG9wXlmC48PFdH+qC69nq8Dh7bQY8HqzaOELoGY/kcqIDxawgmX/eemJYpi2ZXNK5sukjxPFsyt68siWxmkSBo1ympTDhH5HGvfAWnjLLgmfgvKMRDYF7Bm4ltrtGsSzAcPVBE1OesgfiK2T60r0PM7iKidN6TP+Yd/McOomsxiE180rfbELi3yaTlBZ4=
+  file: package.tar.gz
+  skip_cleanup: true
+  on:
+    repo: deanrock/server-manager
+    branch: travis
+    tags: true
