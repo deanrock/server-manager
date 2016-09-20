@@ -4,4 +4,4 @@
 [dev:vars]
 ansible_ssh_user=vagrant
 mysql_root_password=password
-postgres_root_password=password
+postgres_user_password=password
