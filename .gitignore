@@ -90,4 +90,4 @@ go-libs/pkg/
 deployment/*.retry
 
 # add exception for libs folder inside go-libs
-!github.com/lib
+!go-libs/src/github.com/lib
