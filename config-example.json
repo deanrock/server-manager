@@ -1,3 +1,5 @@
 {
-	"server_name": "NONAME"
+	"server_name": "NONAME",
+	"mysql_root_password": "password",
+	"postgres_root_password": "password"
 }

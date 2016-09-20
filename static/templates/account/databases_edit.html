@@ -4,7 +4,8 @@
             <div class="form-group" ng-class="{'has-error': errors.type}">
                 <label class="control-label" for="type">Type</label>
                 <div class=" ">
-                    <input class="form-control" id="type" maxlength="50" ng-model="form.type" name="type" type="text" />
+                    <select class="form-control" id="type" ng-model="form.type" ng-options="i for i in database_options" ng-disabled="form.id">
+                    </select>
                 </div>
                 <span class="help-block" ng-repeat="error in errors.type">{{error.error}}</span>
             </div>
@@ -12,7 +13,7 @@
             <div class="form-group" ng-class="{'has-error': errors.name}">
                 <label class="control-label" for="name">Name</label>
                 <div class=" ">
-                    <input class="form-control" id="name" maxlength="50" ng-model="form.name" name="name" type="text" />
+                    <input class="form-control" id="name" maxlength="50" ng-model="form.name" name="name" type="text" ng-disabled="form.id"/>
                     <p class="help-block" style="color: #737373;">
                     Max 50 characters!
                 </p>
@@ -23,7 +24,7 @@
             <div class="form-group" ng-class="{'has-error': errors.user}">
                 <label class="control-label" for="user">User</label>
                 <div class=" ">
-                    <input class="form-control" id="user" maxlength="16" ng-model="form.user" name="user" type="text" />
+                    <input class="form-control" id="user" maxlength="16" ng-model="form.user" name="user" type="text" ng-disabled="form.id"/>
                     <p class="help-block" style="color: #737373;">
                     Max 16 characters!
                 </p>

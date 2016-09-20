@@ -7,7 +7,6 @@ import (
 	"./realtime"
 	"./shared"
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,7 +15,6 @@ import (
 	"github.com/gorilla/websocket"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/samalba/dockerclient"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -309,21 +307,12 @@ func RequireStaff() gin.HandlerFunc {
 	}
 }
 
-type Config struct {
-	Server_name             string `json:"server_name"`
-	Mysql_connection_string string `json:"mysql_connection_string"`
-}
-
 type Profile struct {
 	Server_name string      `json:"server_name"`
 	User        models.User `json:"user"`
 }
 
 func main() {
-	c, _ := ioutil.ReadFile("../config.json")
-	dec := json.NewDecoder(bytes.NewReader(c))
-	var config Config
-	dec.Decode(&config)
 
 	//Docker
 	// Init the client
@@ -331,6 +320,7 @@ func main() {
 
 	sharedContext = &shared.SharedContext{}
 	sharedContext.OpenDB("../manager/db.sqlite3")
+	sharedContext.InitConfig("../config.json")
 	sharedContext.PersistentDB.LogMode(true)
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJobLog{})
@@ -381,7 +371,7 @@ func main() {
 			uid := c.MustGet("uid").(*int)
 			user, _ := models.FindUserById(sharedContext, *uid)
 			p := Profile{
-				Server_name: config.Server_name,
+				Server_name: sharedContext.Config.Server_name,
 				User:        *user,
 			}
 

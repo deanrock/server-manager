@@ -88,3 +88,6 @@ static/css/.sass-cache
 
 go-libs/pkg/
 deployment/*.retry
+
+# add exception for libs folder inside go-libs
+!go-libs/src/github.com/lib
