@@ -9,6 +9,7 @@ ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
 #ffmpeg
 RUN echo "deb http://www.deb-multimedia.org wheezy main non-free" >> /etc/apt/sources.list && \
 	echo "deb-src http://www.deb-multimedia.org wheezy main non-free" >> /etc/apt/sources.list && \
+	echo "deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main" >> /etc/apt/sources.list && \
 	apt-get update && \
 	apt-get install -y --force-yes deb-multimedia-keyring && \
 	apt-get update && \
@@ -62,7 +63,7 @@ RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src
     && cd /usr/local/src && tar xvfz python344.tgz && cd /usr/local/src/Python-3.4.4 && ./configure --prefix=/usr/local/opt/python-3.4 \
     && make && make install
 
-RUN apt-get install -y libffi-dev libmysqlclient-dev libmemcached-dev libpq-dev python-psycopg2 postgresql-client
+RUN apt-get install -y libffi-dev libmysqlclient-dev libmemcached-dev libpq-dev python-psycopg2 postgresql-client-9.5
 
 RUN mkdir -p /usr/local/opt && mkdir -p /usr/local/src && wget -O /usr/local/src/python351.tgz https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz \
     && cd /usr/local/src && tar xvfz python351.tgz && cd /usr/local/src/Python-3.5.1 && ./configure --prefix=/usr/local/opt/python-3.5 \

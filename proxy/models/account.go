@@ -1,10 +1,11 @@
 package models
 
 import (
-	"../shared"
-	"github.com/gin-gonic/gin"
 	"os/user"
 	"time"
+
+	"../shared"
+	"github.com/gin-gonic/gin"
 )
 
 type Account struct {
