@@ -53,6 +53,10 @@ RUN echo "deb http://www.deb-multimedia.org wheezy main non-free" >> /etc/apt/so
 	checkinstall -D --install=no --pkgname=ffmpeg-full --autodoinst=yes -y && \
 	dpkg -i ffmpeg-full_*-1_amd64.deb
 
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+  apt-key add -
+RUN apt-get update
+
 #wkhtmltox
 RUN apt-get install -y fontconfig libxrender1 xfonts-base xfonts-75dpi && \
 	cd /tmp && \
