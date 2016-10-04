@@ -1,25 +1,27 @@
 package main
 
 import (
+	"fmt"
+	"os/exec"
+
 	"../proxy/container"
 	"../proxy/models"
 	"../proxy/shared"
-	"fmt"
 	"github.com/fsouza/go-dockerclient"
-	"os/exec"
 	//"errors"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
-	"github.com/jinzhu/gorm"
-	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
 	"strings"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/ssh"
 )
 
 var sharedContext *shared.SharedContext
@@ -151,7 +153,10 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 		out, err := exec.Command("id", "-u", s.AccountName).Output()
 
 		if err != nil {
-			return
+			returnExitCode(255, channel)
+			channel.Close()
+			log.Println("user doesn't exist")
+			continue
 		}
 
 		uid := strings.Replace(string(out), "\n", "", 1)

@@ -46,7 +46,10 @@
 
 - name: ensure manager has a role that can create databases
   postgresql_user: name=postgres password={{ postgres_user_password }} role_attr_flags=SUPERUSER,CREATEDB state=present
+  become: yes
   become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
 
 - name: change listen_addresses to '*'
   lineinfile: dest=/etc/postgresql/9.5/main/postgresql.conf regexp="^#listen_addresses" line="listen_addresses = '*'" state=present backup=yes
