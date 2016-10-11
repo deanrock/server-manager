@@ -1,17 +1,18 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"time"
+
 	"../container"
 	"../helpers"
 	"../models"
 	"../shared"
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
-	"log"
-	"time"
 )
 
 type SyncAPI struct {
@@ -51,13 +52,16 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"nodejs6-base",
 		"nodejs6-base-shell",
 
-        "nodejs4-base",
-        "nodejs4-base-shell",
+		"nodejs4-base",
+		"nodejs4-base-shell",
 
 		"ruby22-base",
 		"ruby22-base-shell",
 
 		"mongo3.2-base",
+
+		"elixir1.3-base",
+		"elixir1.3-base-shell",
 
 		"manager-file-proxy",
 	}

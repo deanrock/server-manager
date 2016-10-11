@@ -1,0 +1,22 @@
+{
+    "id": 26,
+	"name": "elixir1.3-hosting",
+	"description": "elixir1.3 hosting (standalone app)",
+	"type": "application",
+	"ports": [
+		{
+			"port": 8080,
+			"type": "http"
+		}
+	],
+	"variables": [
+		{
+			"name": "chdir_path",
+			"description": "path to chdir to before running the command"
+		},
+		{
+			"name": "command",
+			"description": "Command to run (e.g. ./start.sh)"
+		}
+	]
+}
