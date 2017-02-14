@@ -1,4 +1,4 @@
-FROM manager/debian7base
+FROM deanrock/server-manager:debian7base
 
 ENV GPG_KEYS \
 	DFFA3DCF326E302C4787673A01C4E7FAAAB2461C \

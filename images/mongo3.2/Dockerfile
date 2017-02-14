@@ -1,4 +1,4 @@
-FROM manager/mongo3.2-base
+FROM deanrock/server-manager:mongo3.2-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 

@@ -1,1 +1,1 @@
-FROM manager/debian7base
+FROM deanrock/server-manager:debian7base

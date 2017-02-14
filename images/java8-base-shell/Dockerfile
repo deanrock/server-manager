@@ -1,4 +1,4 @@
-FROM manager/java8-base
+FROM deanrock/server-manager:java8-base
 
 RUN mkdir /mystuff
 ADD start.sh /mystuff/

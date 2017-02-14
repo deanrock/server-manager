@@ -1,4 +1,4 @@
-FROM manager/php56-base
+FROM deanrock/server-manager:php56-base
 
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD www.conf /etc/php5/fpm/pool.d/www.conf

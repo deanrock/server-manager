@@ -1,4 +1,4 @@
-FROM manager/python27-base-shell
+FROM deanrock/server-manager:python27-base-shell
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 

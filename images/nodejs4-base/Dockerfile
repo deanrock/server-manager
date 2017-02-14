@@ -1,4 +1,4 @@
-FROM manager/ruby22-base
+FROM deanrock/server-manager:ruby22-base
 
 RUN apt-get install curl && \
 	curl -sL https://deb.nodesource.com/setup_4.x | bash - && \

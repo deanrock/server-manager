@@ -1,4 +1,4 @@
-FROM manager/debian7basehosting
+FROM deanrock/server-manager:debian7basehosting
 
 RUN echo "deb http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.list.d/dotdeb.list && \
 	echo "deb-src http://packages.dotdeb.org wheezy-php56 all" >> /etc/apt/sources.list.d/dotdeb.list && \

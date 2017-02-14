@@ -1,4 +1,4 @@
-FROM manager/debian7base
+FROM deanrock/server-manager:debian7base
 
 ENV REDIS_VERSION 2.8.19
 ENV REDIS_DOWNLOAD_URL http://download.redis.io/releases/redis-2.8.19.tar.gz

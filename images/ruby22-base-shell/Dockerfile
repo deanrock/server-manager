@@ -1,1 +1,1 @@
-FROM manager/ruby22-base
+FROM deanrock/server-manager:ruby22-base

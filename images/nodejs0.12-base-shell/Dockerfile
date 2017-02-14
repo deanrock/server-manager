@@ -1,4 +1,4 @@
-FROM manager/nodejs0.12-base
+FROM deanrock/server-manager:nodejs0.12-base
 
 RUN mkdir /mystuff
 ADD start.sh /mystuff/

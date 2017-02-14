@@ -1,4 +1,4 @@
-FROM manager/debian8base
+FROM deanrock/server-manager:debian8base
 
 #start script
 RUN mkdir /mystuff

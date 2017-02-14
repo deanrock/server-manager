@@ -1,4 +1,4 @@
-FROM manager/debian7base
+FROM deanrock/server-manager:debian7base
 
 ENV RUBY_MAJOR 2.2
 ENV RUBY_VERSION 2.2.5

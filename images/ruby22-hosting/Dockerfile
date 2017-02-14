@@ -1,4 +1,4 @@
-FROM manager/ruby22-base
+FROM deanrock/server-manager:ruby22-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 
