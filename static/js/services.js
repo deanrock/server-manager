@@ -230,6 +230,20 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        addUser: function(params) {
+            var resp = $http.post('/api/v1/users', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
+        editUser: function(id, params) {
+            var resp = $http.put('/api/v1/users/'+id, params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getUserAccess: function(id) {
             var resp = $http.get('/api/v1/users/'+id+'/access').
             then(function(response) {

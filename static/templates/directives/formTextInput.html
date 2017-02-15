@@ -1,0 +1,7 @@
+<div class="form-group" ng-class="{'has-error': errors}">
+     <label class="control-label" for="{{name}}">{{label}}</label>
+     <div class=" ">
+         <input class="form-control" id="{{name}}" ng-model="model" maxlength="255" name="{{name}}" type="text" />
+     </div>
+     <span class="help-block" ng-repeat="error in errors">{{error.error}}</span>
+ </div>

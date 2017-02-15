@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
 
 	"./container"
 	"./controllers"
+	"./helpers"
 	"./models"
 	"./realtime"
 	"./shared"
@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/websocket"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/samalba/dockerclient"
+	"github.com/wader/gormstore"
 )
 
 var sharedContext *shared.SharedContext
@@ -191,37 +192,28 @@ func containerLogsHandler(c *gin.Context) {
 	}
 }
 
-func proxyRequest(c *gin.Context) {
-	director := func(req *http.Request) {
-		req = c.Request
-		req.URL.Scheme = "http"
-		req.URL.Host = "127.0.0.1:5555"
-	}
-	proxy := &httputil.ReverseProxy{Director: director}
-	proxy.ServeHTTP(c.Writer, c.Request)
-}
-
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := readCookie(c)
+		uid, _ := helpers.GetSessionValue(c, "user_id")
 
-		if userId != nil {
-			u, err := models.FindUserById(sharedContext, *userId)
+		if uid != nil {
+			userID := uid.(int)
+			u, err := models.FindUserById(sharedContext, userID)
 
 			if err != nil {
 				c.AbortWithError(500, errors.New("cannot handle"))
 				c.Abort()
 			}
 
-			c.Set("uid", userId)
+			c.Set("uid", &userID)
 			c.Set("user", *u)
 
 			var access []models.UserAccess
-			sharedContext.PersistentDB.Where("user_id = ?", userId).Find(&access)
+			sharedContext.PersistentDB.Where("user_id = ?", userID).Find(&access)
 			c.Set("userAccess", access)
 		} else {
 			//c.AbortWithError(401, errors.New("Unauthorized"))
-			c.Redirect(http.StatusSeeOther, "/accounts/login/?next=/")
+			c.Redirect(http.StatusSeeOther, "/login")
 			c.Abort()
 		}
 
@@ -308,6 +300,13 @@ func RequireStaff() gin.HandlerFunc {
 	}
 }
 
+func Session(store *gormstore.Store) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("store", store)
+		c.Next()
+	}
+}
+
 type Profile struct {
 	Server_name string      `json:"server_name"`
 	User        models.User `json:"user"`
@@ -344,7 +343,15 @@ func Start() {
 	///////r.Use(gin.Recovery()) !!! DONT USE gin.Recovery or gin.Default, because it ignores middleware if it panics ...
 	//                               which means that panic in Authentication() or RequireStaff() can allow unauthorized users access to all paths
 
-	r.LoadHTMLGlob("templates/*")
+	r.LoadHTMLGlob("proxy/templates/*")
+
+	// sessions
+	store := gormstore.New(&sharedContext.PersistentDB, []byte("secret"))
+	// db cleanup every hour
+	// close quit channel to stop cleanup
+	quit := make(chan struct{})
+	go store.PeriodicCleanup(1*time.Hour, quit)
+	r.Use(Session(store))
 
 	authorized := r.Group("/")
 
@@ -490,6 +497,8 @@ func Start() {
 		u := authorized.Group("/api/v1/users", RequireStaff())
 		{
 			u.GET("", users.ListUsers)
+			u.POST("", users.EditUser)
+			u.PUT(":id", users.EditUser)
 			u.GET(":id", users.GetUser)
 			u.GET(":id/access", users.GetAccess)
 			u.POST(":id/access/:account", users.SetAccess)
@@ -535,6 +544,10 @@ func Start() {
 			c.HTML(200, "index.tmpl", nil)
 		})
 
+		authorized.GET("/users", func(c *gin.Context) {
+			c.HTML(200, "index.tmpl", nil)
+		})
+
 		authorized.GET("/users/*params", func(c *gin.Context) {
 			c.HTML(200, "index.tmpl", nil)
 		})
@@ -548,6 +561,27 @@ func Start() {
 		})
 	}
 
+	//auth
+	auth := &controllers.AuthAPI{
+		Context: sharedContext,
+	}
+
+	r.POST("/api/v1/auth/login", auth.Login)
+
+	// login template
+	r.GET("/login", func(c *gin.Context) {
+		c.HTML(200, "login.tmpl", nil)
+	})
+
+	r.NoRoute(func(c *gin.Context) {
+		user, _ := helpers.GetSessionValue(c, "user_id")
+		if user == nil {
+			c.Redirect(http.StatusTemporaryRedirect, "/login")
+		} else {
+			c.AbortWithStatus(404)
+		}
+	})
+
 	s := &http.Server{
 		Addr:           ":4444",
 		Handler:        r,
@@ -556,16 +590,13 @@ func Start() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	r.Static("/static/ace", "../static/ace")
-	r.Static("/static/bootstrap", "../static/bootstrap")
-	r.Static("/static/css", "../static/css")
-	r.Static("/static/js", "../static/js")
-	r.Static("/static/images", "../static/images")
-	r.Static("/static/vendor", "../static/vendor")
-	r.Static("/static/templates", "../static/templates")
-	r.Static("/static/admin", "../env/lib/python2.7/site-packages/django/contrib/admin/static/admin")
-
-	r.NoRoute(proxyRequest)
+	r.Static("/static/ace", "static/ace")
+	r.Static("/static/bootstrap", "static/bootstrap")
+	r.Static("/static/css", "static/css")
+	r.Static("/static/js", "static/js")
+	r.Static("/static/images", "static/images")
+	r.Static("/static/vendor", "static/vendor")
+	r.Static("/static/templates", "static/templates")
 
 	//certFile := "../ssl.crt"
 	//keyFile := "../ssl.key"

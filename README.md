@@ -13,14 +13,6 @@
 * Set-up SSH access with user (e.g. john) with sudo privileges
 * Run ansible deploy.yml playbook
 * set mysql root password via mysql_secure_installation command
-* log-in as `manager` and clone repo to /home/manager/server-manager/
-* clone git submodules
-```bash
-	cd server-manager/
-	git submodule update --init --recursive
-```
-
-* cd to `server-manager/`` folder and run `./pull.sh production`
 
 ## First run
 

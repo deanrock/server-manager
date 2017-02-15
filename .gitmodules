@@ -52,3 +52,9 @@
 [submodule "go-libs/src/github.com/lib/pq"]
 	path = go-libs/src/github.com/lib/pq
 	url = https://github.com/lib/pq
+[submodule "go-libs/src/github.com/gin-contrib/sessions"]
+	path = go-libs/src/github.com/gin-contrib/sessions
+	url = https://github.com/gin-contrib/sessions
+[submodule "go-libs/src/github.com/wader/gormstore"]
+	path = go-libs/src/github.com/wader/gormstore
+	url = https://github.com/wader/gormstore.git

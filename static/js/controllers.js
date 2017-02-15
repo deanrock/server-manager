@@ -15,6 +15,11 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
             console.log(err);
         });
     }
+
+    $scope.logout = function() {
+        document.cookie = 'session=; expires=' + +new Date() + ';';
+        location.href = '/';
+    }
 }]).
 controller('tasksCtrl', ['$scope', '$rootScope', 'managerServices', '$window', '$interval', '$location', function($scope, $rootScope, managerServices, $window, $interval, $location) {
     $scope.tasks = [];
@@ -643,7 +648,31 @@ controller('userOverview', ['$scope', 'managerServices', '$location', '$routePar
 
     managerServices.getUser($routeParams.id).then(function(data){
         $scope.user = data;
-    })
+    });
+
+    $scope.save = function() {
+        managerServices.editUser($routeParams.id, $scope.user).then(function(data){
+            $scope.errors = null;
+
+            managerServices.getUser($routeParams.id).then(function(data){
+                $scope.user = data;
+            });
+        }, function(err) {
+            $scope.errors = err.data.errors;
+        });
+    }
+
+    $scope.action = $routeParams.action;
+}]).
+controller('userAdd', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+    $scope.save = function() {
+        managerServices.addUser($scope.user).then(function(data){
+            $scope.errors = null;
+            $scope.user = data.data;
+        }, function(err) {
+            $scope.errors = err.data.errors;
+        });
+    }
 
     $scope.action = $routeParams.action;
 }]).

@@ -1,0 +1,12 @@
+<form ng-submit="save()">
+    <form-text-input model="user.first_name" label="First name" errors="errors.first_name"></form-text-input>
+    <form-text-input model="user.last_name" label="Last name" errors="errors.last_name"></form-text-input>
+    <form-text-input model="user.username" label="Username" errors="errors.username"></form-text-input>
+    <form-text-input model="user.password" label="Password" errors="errors.password"></form-text-input>
+    <form-text-input model="user.email" label="Email" errors="errors.email"></form-text-input>
+    <form-checkbox model="user.is_active" label="Is active?" errors="errors.is_active"></form-checkbox>
+    <form-checkbox model="user.is_staff" label="Is admin?" errors="errors.is_staff"></form-checkbox>
+    <div style="text-align:right">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>

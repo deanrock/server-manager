@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="loginApp">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Manager</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/login.css" rel="stylesheet">
+  </head>
+
+  <body ng-controller="loginCtrl">
+    <nav class="navbar navbar-fixed-top navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Manager</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->
+
+    <div class="container">
+        <p ng-if="error">Your username and password didn't match. Please try again.</p>
+              <form class="form-signin" ng-submit="login()">
+                <h2 class="form-signin-heading">Login</h2>
+
+                <label for="inputEmail" class="sr-only">Username</label>
+                <input type="username" id="username" class="form-control" name="username" ng-model="user.username" placeholder="Username" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" id="inputPassword" class="form-control" name="password" ng-model="user.password" placeholder="Password" required>
+                <!--<div class="checkbox">
+                  <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                  </label>
+                </div>-->
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+              </form>
+    </div><!--/.container-->
+    <script src="/static/vendor/angular.min.js"></script>
+    <script>
+    var app = angular.module('loginApp', [])
+    .controller('loginCtrl', ['$scope', '$rootScope', '$http', function($scope, $rootScope, $http) {
+      $scope.user = {};
+      $scope.login = function() {
+        var resp = $http.post('/api/v1/auth/login', $scope.user).
+        then(function(response) {
+          location.href = '/';
+        }, function(err) {
+          $scope.error = true;
+        });
+      }
+    }]);
+    </script>
+  </body>
+</html>

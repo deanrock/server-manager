@@ -20,8 +20,13 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         controller: 'users',
         activetab: 'users'
         }).
+    when('/users/add', {
+        templateUrl: 'static/templates/user/add.html',
+        controller: 'userAdd',
+        activetab: 'users'
+        }).
     when('/users/:id', {
-        templateUrl: 'static/templates/user/overview.html',
+        templateUrl: 'static/templates/user/edit.html',
         controller: 'userOverview',
         activetab: 'users'
         }).

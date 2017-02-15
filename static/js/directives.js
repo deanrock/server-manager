@@ -28,7 +28,7 @@ drcs.directive('aceEditor', function() {
         link: function(scope, element, attrs) {
             var textarea_id = element[0].id;
             var ace_id = 'ace_'+textarea_id;
-            
+
             $('#' + textarea_id).after('<pre id="'+ace_id+'" style="height:400px;width:100%"></pre>');
             var editor = ace.edit(ace_id);
             editor.setTheme("ace/theme/chrome");
@@ -37,7 +37,7 @@ drcs.directive('aceEditor', function() {
             editor.setAutoScrollEditorIntoView(true);
             editor.setOption("maxLines", 3000);
             editor.setOption("minLines", 20);
-            
+
             scope.addEditor({d: {name: element[0].id, editor: editor}});
 
             var textarea = $('#' + textarea_id).hide();
@@ -56,7 +56,45 @@ drcs.directive('forceReload',function($location,$route){
                 $route.reload();
             }
         });
-    }   
+    }
+});
+
+drcs.directive('formTextInput', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            model: '=',
+            label: '@',
+            errors: '=',
+            name: '@model'
+        },
+        templateUrl: 'static/templates/directives/formTextInput.html'
+    }
+});
+
+drcs.directive('formCheckbox', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            model: '=',
+            label: '@',
+            errors: '=',
+            name: '@model'
+        },
+        templateUrl: 'static/templates/directives/formCheckbox.html'
+    }
+});
+
+drcs.directive('userForm', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            user: '=',
+            errors: '=',
+            save: '='
+        },
+        templateUrl: 'static/templates/directives/userForm.html'
+    }
 });
 
 drcs.filter('unsafe', function($sce) {
