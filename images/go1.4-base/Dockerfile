@@ -1,4 +1,4 @@
-FROM manager/debian7base
+FROM deanrock/server-manager:debian7base
 
 # gcc for cgo
 RUN apt-get update && apt-get install -y \

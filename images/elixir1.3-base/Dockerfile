@@ -1,4 +1,4 @@
-FROM manager/nodejs6-base
+FROM deanrock/server-manager:nodejs6-base
 
 ENV ELIXIR_VERSION="v1.3.4" \
 	LANG=C.UTF-8
