@@ -50,6 +50,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        addAccount: function(params) {
+            var resp = $http.post('/api/v1/accounts', params).
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
         getAllAccounts: function(id) {
             var resp = $http.get('/api/v1/all-accounts').
             then(function(response) {
