@@ -13,9 +13,9 @@
 * Set-up SSH access with user (e.g. john) with sudo privileges
 * Run ansible deploy.yml playbook
 * Install libssl-dev (for now, until we fix pull.sh script)
-
+```bash
 	sudo apt-get install libssl-dev -t jessie-backports
-
+```
 * set mysql root password via mysql_secure_installation command
 * log-in as `manager` and clone repo to /home/manager/server-manager/
 * clone git submodules
@@ -24,19 +24,19 @@
 	git submodule update --init --recursive
 ```
 
-* create ``/home/manager/server-manager/manager/settings/production.py` with the contents:
-```
-	from manager.settings.base import *
+* create `/home/manager/server-manager/manager/settings/production.py` with the contents:
+```python
+from manager.settings.base import *
 
-	# SECURITY WARNING: keep the secret key used in production secret!
-	SECRET_KEY = 'fewoigh5940659j0--0i-0i34y90u6(H$*Y0i0u%uu'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'fewoigh5940659j0--0i-0i34y90u6(H$*Y0i0u%uu'
 
-	# SECURITY WARNING: don't run with debug turned on in production!
-	DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-	TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = True
 
-	MYSQL_ROOT_PASSWORD = 'root_password'
+MYSQL_ROOT_PASSWORD = 'root_password'
 ```
 
 * cd to `server-manager/`` folder and run `./pull.sh production`
@@ -45,9 +45,9 @@
 
 Execute as `manager` user:
 ```bash
-	cd ~/server-manager/
-	source ./env/bin/activate
-	python manage.py createsuperuser --settings=manager.settings.production
+cd ~/server-manager/
+source ./env/bin/activate
+python manage.py createsuperuser --settings=manager.settings.production
 ```
 
 ## Development env setup
