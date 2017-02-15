@@ -43,14 +43,16 @@ func (api *AccountsAPI) validate(c *gin.Context) (*models.Account, *shared.FormE
 		fe.Add("name", "This field is required.")
 	}
 
-	match, _ := regexp.MatchString("^([a-zA-Z][0-9a-zA-Z_-]*)$", form.Name)
+	match, _ := regexp.MatchString("^([a-z][0-9a-z_-]*)$", form.Name)
 	if !match {
-		fe.Add("name", "Only alphanumeric characters, underscore and '-' are allowed.")
+		fe.Add("name", "Only lowercase alphanumeric characters, underscore and '-' are allowed.")
 	}
 
-	err := helpers.SyncAccount(form.Name)
-	if err != nil {
-		fe.Add("name", fmt.Sprintf("Cannot sync the account: %s", err))
+	if !fe.HasErrors() {
+		err := helpers.SyncAccount(form.Name)
+		if err != nil {
+			fe.Add("name", fmt.Sprintf("Cannot sync the account: %s", err))
+		}
 	}
 
 	if fe.HasErrors() {
