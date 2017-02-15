@@ -1,6 +1,4 @@
-FROM deanrock/server-manager:debian7base
-
-RUN apt-get install -y memcached
+FROM deanrock/server-manager:memcached-base
 
 EXPOSE 11211
 

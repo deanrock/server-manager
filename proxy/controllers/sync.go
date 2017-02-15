@@ -62,6 +62,14 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 
 		"elixir1.3-base",
 		"elixir1.3-base-shell",
+
+		"hhvm-base",
+
+		"memcached-base",
+
+		"rabbitmq-base",
+
+		"redis-base",
 	}
 
 	c.JSON(200, images)
