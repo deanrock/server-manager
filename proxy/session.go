@@ -1,17 +1,18 @@
-package main
+package proxy
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
-	"log"
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
+	"log"
 	"strings"
+
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func openSqliteDatabase() (*sql.DB) {
-	db, err := sql.Open("sqlite3", "../manager/db.sqlite3")
+func openSqliteDatabase() *sql.DB {
+	db, err := sql.Open("sqlite3", "db.sqlite3")
 	if err != nil {
 		log.Fatal(err)
 		return nil
@@ -24,7 +25,7 @@ type djangoSession struct {
 	UserId int `json:"_auth_user_id"`
 }
 
-func readCookie(c *gin.Context) (*int) {
+func readCookie(c *gin.Context) *int {
 	sessionID, err := c.Request.Cookie("sessionid")
 
 	if err != nil {

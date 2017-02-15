@@ -1,4 +1,4 @@
-package main
+package ssh_server
 
 import (
 	"fmt"
@@ -384,7 +384,7 @@ func returnExitCode(code int, channel ssh.Channel) {
 	channel.SendRequest("exit-status", false, bs)
 }
 
-func main() {
+func Start() {
 	f, err := os.OpenFile("/var/log/manager/ssh-server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -396,7 +396,7 @@ func main() {
 	sharedContext = &shared.SharedContext{}
 
 	//sqlite
-	db, err := gorm.Open("sqlite3", "../manager/db.sqlite3")
+	db, err := gorm.Open("sqlite3", "db.sqlite3")
 
 	if err != nil {
 		log.Fatal("database error", err)

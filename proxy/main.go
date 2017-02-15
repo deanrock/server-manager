@@ -1,4 +1,4 @@
-package main
+package proxy
 
 import (
 	"bufio"
@@ -313,15 +313,14 @@ type Profile struct {
 	User        models.User `json:"user"`
 }
 
-func main() {
-
+func Start() {
 	//Docker
 	// Init the client
 	mydocker, _ = dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 
 	sharedContext = &shared.SharedContext{}
-	sharedContext.OpenDB("../manager/db.sqlite3")
-	sharedContext.InitConfig("../config.json")
+	sharedContext.OpenDB("db.sqlite3")
+	sharedContext.InitConfig("config.json")
 	sharedContext.PersistentDB.LogMode(true)
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJob{})
 	sharedContext.PersistentDB.AutoMigrate(&models.CronJobLog{})

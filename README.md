@@ -9,13 +9,9 @@
 ## Installation
 
 * Install Debian Jessie
-* Install python2.7
+* Install python2.7 (for ansible)
 * Set-up SSH access with user (e.g. john) with sudo privileges
 * Run ansible deploy.yml playbook
-* Install libssl-dev (for now, until we fix pull.sh script)
-```bash
-	sudo apt-get install libssl-dev -t jessie-backports
-```
 * set mysql root password via mysql_secure_installation command
 * log-in as `manager` and clone repo to /home/manager/server-manager/
 * clone git submodules
@@ -24,30 +20,13 @@
 	git submodule update --init --recursive
 ```
 
-* create `/home/manager/server-manager/manager/settings/production.py` with the contents:
-```python
-from manager.settings.base import *
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fewoigh5940659j0--0i-0i34y90u6(H$*Y0i0u%uu'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
-MYSQL_ROOT_PASSWORD = 'root_password'
-```
-
 * cd to `server-manager/`` folder and run `./pull.sh production`
 
-## Create first user
+## First run
 
 Execute as `manager` user:
 ```bash
-cd ~/server-manager/
-source ./env/bin/activate
-python manage.py createsuperuser --settings=manager.settings.production
+./server-manager first-run
 ```
 
 ## Development env setup
@@ -83,11 +62,6 @@ vagrant ssh
 vagrant ssh
 ```
 
-8. compile Go programs, migrate database, install Python requirements ...
-```bash
-(vagrant)$ cd files/
-(vagrant)$ ./pull.sh dev
-```
 9. workaround because we are not using "manager" user:
 ```bash
 sudo chmod -R 777 /var/log/manager/
@@ -104,39 +78,24 @@ sudo mkdir /home/manager/server-manager/
 sudo ln -s /home/vagrant/files/images /home/manager/server-manager/images
 ```
 
-12. create first user
-```bash
-source env/bin/activate
-python manage.py createsuperuser --settings=manager.settings.dev --noreload
-```
-
 13. install `screen` via `sudo apt-get install screen`, and run each app in different screen; you need to start the following apps:
 ```bash
-./dev.sh manager
 ./dev.sh ssh
 ./dev.sh cron
 ./dev.sh proxy
 ```
 
-Your dev env should be kinda ready.
-
 Services
 ========
 
-a) *manager* (Django backend)
-- exposes API for adding/modifying/deleting models (e.g. domains, apps, ...)
-- manages database migrations
-
-
-b) *proxy* (Golang backend)
+a) *proxy* (API + webapp)
+- API server
 - websocket server
 - web SSH access
 - serving static files
-- proxies other request to manager
 
-c) *ssh* (SSH server)
+b) *ssh* (SSH server)
 - used for SSH and SFTP access to docker environments
 
-
-d) *cron* (cronjob daemon)
+c) *cron* (cronjob daemon)
 - used for executing scheduled cron jobs

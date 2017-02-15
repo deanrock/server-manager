@@ -22,31 +22,11 @@ mkdir -p ./bin
 export GOPATH=$DIR/go-libs/
 export GOBIN=$DIR/go-libs/bin/
 
-echo -e "${green}[go] compiling proxy ...${NC}"
-cd $DIR/proxy
-
 echo -e "${green}[go] getting libraries ...${NC}"
 go get
 go install
-go build -o ../bin/proxy main.go session.go
+go build -o ./bin/server-manager main.go
 
-echo -e "${green}[go] compiling cron ...${NC}"
-cd $DIR/cron
-
-echo -e "${green}[go] getting libraries ...${NC}"
-go get
-go install
-go build -o ../bin/cron main.go
-
-echo -e "${green}[go] compiling ssh server ...${NC}"
-cd $DIR/ssh-server
-
-echo -e "${green}[go] getting libraries ...${NC}"
-go get
-go install
-go build -o ../bin/ssh-server main.go
-
-cd $DIR
 echo -e "${green}[go] archiving files ...${NC}"
 tar cvfz package.tar.gz bin/ config-example.json static/ proxy/templates/ images/
 

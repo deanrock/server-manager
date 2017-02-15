@@ -1,28 +1,29 @@
-package main
+package cron
 
 import (
-	"../proxy/container"
-	"../proxy/models"
-	"../proxy/shared"
 	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/fsouza/go-dockerclient"
-	"gopkg.in/robfig/cron.v2"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+
+	"../proxy/container"
+	"../proxy/models"
+	"../proxy/shared"
+	"github.com/fsouza/go-dockerclient"
+	cronV2 "gopkg.in/robfig/cron.v2"
 )
 
 var sharedContext *shared.SharedContext
 
 type Job struct {
 	CronJob models.CronJob
-	EntryID cron.EntryID
+	EntryID cronV2.EntryID
 }
 
 type FuncJob struct {
@@ -172,7 +173,7 @@ func (f FuncJob) Run() {
 	s.Log("info", "[cj %d] session (exec, %s (%s)) closed", string(f.CronJob.Id), s.AccountName, s.AccountUid)
 }
 
-func main() {
+func Start() {
 	f, err := os.OpenFile("/var/log/manager/cron.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -182,11 +183,11 @@ func main() {
 	log.SetOutput(f)
 
 	sharedContext = &shared.SharedContext{}
-	sharedContext.OpenDB("../manager/db.sqlite3")
+	sharedContext.OpenDB("db.sqlite3")
 
 	jobs := make(map[int]Job)
 
-	c := cron.New()
+	c := cronV2.New()
 	c.Start()
 
 	prev, err := time.Parse("Mon Jan 2 15:04:05 -0700 MST 2006", "Mon Jan 1 15:04:05 -0700 MST 2000")
