@@ -3,11 +3,9 @@ import codecs
 import shutil
 from django.conf import settings
 from django.core.validators import RegexValidator
-from manager import docker_api, utils
 import os
 from django.db import models
 from django.contrib.auth.models import User
-import utils
 
 account_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z-]*$', 'Only alphanumeric characters and \'-\' are allowed.')
 db_validator = RegexValidator(r'^[a-zA-Z][0-9a-zA-Z_]*$', 'Only alphanumeric characters and underscore are allowed.')
@@ -36,10 +34,6 @@ class Account(models.Model):
         v = {
             "user": self.name
         }
-
-        logs = utils.Logs()
-        userid, err = utils.exec_command(logs, 'id -u %s' % self.name)
-        v["uid"] = userid.rstrip()
 
         return v
 

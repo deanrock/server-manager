@@ -1,11 +1,45 @@
 <div class="container">
     <h2>Accounts</h2>
-    
+
     <ul class="list-v2">
         <li ng-repeat="account in accounts">
             <a href="/a/{{account.name}}">
-            <div class="title">{{account.name}}</div>
-            <div class="description">{{account.description}}</div>
+                <div class="title">{{account.name}}</div>
+                <div class="description">{{account.description}}</div>
+            </a>
         </li>
     </ul>
+
+    <div ng-if="profile.user.is_staff">
+        <a href="" ng-click="toggleAddAccount()">Add account</a>
+        <div ng-show="newAccountMessage">
+            <h3>Add account</h3>
+
+            {{newAccountMessage}}
+        </div>
+        <div ng-show="showAddAccount">
+            <h3>Add account</h3>
+            <form ng-submit="addAccount()" style="width:50%">
+                <div class="form-group" ng-class="{'has-error': errors.name}">
+                    <label class="control-label" for="name">Name</label>
+                    <div class=" ">
+                        <input class="form-control" id="name" ng-model="newAccount.name" maxlength="255" name="name" type="text" />
+                    </div>
+                    <span class="help-block" ng-repeat="error in errors.name">{{error.error}}</span>
+                </div>
+
+                <div class="form-group" ng-class="{'has-error': errors.description}">
+                    <label class="control-label" for="description">Description</label>
+                    <div class=" ">
+                        <input class="form-control" id="description" ng-model="newAccount.description" maxlength="255" name="name" type="text" />
+                    </div>
+                    <span class="help-block" ng-repeat="error in errors.description">{{error.error}}</span>
+                </div>
+
+                <div style="text-align:right">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

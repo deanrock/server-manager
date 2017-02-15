@@ -175,11 +175,31 @@ controller('getTask', ['$scope', 'managerServices', '$location', '$routeParams',
 }]).
 controller('accounts', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
     $scope.accounts = [];
+    $scope.newAccount = {};
 
-    managerServices.getAccounts().then(function(data){
-        console.log(data)
-        $scope.accounts = data;
-    })
+    $scope.reloadAccounts = function() {
+        managerServices.getAccounts().then(function(data) {
+            $scope.accounts = data;
+        });
+    };
+    $scope.reloadAccounts();
+
+    $scope.toggleAddAccount = function() {
+        $scope.showAddAccount = !$scope.showAddAccount;
+        $scope.newAccountMessage = null;
+    }
+
+    $scope.addAccount = function() {
+        managerServices.addAccount($scope.newAccount).then(function(data) {
+            $scope.reloadAccounts();
+            $scope.newAccount = {};
+            $scope.errors = {};
+            $scope.showAddAccount = false;
+            $scope.newAccountMessage = 'Account added successfully.';
+        }, function(err) {
+            $scope.errors = err.data.errors;
+        });
+    }
 }]).
 controller('containers', ['$scope', 'managerServices', '$location', function($scope, managerServices) {
     $scope.apps = [];

@@ -1,26 +1,27 @@
 package main
 
 import (
-	"./container"
-	"./controllers"
-	"./models"
-	"./realtime"
-	"./shared"
 	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fsouza/go-dockerclient"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/samalba/dockerclient"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
+
+	"./container"
+	"./controllers"
+	"./models"
+	"./realtime"
+	"./shared"
+	"github.com/fsouza/go-dockerclient"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/samalba/dockerclient"
 )
 
 var sharedContext *shared.SharedContext
@@ -407,6 +408,7 @@ func main() {
 		}
 
 		authorized.GET("/api/v1/accounts", accounts.ListAccounts)
+		authorized.POST("/api/v1/accounts", RequireStaff(), accounts.AddAccount)
 		authorized.GET("/api/v1/all-accounts", RequireStaff(), accounts.ListAllAccounts)
 		authorized.GET("/api/v1/containers", Containers)
 
