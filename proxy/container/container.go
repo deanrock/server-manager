@@ -48,13 +48,17 @@ func GetHostConfig(account *models.Account, context *shared.SharedContext, docke
 	if context != nil {
 		apps := account.Apps()
 
-		var images []models.Image
-		context.PersistentDB.Find(&images)
+		images := models.GetImages(context)
 
 		linkOtherApps := false
 		if app != nil {
 			var image models.Image
-			if err := context.PersistentDB.Where("id = ?", app.Image_id).First(&image).Error; err != nil {
+			for _, i := range images {
+				if i.Id == app.Image_id {
+					image = i
+				}
+			}
+			if image.Id == 0 {
 				return nil, errors.New("image doesnt exist")
 			}
 

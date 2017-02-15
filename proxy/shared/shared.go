@@ -1,14 +1,15 @@
 package shared
 
 import (
-	"../realtime"
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+
+	"../realtime"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
-	"io/ioutil"
-	"log"
 )
 
 type Config struct {
@@ -24,6 +25,7 @@ type SharedContext struct {
 	DockerClient     *docker.Client
 	WebsocketHandler realtime.WebsocketHandler
 	Config           *Config
+	Images           interface{}
 }
 
 func (s *SharedContext) InitConfig(path string) {

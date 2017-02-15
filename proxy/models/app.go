@@ -1,9 +1,10 @@
 package models
 
 import (
-	"../shared"
 	"fmt"
 	"time"
+
+	"../shared"
 )
 
 type App struct {

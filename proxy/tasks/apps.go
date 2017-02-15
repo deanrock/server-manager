@@ -1,19 +1,20 @@
 package tasks
 
 import (
-	"../container"
-	"../models"
-	"../shared"
 	"archive/tar"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fsouza/go-dockerclient"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"../container"
+	"../models"
+	"../shared"
+	"github.com/fsouza/go-dockerclient"
 )
 
 type File struct {
@@ -170,7 +171,14 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 	//get image
 	var image models.Image
 
-	if err := context.PersistentDB.Where("id = ?", app.Image_id).First(&image).Error; err != nil {
+	images := models.GetImages(context)
+	for _, i := range images {
+		if i.Id == app.Image_id {
+			image = i
+		}
+	}
+
+	if image.Id == 0 {
 		task.Log(fmt.Sprintf("image doesn't exist: %s", app.Image_id), "error", context)
 		return task
 	}
@@ -218,7 +226,7 @@ func RedeployApp(app *models.App, a *models.Account, user int, context *shared.S
 	var files []File
 
 	//get image files
-	folder := fmt.Sprintf("../images/%s/", image.Name)
+	folder := fmt.Sprintf("./images/%s/", image.Name)
 	imageFiles, err := ioutil.ReadDir(folder)
 	if err != nil {
 		task.Log(fmt.Sprintf("image folder doesnt exist: %s", image.Name), "error", context)

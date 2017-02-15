@@ -1,17 +1,18 @@
 package controllers
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+	"time"
+
 	"../container"
 	"../models"
 	"../shared"
 	"../tasks"
-	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"regexp"
-	"strings"
-	"time"
 )
 
 type AppsAPI struct {
@@ -58,8 +59,7 @@ func (api *AppsAPI) validate(c *gin.Context) (*models.App, *shared.FormErrors) {
 		fe.Add("memory", "Valid memory is between 0 and 1600 MB.")
 	}
 
-	var images []models.Image
-	api.Context.PersistentDB.Find(&images)
+	images := models.GetImages(api.Context)
 	found := false
 	for _, image := range images {
 		if image.Id == form.Image_id {

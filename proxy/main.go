@@ -54,8 +54,7 @@ func Containers(c *gin.Context) {
 
 	var allowedContainers []MyContainer
 
-	var images []models.Image
-	sharedContext.PersistentDB.Find(&images)
+	images := models.GetImages(sharedContext)
 
 	for _, app := range apps {
 		var account models.Account
@@ -329,6 +328,11 @@ func Start() {
 	sharedContext.PersistentDB.AutoMigrate(&models.TaskLog{})
 	sharedContext.PersistentDB.AutoMigrate(&models.SSHPassword{})
 	sharedContext.WebsocketHandler = realtime.NewWebsocketHandler()
+
+	err := models.ParseImages(sharedContext)
+	if err != nil {
+		log.Fatalf("error encountered while parsing images: %s", err)
+	}
 
 	//go-dockerclient
 	endpoint := "unix:///var/run/docker.sock"
