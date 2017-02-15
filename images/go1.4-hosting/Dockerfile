@@ -1,4 +1,4 @@
-FROM manager/go1.4-base
+FROM deanrock/server-manager:go1.4-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 

@@ -1,4 +1,4 @@
-FROM manager/elixir1.3-base
+FROM deanrock/server-manager:elixir1.3-base
 
 RUN echo "#user#:x:#uid#:" >> /etc/group && echo "#user#:x:#uid#:#uid#:,,,:/home/#user#:/bin/bash" >> /etc/passwd
 
