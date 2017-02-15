@@ -151,3 +151,52 @@ func ReadOutputFromBuildImage(context *shared.SharedContext, task models.Task, b
 
 	return nil
 }
+
+func ReadOutputFromPullImage(context *shared.SharedContext, task models.Task, buf *bytes.Buffer) error {
+	//read output from pulling the image
+
+	tx := context.PersistentDB.Begin()
+
+	var line = ""
+	scanner := bufio.NewScanner(buf)
+	for scanner.Scan() {
+		line = scanner.Text()
+
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    line,
+			Type:     "log",
+		}
+
+		tx.Save(&l)
+	}
+
+	tx.Commit()
+
+	if err := scanner.Err(); err != nil {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("error encountered while reading output: %s", err),
+			Type:     "error",
+		}
+
+		context.PersistentDB.Save(&l)
+		return errors.New(fmt.Sprintf("error encountered while reading output: %s", err))
+	}
+
+	if !strings.Contains(line, "Downloaded") && !strings.Contains(line, "up to date") {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("last line doesn't contain 'Downloaded' or 'up to date'"),
+			Type:     "error",
+		}
+
+		context.PersistentDB.Save(&l)
+		return errors.New(fmt.Sprintf("last line doesn't contain 'Downloaded' or 'up to date'"))
+	}
+
+	return nil
+}

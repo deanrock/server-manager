@@ -608,22 +608,14 @@ controller('sync', ['$scope', 'managerServices', '$location', '$routeParams', fu
         });
     });
 }]).
-controller('syncImages', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
+controller('pullImages', ['$scope', 'managerServices', '$location', '$routeParams', function($scope, managerServices, $location, $routeParams) {
     managerServices.getSyncImages().then(function(data) {
         $scope.images = data;
     });
 
-    $scope.sync = function(image) {
-        managerServices.syncImage(image).then(function(data) {
-            console.log('starting to sync ... i guess')
-        }, function(err) {
-            console.log('an error occured')
-        })
-    }
-
-    $scope.force_sync = function(image) {
-        managerServices.forceSyncImage(image).then(function(data) {
-            console.log('starting to force sync ... i guess')
+    $scope.pull = function(image) {
+        managerServices.pullImage(image).then(function(data) {
+            console.log('starting to pull ... i guess')
         }, function(err) {
             console.log('an error occured')
         })

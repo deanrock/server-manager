@@ -18,7 +18,7 @@
                 <ul class="dropdown-menu" role="menu">
                 <li><a href="" ng-if="profile.user.is_staff" ng-click="syncWebServers()">Sync web servers</a></li>
                 <li ng-if="profile.user.is_staff" class="divider"></li>
-               <li><a ng-if="profile.user.is_staff" href="/sync/images">Rebuild base Docker images</a></li>
+               <li><a ng-if="profile.user.is_staff" href="/pull/images">Pull images</a></li>
                 </ul>
             </li>
             <li ng-class="{active: $route.current.activetab == 'users'}"><a ng-if="profile.user.is_staff" href="/users/">Users</a></li>

@@ -1,13 +1,9 @@
 <div data-extend-template="/static/templates/sync/layout.html">
    <div data-block="content">
-       <h3 style="margin-top:0px">Sync images</h3>
+       <h3 style="margin-top:0px">Pull images</h3>
 
        <ul>
-        <li style="margin: 20px 0px" ng-repeat="image in images">{{image}} <button ng-click="sync(image)">Sync</button> <button ng-click="force_sync(image)">Force sync (no-cache)</button></li>
+        <li style="margin: 20px 0px" ng-repeat="image in images">{{image}} <button ng-click="pull(image)">Pull (no-cache)</button></li>
        </ul>
-
-       <br />
-       Note 1: please DON'T sync more than one image at a time!<br />
-   Note 2: if you need/want to sync more than one image, please do so in the order they are listed (e.g. sync debian7base, wait for it to finish, and, if successful, sync debian7basehosting, etc.)
    </div>
 </div>

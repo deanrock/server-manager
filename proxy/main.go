@@ -503,7 +503,7 @@ func main() {
 		}
 
 		authorized.GET("/api/v1/sync/images", RequireStaff(), sync.GetImages)
-		authorized.POST("/api/v1/sync/images/:name", RequireStaff(), sync.SyncImage)
+		authorized.POST("/api/v1/pull/images/:name", RequireStaff(), sync.PullImage)
 		authorized.POST("/api/v1/sync/web-servers", RequireStaff(), sync.SyncWebServers)
 
 		//tasks
@@ -525,6 +525,10 @@ func main() {
 		})
 
 		authorized.GET("/sync/*params", func(c *gin.Context) {
+			c.HTML(200, "index.tmpl", nil)
+		})
+
+		authorized.GET("/pull/*params", func(c *gin.Context) {
 			c.HTML(200, "index.tmpl", nil)
 		})
 

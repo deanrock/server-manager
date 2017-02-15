@@ -35,9 +35,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
         controller: 'containers',
         activetab: 'containers'
     }).
-    when('/sync/images', {
+    when('/pull/images', {
         templateUrl: 'static/templates/sync/images.html',
-        controller: 'syncImages',
+        controller: 'pullImages',
     }).
     when('/sync/:action', {
         templateUrl: 'static/templates/sync.html',

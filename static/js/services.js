@@ -349,15 +349,8 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
-        syncImage: function(name) {
-            var resp = $http.post('/api/v1/sync/images/'+name).
-            then(function(response) {
-                return response.data;
-            });
-            return resp;
-        },
-        forceSyncImage: function(name) {
-            var resp = $http.post('/api/v1/sync/images/'+name+'?no-cache=true').
+        pullImage: function(name) {
+            var resp = $http.post('/api/v1/pull/images/'+name).
             then(function(response) {
                 return response.data;
             });

@@ -75,13 +75,8 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 	c.JSON(200, images)
 }
 
-func (api *SyncAPI) SyncImage(c *gin.Context) {
+func (api *SyncAPI) PullImage(c *gin.Context) {
 	name := c.Params.ByName("name")
-
-	no_cache := false
-	if c.Query("no-cache") == "true" {
-		no_cache = true
-	}
 
 	//TODO: check that image name only contains A-z0-9-.
 
@@ -110,23 +105,20 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 			task.NotifyUser(*api.Context, user)
 		}()
 
-		//build image options
+		//pull image options
 		buf := bytes.NewBuffer(nil)
-		opts := docker.BuildImageOptions{
-			Name:                fmt.Sprintf("manager/%s", name),
-			NoCache:             no_cache,
-			RmTmpContainer:      true,
-			ForceRmTmpContainer: true,
-			OutputStream:        buf,
-			RawJSONStream:       true,
-			SuppressOutput:      false,
-			ContextDir:          fmt.Sprintf("../images/%s/", name),
+		opts := docker.PullImageOptions{
+			Repository:    "deanrock/server-manager",
+			Tag:           name,
+			Registry:      "",
+			OutputStream:  buf,
+			RawJSONStream: true,
 		}
 
-		task.Log(fmt.Sprintf("using no-cache: %t", no_cache), "info", api.Context)
+		task.Log(fmt.Sprintf("pulling image"), "info", api.Context)
 
-		//call build image API
-		err := api.Context.DockerClient.BuildImage(opts)
+		//call pull image API
+		err := api.Context.DockerClient.PullImage(opts, docker.AuthConfiguration{})
 
 		if err != nil {
 			log.Println(err)
@@ -134,7 +126,7 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 			l := models.TaskLog{
 				TaskId:   task.Id,
 				Added_at: time.Now(),
-				Value:    fmt.Sprintf("error encountered while building the image: %s", err),
+				Value:    fmt.Sprintf("error encountered while pulling the image: %s", err),
 				Type:     "error",
 			}
 
@@ -142,7 +134,7 @@ func (api *SyncAPI) SyncImage(c *gin.Context) {
 			return
 		}
 
-		err = container.ReadOutputFromBuildImage(api.Context, task, buf)
+		err = container.ReadOutputFromPullImage(api.Context, task, buf)
 		if err != nil {
 			return
 		}
