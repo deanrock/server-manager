@@ -15,3 +15,6 @@ mkdir -p /usr/local/apache-maven && \
 cd /usr/local/apache-maven && \
 tar xvfz /tmp/apache-maven-3.2.5-bin.tar.gz && \
 export PATH=$PATH:/usr/local/apache-maven/apache-maven-3.2.5/bin
+
+ENV PATH $PATH:/usr/local/apache-maven/apache-maven-3.2.5/bin
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle

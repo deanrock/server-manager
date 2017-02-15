@@ -46,6 +46,9 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"go1.4-base",
 		"go1.4-base-shell",
 
+		"ruby22-base",
+		"ruby22-base-shell",
+
 		"nodejs0.12-base",
 		"nodejs0.12-base-shell",
 
@@ -55,15 +58,10 @@ func (api *SyncAPI) GetImages(c *gin.Context) {
 		"nodejs4-base",
 		"nodejs4-base-shell",
 
-		"ruby22-base",
-		"ruby22-base-shell",
-
 		"mongo3.2-base",
 
 		"elixir1.3-base",
 		"elixir1.3-base-shell",
-
-		"manager-file-proxy",
 	}
 
 	c.JSON(200, images)
