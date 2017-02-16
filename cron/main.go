@@ -36,7 +36,7 @@ func (f FuncJob) Run() {
 		err := recover()
 
 		if err != nil {
-			log.Printf(fmt.Sprintf("[cj %d] panicked with: %s"), f.CronJob.Id)
+			log.Printf(fmt.Sprintf("[cj %d] panicked with: %s", f.CronJob.Id, err))
 		}
 	}()
 
@@ -184,6 +184,13 @@ func Start() {
 
 	sharedContext = &shared.SharedContext{}
 	sharedContext.OpenDB("db.sqlite3")
+
+	err = models.ParseImages(sharedContext)
+	if err != nil {
+		log.Fatalf("error encountered while parsing images: %s", err)
+	}
+
+	sharedContext.InitConfig("config.json")
 
 	jobs := make(map[int]Job)
 
