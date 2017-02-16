@@ -10,21 +10,13 @@ cd $DIR
 
 echo "DIR $DIR"
 
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
 #golang build stuff
-
-cd $DIR
-
 mkdir -p ./bin
 
 export GOPATH=$DIR/go-libs/
 export GOBIN=$DIR/go-libs/bin/
 
 echo -e "${green}[go] getting libraries ...${NC}"
-go get
-go install
 go build -o ./bin/server-manager main.go
 
 echo -e "${green}[go] archiving files ...${NC}"

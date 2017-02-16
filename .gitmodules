@@ -58,3 +58,12 @@
 [submodule "go-libs/src/github.com/wader/gormstore"]
 	path = go-libs/src/github.com/wader/gormstore
 	url = https://github.com/wader/gormstore.git
+[submodule "go-libs/src/github.com/gorilla/context"]
+	path = go-libs/src/github.com/gorilla/context
+	url = https://github.com/gorilla/context/
+[submodule "go-libs/src/github.com/gorilla/securecookie"]
+	path = go-libs/src/github.com/gorilla/securecookie
+	url = https://github.com/gorilla/securecookie/
+[submodule "go-libs/src/github.com/gorilla/sessions"]
+	path = go-libs/src/github.com/gorilla/sessions
+	url = https://github.com/gorilla/sessions/
