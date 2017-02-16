@@ -1,13 +1,9 @@
 package helpers
 
 import (
-	"../container"
-	"../models"
-	"../shared"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fsouza/go-dockerclient"
 	"io/ioutil"
 	"os"
 	"path"
@@ -15,6 +11,11 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+
+	"../container"
+	"../models"
+	"../shared"
+	"github.com/fsouza/go-dockerclient"
 )
 
 func removeConfigFiles(path string, prefix string) error {
@@ -127,7 +128,7 @@ func SyncWebServers(sharedContext *shared.SharedContext, task models.Task, accou
 					}
 				}
 
-				port_mapping[fmt.Sprintf("%s_%s_ip", app.Name, port.Port)] = ip
+				port_mapping[fmt.Sprintf("%s_%d_ip", app.Name, port.Port)] = ip
 			}
 		}
 
