@@ -1,17 +1,9 @@
 package container
 
 import (
-	"../models"
-	"../shared"
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/docker/docker/pkg/signal"
-	"github.com/docker/docker/pkg/term"
-	"github.com/fsouza/go-dockerclient"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"io/ioutil"
 	"log"
@@ -22,6 +14,14 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	"../models"
+	"../shared"
+	"github.com/docker/docker/pkg/signal"
+	"github.com/docker/docker/pkg/term"
+	"github.com/fsouza/go-dockerclient"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 type Shell struct {
@@ -46,19 +46,37 @@ type Shell struct {
 	OutFd uintptr
 }
 
-func (s *Shell) BuildShellImage(env string) (string, error) {
-	base_image := fmt.Sprintf("%s-base-shell", env)
+func (s *Shell) ImageAllowed(env string) error {
+	allowedImages := []string{
+		"elixir1.3",
+		"go1.4",
+		"java8",
+		"nodejs0.12",
+		"nodejs4",
+		"nodejs6",
+		"php56",
+		"python27",
+		"python34",
+		"python35",
+		"ruby22,",
+	}
 
-	found := false
-	for _, e := range s.ShellImages {
-		if e == base_image {
-			found = true
+	for _, name := range allowedImages {
+		if name == env {
+			return nil
 		}
 	}
 
-	if !found {
-		return "", fmt.Errorf("base shell %s not found", base_image)
+	return fmt.Errorf("this image is not allowed")
+}
+
+func (s *Shell) BuildShellImage(env string) (string, error) {
+	// check if image is allowed
+	if s.ImageAllowed(env) != nil {
+		return "", fmt.Errorf("this image is not allowed")
 	}
+
+	base_image := fmt.Sprintf("%s-base-shell", env)
 
 	//build shell image if it doesnt exist
 	shell_image := fmt.Sprintf("shell-%s-%s", s.AccountName, env)
@@ -78,57 +96,29 @@ func (s *Shell) BuildShellImage(env string) (string, error) {
 
 	defer os.RemoveAll(temp)
 
-	image_folder := fmt.Sprintf("/home/manager/server-manager/images/%s/",
-		base_image)
+	out_file, err := os.Create(path.Join(temp, "Dockerfile"))
+	if err != nil {
+		return "", fmt.Errorf("cannot create temp file %s", err)
+	}
+	defer out_file.Close()
 
-	if _, err := os.Stat(image_folder); os.IsNotExist(err) {
-		return "", fmt.Errorf("no such file or directory: %s", image_folder)
+	_, err = io.WriteString(out_file,
+		fmt.Sprintf("FROM deanrock/server-manager:%s\n", base_image))
+	if err != nil {
+		return "", fmt.Errorf("error writing to Dockerfile %s", err)
 	}
 
-	files, _ := ioutil.ReadDir(image_folder)
-	for _, f := range files {
-		//copy file
-		out_file, err := os.Create(path.Join(temp, f.Name()))
-
-		if err != nil {
-			return "", fmt.Errorf("cannot create temp file %s", err)
-		}
-
-		defer out_file.Close()
-
-		in_file, err := os.Open(path.Join(image_folder, f.Name()))
-		if err != nil {
-			return "", fmt.Errorf("cannot open file to read %s", err)
-		}
-		defer in_file.Close()
-
-		scanner := bufio.NewScanner(in_file)
-		for scanner.Scan() {
-			_, err := io.WriteString(out_file, scanner.Text()+"\n")
-			if err != nil {
-				return "", fmt.Errorf("error writing temp file %s", err)
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return "", fmt.Errorf("error scanning file %s", err)
-		}
-
-		if f.Name() == "Dockerfile" {
-			_, err := io.WriteString(out_file,
-				fmt.Sprintf("RUN echo \"%s:x:%s:\" >> /etc/group && echo \"%s:x:%s:%s:,,,:/home/%s:/bin/bash\" >> /etc/passwd\n\nUSER %s\n",
-					s.AccountName,
-					s.AccountUid,
-					s.AccountName,
-					s.AccountUid,
-					s.AccountUid,
-					s.AccountName,
-					s.AccountName))
-
-			if err != nil {
-				return "", fmt.Errorf("error writing to Dockerfile %s", err)
-			}
-		}
+	_, err = io.WriteString(out_file,
+		fmt.Sprintf("RUN echo \"%s:x:%s:\" >> /etc/group && echo \"%s:x:%s:%s:,,,:/home/%s:/bin/bash\" >> /etc/passwd\n\nUSER %s\n",
+			s.AccountName,
+			s.AccountUid,
+			s.AccountName,
+			s.AccountUid,
+			s.AccountUid,
+			s.AccountName,
+			s.AccountName))
+	if err != nil {
+		return "", fmt.Errorf("error writing to Dockerfile %s", err)
 	}
 
 	var buf bytes.Buffer
@@ -356,14 +346,17 @@ func (s *Shell) GetDockerImages() {
 	for _, img := range imgs {
 		if len(img.RepoTags) > 0 {
 			for _, tag := range img.RepoTags {
-				if strings.Contains(tag, "manager/") {
-					tag = strings.Replace(tag, "manager/", "", 1)
-					tag = strings.Replace(tag, ":latest", "", 1)
+				if strings.Contains(tag, "deanrock/server-manager:") {
+					tag = strings.Replace(tag, "deanrock/server-manager:", "", 1)
 					s.Images = append(s.Images, tag)
 
 					if strings.Contains(tag, "-shell") {
 						s.ShellImages = append(s.ShellImages, tag)
 					}
+				} else if strings.Contains(tag, "manager/") {
+					tag = strings.Replace(tag, "manager/", "", 1)
+					tag = strings.Replace(tag, ":latest", "", 1)
+					s.Images = append(s.Images, tag)
 				}
 			}
 		}

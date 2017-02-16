@@ -171,15 +171,7 @@ func handleChannels(sshConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 
 		log.Println("wanted environment:", env)
 
-		image := fmt.Sprintf("%s-base-shell", env)
-		found := false
-		for _, i := range s.ShellImages {
-			if image == i {
-				found = true
-			}
-		}
-
-		if !found {
+		if s.ImageAllowed(env) != nil {
 			returnExitCode(255, channel)
 			channel.Close()
 			log.Println("wrong environemnt")
@@ -403,6 +395,11 @@ func Start() {
 	}
 
 	sharedContext.PersistentDB = db
+
+	err = models.ParseImages(sharedContext)
+	if err != nil {
+		log.Fatalf("error encountered while parsing images: %s", err)
+	}
 
 	keyPath := "./id_rsa"
 
