@@ -401,10 +401,12 @@ func Start() {
 		log.Fatalf("error encountered while parsing images: %s", err)
 	}
 
+	sharedContext.InitConfig("config.json")
+
 	keyPath := "./id_rsa"
 
-	if os.Getenv("KEY_FILE") != "" {
-		keyPath = os.Getenv("KEY_FILE")
+	if sharedContext.Config.SSHConfig.KeyPath != "" {
+		keyPath = sharedContext.Config.SSHConfig.KeyPath
 	}
 
 	privateKey, err := ioutil.ReadFile(keyPath)
@@ -433,9 +435,8 @@ func Start() {
 	config.AddHostKey(keySigner)
 
 	port := "2222"
-
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
+	if sharedContext.Config.SSHConfig.Port != 0 {
+		port = fmt.Sprintf("%d", sharedContext.Config.SSHConfig.Port)
 	}
 
 	socket, err := net.Listen("tcp", ":"+port)
