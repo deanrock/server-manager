@@ -168,3 +168,40 @@ func (api *SyncAPI) SyncWebServers(c *gin.Context) {
 		c.String(200, "")
 	}
 }
+
+func (api *SyncAPI) PurgeOldLogs(c *gin.Context) {
+	user := c.MustGet("user").(models.User).Id
+
+	//create task
+	task := models.NewTask("purge-old-logs", string("{}"), user)
+	api.Context.PersistentDB.Save(&task)
+	task.NotifyUser(*api.Context, user)
+
+	var success = false
+	defer func() {
+		task.Duration = time.Now().Sub(task.Added_at).Seconds()
+		task.Finished = true
+		task.Success = success
+		api.Context.PersistentDB.Save(&task)
+		task.NotifyUser(*api.Context, user)
+	}()
+
+	// delete logs older than 7 days
+	sevenDaysAgo := time.Now().AddDate(0, 0, -7)
+
+	// delete cronjob logs
+	api.Context.PersistentDB.Where("added_at < ?", sevenDaysAgo).Delete(&models.CronJobLog{})
+
+	// delete tasks
+	api.Context.PersistentDB.Where("added_at < ?", sevenDaysAgo).Delete(&models.Task{})
+
+	// get first available task
+	var firstTask models.Task
+	if err := api.Context.PersistentDB.Order("id").First(&firstTask).Error; err == nil {
+		// we got a task, delete task log for every task before this one
+		api.Context.PersistentDB.Where("task_id < ?", firstTask.Id).Delete(&models.TaskLog{})
+	}
+
+	success = true
+	c.JSON(200, gin.H{})
+}

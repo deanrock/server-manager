@@ -13,12 +13,12 @@
           <ul class="nav navbar-nav">
             <li ng-class="{active: $route.current.activetab == 'accounts'}"><a href="/">Accounts</a></li>
             <li ng-class="{active: $route.current.activetab == 'containers'}"><a href="/containers/">Containers</a></li>
-            <li class="dropdown">
+            <li class="dropdown" ng-if="profile.user.is_staff">
                 <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sync <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
-                <li><a href="" ng-if="profile.user.is_staff" ng-click="syncWebServers()">Sync web servers</a></li>
-                <li ng-if="profile.user.is_staff" class="divider"></li>
-               <li><a ng-if="profile.user.is_staff" href="/pull/images">Pull images</a></li>
+                    <li><a href="" ng-click="syncWebServers()">Sync web servers</a></li>
+                    <li><a href="/pull/images">Pull images</a></li>
+                    <li><a href="" ng-click="purgeOldLogs()">Purge old logs</a></li>
                 </ul>
             </li>
             <li ng-class="{active: $route.current.activetab == 'users'}"><a ng-if="profile.user.is_staff" href="/users/">Users</a></li>

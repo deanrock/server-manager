@@ -517,6 +517,7 @@ func Start() {
 		authorized.GET("/api/v1/sync/images", RequireStaff(), sync.GetImages)
 		authorized.POST("/api/v1/pull/images/:name", RequireStaff(), sync.PullImage)
 		authorized.POST("/api/v1/sync/web-servers", RequireStaff(), sync.SyncWebServers)
+		authorized.POST("/api/v1/sync/purge-old-logs", RequireStaff(), sync.PurgeOldLogs)
 
 		//tasks
 		tasks := &controllers.TasksAPI{

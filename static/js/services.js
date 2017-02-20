@@ -377,6 +377,13 @@ srv.factory('managerServices', function($http) {
             });
             return resp;
         },
+        purgeOldLogs: function(name) {
+            var resp = $http.post('/api/v1/sync/purge-old-logs').
+            then(function(response) {
+                return response.data;
+            });
+            return resp;
+        },
     }
     return managerServices;
 });
