@@ -58,7 +58,7 @@ func (s *Shell) ImageAllowed(env string) error {
 		"python27",
 		"python34",
 		"python35",
-		"ruby22,",
+		"ruby22",
 	}
 
 	for _, name := range allowedImages {
