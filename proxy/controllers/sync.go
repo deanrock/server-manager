@@ -169,6 +169,63 @@ func (api *SyncAPI) SyncWebServers(c *gin.Context) {
 	}
 }
 
+func (api *SyncAPI) SyncAccounts(c *gin.Context) {
+	user := c.MustGet("user").(models.User).Id
+
+	//create task
+	task := models.NewTask("sync-users", string("{}"), user)
+	api.Context.PersistentDB.Save(&task)
+	task.NotifyUser(*api.Context, user)
+
+	var success = false
+	defer func() {
+		task.Duration = time.Now().Sub(task.Added_at).Seconds()
+		task.Finished = true
+		task.Success = success
+		api.Context.PersistentDB.Save(&task)
+		task.NotifyUser(*api.Context, user)
+	}()
+
+	var accounts []models.Account
+	if err := api.Context.PersistentDB.Find(&accounts).Error; err != nil {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("error encountered while fetching accounts: %s", err),
+			Type:     "error",
+		}
+
+		api.Context.PersistentDB.Save(&l)
+		return
+	}
+
+	for _, account := range accounts {
+		l := models.TaskLog{
+			TaskId:   task.Id,
+			Added_at: time.Now(),
+			Value:    fmt.Sprintf("syncing account: %s", account.Name),
+			Type:     "log",
+		}
+
+		api.Context.PersistentDB.Save(&l)
+
+		err := helpers.SyncAccount(account.Name, true)
+		if err != nil {
+			l := models.TaskLog{
+				TaskId:   task.Id,
+				Added_at: time.Now(),
+				Value:    fmt.Sprintf("cannot sync account %s: %s", account.Name, err),
+				Type:     "error",
+			}
+
+			api.Context.PersistentDB.Save(&l)
+			return
+		}
+	}
+
+	success = true
+}
+
 func (api *SyncAPI) PurgeOldLogs(c *gin.Context) {
 	user := c.MustGet("user").(models.User).Id
 

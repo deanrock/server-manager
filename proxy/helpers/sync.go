@@ -2,7 +2,7 @@ package helpers
 
 import "fmt"
 
-func SyncAccount(accountName string) error {
+func SyncAccount(accountName string, ignoreErrors bool) error {
 	commands := [][]string{
 		[]string{"sudo", "adduser", "--disabled-password", "--gecos", "\"\"", accountName},
 		[]string{"sudo", "chmod", "750", fmt.Sprintf("/home/%s", accountName)},
@@ -22,7 +22,7 @@ func SyncAccount(accountName string) error {
 
 	for _, command := range commands {
 		_, errOut, err := ExecuteShellCommand(command[0], command[1:])
-		if err != nil {
+		if err != nil && !ignoreErrors {
 			return fmt.Errorf("error %s (%s) while executing %s", errOut, err, command)
 		}
 	}

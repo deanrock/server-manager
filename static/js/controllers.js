@@ -16,6 +16,14 @@ ctrls.controller('mainCtrl', ['$scope', '$rootScope', 'managerServices', '$windo
         });
     }
 
+    $scope.syncAccounts = function() {
+        managerServices.syncAccounts().then(function(data) {
+            console.log(data);
+        }, function(err) {
+            console.log(err);
+        });
+    }
+
     $scope.purgeOldLogs = function() {
         managerServices.purgeOldLogs().then(function(data) {
             console.log(data);

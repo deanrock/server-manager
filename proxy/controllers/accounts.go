@@ -49,7 +49,7 @@ func (api *AccountsAPI) validate(c *gin.Context) (*models.Account, *shared.FormE
 	}
 
 	if !fe.HasErrors() {
-		err := helpers.SyncAccount(form.Name)
+		err := helpers.SyncAccount(form.Name, false)
 		if err != nil {
 			fe.Add("name", fmt.Sprintf("Cannot sync the account: %s", err))
 		}

@@ -518,6 +518,7 @@ func Start() {
 		authorized.POST("/api/v1/pull/images/:name", RequireStaff(), sync.PullImage)
 		authorized.POST("/api/v1/sync/web-servers", RequireStaff(), sync.SyncWebServers)
 		authorized.POST("/api/v1/sync/purge-old-logs", RequireStaff(), sync.PurgeOldLogs)
+		authorized.POST("/api/v1/sync/accounts", RequireStaff(), sync.SyncAccounts)
 
 		//tasks
 		tasks := &controllers.TasksAPI{
