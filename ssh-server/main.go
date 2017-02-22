@@ -376,6 +376,18 @@ func returnExitCode(code int, channel ssh.Channel) {
 	channel.SendRequest("exit-status", false, bs)
 }
 
+func handleConnection(conn net.Conn, config ssh.ServerConfig) {
+	sshConn, chans, _, err := ssh.NewServerConn(conn, &config)
+	if err != nil {
+		log.Printf("handshake failed: %s", err)
+		return
+	}
+
+	log.Printf("new ssh connection from %s (%s)", sshConn.RemoteAddr(), sshConn.ClientVersion())
+
+	handleChannels(sshConn, chans)
+}
+
 func Start() {
 	f, err := os.OpenFile("/var/log/manager/ssh-server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -451,14 +463,8 @@ func Start() {
 			continue
 		}
 
-		sshConn, chans, _, err := ssh.NewServerConn(conn, &config)
-		if err != nil {
-			log.Printf("handshake failed: %s", err)
-			continue
-		}
+		log.Printf("accept from: %s", conn.RemoteAddr())
 
-		log.Printf("new ssh connection from %s (%s)", sshConn.RemoteAddr(), sshConn.ClientVersion())
-
-		go handleChannels(sshConn, chans)
+		go handleConnection(conn, config)
 	}
 }
