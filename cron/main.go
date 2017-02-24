@@ -50,7 +50,7 @@ func (f FuncJob) Run() {
 
 	out, err := exec.Command("id", "-u", f.Account.Name).Output()
 	if err != nil {
-		log.Printf("[cj %d] cannot get account user %s uid", f.CronJob.Id, f.Account.Name)
+		log.Printf("[cj %d] cannot get account user %s uid: %s", f.CronJob.Id, f.Account.Name, err)
 		return
 	}
 
