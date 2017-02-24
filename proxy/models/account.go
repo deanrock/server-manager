@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"os/user"
 	"time"
 
@@ -46,8 +47,11 @@ func (a Account) Apps() []App {
 func (a Account) Uid() *string {
 	u, err := user.Lookup(a.Name)
 	if err != nil {
+		log.Printf("error while looking-up user %s: %s\n", a.Name, err)
 		return nil
 	}
+
+	log.Printf("looking-up user %s with result: %s\n", a.Name, u)
 
 	return &u.Uid
 }
