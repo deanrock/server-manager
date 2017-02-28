@@ -10,6 +10,7 @@ import (
 	"../container"
 	"../helpers"
 	"../models"
+	"../tasks"
 	"../shared"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gin-gonic/gin"
@@ -148,23 +149,9 @@ func (api *SyncAPI) PullImage(c *gin.Context) {
 func (api *SyncAPI) SyncWebServers(c *gin.Context) {
 	user := c.MustGet("user").(models.User).Id
 
-	//create task
-	task := models.NewTask("sync-web-servers", string("{}"), user)
-	api.Context.PersistentDB.Save(&task)
-	task.NotifyUser(*api.Context, user)
+	task := tasks.SyncWebServers(user, api.Context)
 
-	var success = false
-	defer func() {
-		task.Duration = time.Now().Sub(task.Added_at).Seconds()
-		task.Finished = true
-		task.Success = success
-		api.Context.PersistentDB.Save(&task)
-		task.NotifyUser(*api.Context, user)
-	}()
-
-	success = helpers.SyncWebServers(api.Context, task, nil)
-
-	if success {
+	if task.Success {
 		c.String(200, "")
 	}
 }

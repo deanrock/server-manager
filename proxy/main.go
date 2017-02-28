@@ -13,6 +13,7 @@ import (
 
 	"./container"
 	"./controllers"
+	"./tasks"
 	"./helpers"
 	"./models"
 	"./realtime"
@@ -340,6 +341,9 @@ func Start() {
 
 	//cancell all tasks after restart
 	models.CancelAllTasks(sharedContext)
+
+	// sync web servers after restart
+	go tasks.SyncWebServersAfterRestart(sharedContext)
 
 	//HTTP
 	r := gin.New()
