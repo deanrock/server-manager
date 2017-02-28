@@ -4,10 +4,9 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/home/manager/server-manager/ssh-server/
-ExecStart=/home/manager/server-manager/bin/ssh-server
-Environment="KEY_FILE=/etc/ssh/ssh_host_rsa_key"
-Environment="PORT=20022"
+WorkingDirectory=/home/manager/sm/
+ExecStart=/home/manager/sm/bin/server-manager ssh
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

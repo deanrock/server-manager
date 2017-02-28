@@ -9,4 +9,5 @@
     - { role: postgres, tags: ["postgres"] }
     - { role: nginx, tags: ["nginx"] }
     - { role: apache, tags: ["apache"] }
+    - { role: go1.4, tags: ["go1.4"] }
     - { role: manager, tags: ["manager"] }

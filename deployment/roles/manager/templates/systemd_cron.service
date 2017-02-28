@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 User=manager
-WorkingDirectory=/home/manager/server-manager/cron/
-ExecStart=/home/manager/server-manager/bin/cron
+WorkingDirectory=/home/manager/sm/
+ExecStart=/home/manager/sm/bin/server-manager cron
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

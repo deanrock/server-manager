@@ -25,14 +25,6 @@
 - name: add manager user to apache
   user: name=manager append=true groups=apache
 
-- name: install build essential
-  action: apt pkg={{item}} state=installed
-  with_items:
-    - build-essential
-    - gcc
-    - python-dev
-    - python-virtualenv
-
 - name: install essential packages
   action: apt pkg={{item}} state=installed
   with_items:
@@ -43,9 +35,6 @@
 
 - name: create manager-shell log file
   file: path=/var/log/manager/manager-shell.log state=touch owner=manager group=manager
-
-- include: wheezy.yml
-  when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '7'
 
 - include: jessie.yml
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '8'

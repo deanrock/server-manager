@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 User=manager
-WorkingDirectory=/home/manager/server-manager/proxy/
-ExecStart=/home/manager/server-manager/bin/proxy
+WorkingDirectory=/home/manager/sm/
+ExecStart=/home/manager/sm/bin/server-manager proxy
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

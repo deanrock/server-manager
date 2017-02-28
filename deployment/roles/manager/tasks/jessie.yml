@@ -5,12 +5,6 @@
     - reload systemd
     - restart cron
 
-- name: copy systemd manager config
-  action: template src=systemd_manager.service dest=/etc/systemd/system/manager-manager.service
-  notify:
-    - reload systemd
-    - restart manager
-
 - name: copy systemd proxy config
   action: template src=systemd_proxy.service dest=/etc/systemd/system/manager-proxy.service
   notify:
@@ -28,9 +22,6 @@
 
 - name: start & enable cron service
   action: service state=started enabled=yes name=manager-cron
-
-- name: start & enable manager service
-  action: service state=started enabled=yes name=manager-manager
 
 - name: start & enable proxy service
   action: service state=started enabled=yes name=manager-proxy

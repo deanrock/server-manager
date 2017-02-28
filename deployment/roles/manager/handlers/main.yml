@@ -9,6 +9,3 @@
 
 - name: restart proxy
   command: systemctl restart manager-proxy.service
-
-- name: restart manager
-  command: systemctl restart manager-manager.service

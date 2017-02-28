@@ -1,9 +1,9 @@
 # server-manager
 
-## Server requirements
+## Requirements
 
-* Debian Wheezy or Jessie
-* Python 2.7 installed
+* Debian Jessie
+* Python 2.7 installed (for ansible)
 * SSH access with user with sudo privileges
 
 ## Installation
@@ -21,60 +21,46 @@ Execute as `manager` user:
 ./server-manager first-run
 ```
 
-## Development env setup
+## Development
 
-1. install ansible, vagrant, clone git and its submodules
-2. ssh to VM
-```bash
-vagrant ssh
-```
-3. copy your public key to ~/.ssh/authorized_keys on vagrant
-4. go to deployment/ subdirectory and run ansible playbook
-```bash
-cd deployment/
-source ~/virtualenv/ansible/bin/activate #or wherever you have ansible env
-ansible-playbook -i dev.hosts deploy.yml
-```
+### Requirements
 
-5. ansible probably won't detect when VM reboots after kernel install and will stall at "docker | kernel - wait for reboot"; after waiting a minute or so it's safe to retry the playbook
-6. after ansible finishes restarting the VM (you NEED to do this via vagrant halt/vagrant up, otherwise VBox extension won't be reinstalled)
+* Vagrant
+* Ansible
+
+### Installation
+
 ```bash
+git clone https://github.com/deanrock/server-manager.git
+git submodule update --init --recursive
+vagrant up
+ansible-playbook \
+  --private-key=.vagrant/machines/default/virtualbox/private_key \
+  -u vagrant -i deployment/dev.hosts deployment/development.yml
+
+# ansible will hang-out on 'update grub and reboot' task;
+# you need to stop ansible (ctrl+c), and do:
 vagrant halt
 vagrant up
-vagrant ssh
-```
+ansible-playbook \
+  --private-key=.vagrant/machines/default/virtualbox/private_key \
+  -u vagrant -i deployment/dev.hosts deployment/development.yml
 
-7. add vagrant user to docker, nginx and apache group
-```bash
-(vagrant)$ sudo adduser vagrant docker
-(vagrant)$ sudo adduser vagrant apache
-(vagrant)$ sudo adduser vagrant nginx
-(vagrant)$ sudo adduser vagrant manager
-(vagrant)$ exit
 vagrant ssh
-```
 
-9. workaround because we are not using "manager" user:
-```bash
+# inside vagrant run:
+sudo adduser vagrant docker
+sudo adduser vagrant apache
+sudo adduser vagrant nginx
+sudo adduser vagrant manager
 sudo chmod -R 777 /var/log/manager/
-```
 
-10. change mysql password (set to 'password' for dev) and remove test data:
-```bash
-mysql_secure_installation
-```
-
-11. create symbolic link to images/ folder
-```bash
-sudo mkdir /home/manager/server-manager/
-sudo ln -s /home/vagrant/files/images /home/manager/server-manager/images
-```
-
-13. install `screen` via `sudo apt-get install screen`, and run each app in different screen; you need to start the following apps:
-```bash
+# services can then be started via:
 ./dev.sh ssh
-./dev.sh cron
+# or
 ./dev.sh proxy
+# or
+./dev.sh cron
 ```
 
 Services
