@@ -47,13 +47,9 @@ ansible-playbook \
   -u vagrant -i deployment/dev.hosts deployment/development.yml
 
 vagrant ssh
-
-# inside vagrant run:
-sudo adduser vagrant docker
-sudo adduser vagrant apache
-sudo adduser vagrant nginx
-sudo adduser vagrant manager
-sudo chmod -R 777 /var/log/manager/
+cd ~/files/
+./dev.sh first-run
+./dev.sh -username=user -password=password create-admin-user
 
 # services can then be started via:
 ./dev.sh ssh

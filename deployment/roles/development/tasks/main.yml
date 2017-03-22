@@ -1,0 +1,14 @@
+- user:
+    name: vagrant
+    groups: docker,apache,nginx,manager
+    append: yes
+
+- file:
+    path: /var/log/manager/
+    owner: vagrant
+    group: vagrant
+    mode: 0777
+    recurse: yes
+
+- apt:
+    name: screen

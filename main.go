@@ -11,6 +11,8 @@ import (
 	"./cron"
 	"./proxy"
 	"./ssh-server"
+	"./proxy/models"
+	"./proxy/shared"
 )
 
 func firstRun() {
@@ -28,6 +30,31 @@ func firstRun() {
 	db.Exec(string(schema))
 }
 
+func createAdminUser() {
+	  username := os.Args[2]
+		password := os.Args[3]
+
+		if username == "" || password == "" {
+			log.Println("Username and password cannot be empty!")
+			os.Exit(1)
+		}
+
+		// create user
+		user := models.User{
+			Username: username,
+			Password: models.GeneratePasswordHash(password),
+			First_name: "Admin",
+			Last_name: "Admin",
+			Email: "admin@example.com",
+			Is_staff: true,
+			Is_active: true,
+			Is_superuser: true,
+		}
+		context := shared.SharedContext{}
+		context.OpenDB("db.sqlite3")
+		context.PersistentDB.Save(&user)
+}
+
 func main() {
 	log.Println(fmt.Sprintf("starting %s ...", os.Args[1]))
 
@@ -40,6 +67,8 @@ func main() {
 		ssh_server.Start()
 	case "first-run":
 		firstRun()
+	case "create-admin-user":
+		createAdminUser()
 	default:
 		log.Println("command not found; exiting")
 		os.Exit(1)

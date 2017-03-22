@@ -14,4 +14,4 @@ if [ $1 = "ssh" ]; then
 fi
 
 #/usr/local/go1.4/go/bin/go build -i
-/usr/local/go1.4/go/bin/go run main.go $1
+/usr/local/go1.4/go/bin/go run main.go $@

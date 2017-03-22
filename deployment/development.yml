@@ -11,3 +11,4 @@
     - { role: apache, tags: ["apache"] }
     - { role: go1.4, tags: ["go1.4"] }
     - { role: manager, tags: ["manager"] }
+    - { role: development, tags: ["development"] }
