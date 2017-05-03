@@ -20,6 +20,6 @@ echo -e "${green}[go] getting libraries ...${NC}"
 go build -o ./bin/server-manager main.go
 
 echo -e "${green}[go] archiving files ...${NC}"
-tar cvfz package.tar.gz bin/ config-example.json static/ proxy/templates/ images/
+tar cvfz package.tar.gz bin/ config-example.json static/ proxy/templates/ images/ schema_v1.sql
 
 echo -e "${green}[all] finished${NC}"
