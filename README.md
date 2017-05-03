@@ -49,7 +49,7 @@ ansible-playbook \
 vagrant ssh
 cd ~/files/
 ./dev.sh first-run
-./dev.sh -username=user -password=password create-admin-user
+./dev.sh create-admin-user user password
 
 # services can then be started via:
 ./dev.sh ssh
