@@ -10,5 +10,5 @@
     - { role: nginx, tags: ["nginx"] }
     - { role: apache, tags: ["apache"] }
     - { role: go1.4, tags: ["go1.4"] }
-    - { role: manager, tags: ["manager"] }
+    - { role: essentials, tags: ["essentials"] }
     - { role: development, tags: ["development"] }

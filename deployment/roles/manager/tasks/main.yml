@@ -1,40 +1,58 @@
 ---
+- name: get latest version
+  uri:
+    url: "https://api.github.com/repos/deanrock/server-manager/releases/latest"
+    return_content: True
+    body_format: json
+  register: json_response
 
-- name: add manager group
-  group: name=manager state=present
+- set_fact:
+    download_url: "{{(json_response.json.assets[0].browser_download_url)}}"
 
-- name: add manager user
-  user: name=manager group=manager
+- name: create server manager folder
+  file: path=/home/manager/sm/ state=directory owner=manager group=manager
 
-- name: add manager user to docker
-  user: name=manager append=true groups=docker
+- name: create config
+  template:
+    src: config.json
+    dest: /home/manager/sm/config.json
 
-- name: add manager user to sudo
-  user: name=manager append=true groups=sudo
+- name: download latest version of server manager ({{download_url}})
+  unarchive:
+    src: "{{ download_url }}"
+    dest: /home/manager/sm/
+    remote_src: True
+  notify:
+    - restart ssh
+    - restart cron
+    - restart proxy
 
-- name: allow manager user to have passwordless sudo
-  lineinfile:
-    dest: /etc/sudoers
-    state: present
-    regexp: '^%manager'
-    line: '%manager ALL=(ALL) NOPASSWD: ALL'
+- name: copy systemd cron config
+  action: template src=systemd_cron.service dest=/etc/systemd/system/manager-cron.service
+  notify:
+    - reload systemd
+    - restart cron
 
-- name: add manager user to nginx
-  user: name=manager append=true groups=nginx
+- name: copy systemd proxy config
+  action: template src=systemd_proxy.service dest=/etc/systemd/system/manager-proxy.service
+  notify:
+    - reload systemd
+    - restart proxy
 
-- name: add manager user to apache
-  user: name=manager append=true groups=apache
+- name: copy systemd ssh config
+  action: template src=systemd_ssh.service dest=/etc/systemd/system/manager-ssh.service
+  notify:
+    - reload systemd
+    - restart ssh
 
-- name: install essential packages
-  action: apt pkg={{item}} state=installed
-  with_items:
-    - ntp
+- name: flush handlers
+  meta: flush_handlers
 
-- name: create log folder
-  file: path=/var/log/manager/ state=directory owner=manager group=manager
+- name: start & enable cron service
+  action: service state=started enabled=yes name=manager-cron
 
-- name: create manager-shell log file
-  file: path=/var/log/manager/manager-shell.log state=touch owner=manager group=manager
+- name: start & enable proxy service
+  action: service state=started enabled=yes name=manager-proxy
 
-- include: jessie.yml
-  when: ansible_distribution == 'Debian' and ansible_distribution_major_version == '8'
+- name: start & enable ssh service
+  action: service state=started enabled=yes name=manager-ssh

@@ -10,16 +10,20 @@
 
 * Install Debian Jessie
 * Install python2.7 (for ansible)
-* Set-up SSH access with user (e.g. john) with sudo privileges
+* Set-up SSH access with user (e.g. john) with passwordless sudo privileges
 * Run ansible deploy.yml playbook
-* set mysql root password via mysql_secure_installation command
-
-## First run
-
-Execute as `manager` user:
+* SSH to the server and run:
 ```bash
+sudo su
+cd /home/manager/sm/
+
+# Create initial database
 ./server-manager first-run
+
+# Create admin user
+./server-manager create-admin-user user password
 ```
+* set mysql root password via mysql_secure_installation command
 
 ## Development
 

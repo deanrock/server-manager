@@ -1,0 +1,9 @@
+{
+    "server_name": "{{ server_name }}",
+    "mysql_root_password": "{{ mysql_root_password }}",
+    "postgres_root_password": " {{ postgres_user_password }}",
+    "ssh": {
+        "port": "{{ ssh_port }}",
+        "key_path": "{{ ssh_key_path }}"
+    }
+}

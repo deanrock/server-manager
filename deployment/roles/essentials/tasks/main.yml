@@ -1,0 +1,37 @@
+---
+
+- name: add manager group
+  group: name=manager state=present
+
+- name: add manager user
+  user: name=manager group=manager
+
+- name: add manager user to docker
+  user: name=manager append=true groups=docker
+
+- name: add manager user to sudo
+  user: name=manager append=true groups=sudo
+
+- name: allow manager user to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%manager'
+    line: '%manager ALL=(ALL) NOPASSWD: ALL'
+
+- name: add manager user to nginx
+  user: name=manager append=true groups=nginx
+
+- name: add manager user to apache
+  user: name=manager append=true groups=apache
+
+- name: install essential packages
+  action: apt pkg={{item}} state=installed
+  with_items:
+    - ntp
+
+- name: create log folder
+  file: path=/var/log/manager/ state=directory owner=manager group=manager
+
+- name: create manager-shell log file
+  file: path=/var/log/manager/manager-shell.log state=touch owner=manager group=manager
