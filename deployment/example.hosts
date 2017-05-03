@@ -1,0 +1,13 @@
+[dev]
+192.168.50.144
+
+[dev:vars]
+ansible_ssh_user=vagrant
+
+server_name=my-server
+
+mysql_root_password=password
+postgres_user_password=password
+
+ssh_port=2222
+ssh_key_path=/etc/ssh/ssh_host_rsa_key
