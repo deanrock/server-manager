@@ -36,16 +36,14 @@ cd /home/manager/sm/
 
 ```bash
 git clone https://github.com/deanrock/server-manager.git
+cd server-manager/
 git submodule update --init --recursive
 vagrant up
 ansible-playbook \
   --private-key=.vagrant/machines/default/virtualbox/private_key \
   -u vagrant -i deployment/dev.hosts deployment/development.yml
 
-# ansible will hang-out on 'update grub and reboot' task;
-# you need to stop ansible (ctrl+c), and do:
-vagrant halt
-vagrant up
+# VM should time-out after installing backported kernel; re-run ansible playbook
 ansible-playbook \
   --private-key=.vagrant/machines/default/virtualbox/private_key \
   -u vagrant -i deployment/dev.hosts deployment/development.yml
